@@ -1,0 +1,75 @@
+import SwiftUI
+
+/// Parsed icon paths on the 24x24 Lucide grid. Parsed once per glyph.
+enum IconPathCache {
+    static let paths: [IconGlyph: Path] = Dictionary(uniqueKeysWithValues: IconGlyph.allCases.map { glyph in
+        var combined = Path()
+        for data in glyph.pathData {
+            if let path = try? SVGPathParser.parse(data) { combined.addPath(path) }
+        }
+        return (glyph, combined)
+    })
+}
+
+/// A glyph scaled from its 24x24 grid into the proposed rect.
+struct IconShape: Shape {
+    var glyph: IconGlyph
+
+    func path(in rect: CGRect) -> Path {
+        let transform = CGAffineTransform(translationX: rect.minX, y: rect.minY)
+            .scaledBy(x: rect.width / 24, y: rect.height / 24)
+        return (IconPathCache.paths[glyph] ?? Path()).applying(transform)
+    }
+}
+
+/// Renders a Lucide glyph at `size` points, stroked at 2pt on the 24pt grid.
+///
+/// `filled` stands in for the RN "Filled" icon variants (active tab, liked heart):
+/// the outline is filled with the same colour and stroked on top.
+struct Icon: View {
+    var glyph: IconGlyph
+    var size: CGFloat
+    var color: Color
+    var filled: Bool
+
+    init(_ glyph: IconGlyph, size: CGFloat, color: Color, filled: Bool = false) {
+        self.glyph = glyph
+        self.size = size
+        self.color = color
+        self.filled = filled
+    }
+
+    var body: some View {
+        let lineWidth = 2 * size / 24
+        ZStack {
+            if filled {
+                IconShape(glyph: glyph).fill(color)
+            }
+            IconShape(glyph: glyph)
+                .stroke(color, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
+        }
+        .frame(width: size, height: size)
+        .accessibilityHidden(true)
+    }
+}
+
+/// Neutral placeholder mark for the header.
+///
+/// The Bluesky butterfly is a trademark (ASSETS.md section 3), so this showcase
+/// draws a plain brand-blue diamond in the same 30x27 slot instead.
+struct ShowcaseMark: View {
+    var width: CGFloat
+    var color: Color = Palette.primary500
+
+    var body: some View {
+        let height = width * 57 / 64
+        let side = height / 2.squareRoot() * 0.92
+        RoundedRectangle(cornerRadius: side * 0.18)
+            .fill(color)
+            .frame(width: side, height: side)
+            .rotationEffect(.degrees(45))
+            .frame(width: width, height: height)
+            .accessibilityElement()
+            .accessibilityLabel("Showcase logo")
+    }
+}

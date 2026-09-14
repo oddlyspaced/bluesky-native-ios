@@ -1,0 +1,47 @@
+appId: xyz.blueskyweb.app.native
+---
+# Read-only capture of the three slice screens: home feed, post thread, profile.
+# Same steps as the RN baseline flow (bsky-parity/flows/capture-baseline.yml),
+# pointed at the native app id. It does not like, repost or follow, so every
+# capture starts from the same seed.
+# Run from this directory: maestro resolves takeScreenshot paths against cwd.
+- runScript:
+    file: setupServer.js
+    env:
+      SERVER_PATH: "?users&follows&posts&feeds&thread"
+- runFlow:
+    file: setupApp.yml
+- tapOn:
+    id: "e2eSignInAlice"
+
+# Home feed
+# Wait for a real feed item, not the loading skeleton.
+- extendedWaitUntil:
+    visible:
+      id: "feedItem-by-alice.test"
+    timeout: 60000
+- waitForAnimationToEnd
+- takeScreenshot: shots/${PLATFORM}-home
+
+# Post thread
+- scrollUntilVisible:
+    element: "Thread root"
+    direction: DOWN
+    timeout: 20000
+- tapOn: "Thread root"
+- extendedWaitUntil:
+    visible: "Thread reply"
+    timeout: 20000
+- waitForAnimationToEnd
+- takeScreenshot: shots/${PLATFORM}-thread
+
+# Profile
+- back
+- tapOn:
+    id: "bottomBarProfileBtn"
+- extendedWaitUntil:
+    visible:
+      id: "profileView"
+    timeout: 20000
+- waitForAnimationToEnd
+- takeScreenshot: shots/${PLATFORM}-profile

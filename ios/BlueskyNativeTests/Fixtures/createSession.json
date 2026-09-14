@@ -1,0 +1,9 @@
+{
+ "accessJwt": "fixture-access-jwt",
+ "refreshJwt": "fixture-refresh-jwt",
+ "did": "did:plc:25ybul6aotu3n2p6nizdj7ad",
+ "handle": "alice.test",
+ "email": "fake1@fake.com",
+ "emailConfirmed": false,
+ "active": true
+}
