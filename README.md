@@ -8,7 +8,8 @@ Not affiliated with, endorsed by, or officially connected to Bluesky Social PBC.
 
 | Path | Contents |
 |---|---|
-| `plan/full-app-plan.md` | The 121-checkpoint plan that `plan-checkpoints` drafted for the whole app |
+| `plan/bluesky-assessment.md`, `plan/bluesky-assessment.json` | The `assess-rn-app` output for the upstream app |
+| `plan/full-app-plan.md` | The 127-checkpoint plan that `plan-checkpoints` drafted for the whole app from that assessment |
 | `plan/slice-plan.md` | The four checkpoints this showcase covers (CP-00 to CP-03) |
 | `ios/` | SwiftUI app. See `ios/README.md` and `ios/PARITY.md` |
 | `android/` | Jetpack Compose app. See `android/README.md` and `android/PARITY.md` |
@@ -17,7 +18,7 @@ Not affiliated with, endorsed by, or officially connected to Bluesky Social PBC.
 
 ## Scope
 
-This port covers part of the app, not all of it. The upstream app has 83 screens, and the full plan lists all of them. This showcase ports the foundation (design tokens, XRPC client, session, tab shell) and three screens. Tabs outside the slice show a labelled placeholder screen in the app.
+This port covers part of the app, not all of it. The assessment finds 78 screens in the upstream app, and the full plan lists all of them. This showcase ports the foundation (design tokens, XRPC client, session, tab shell) and three screens. Tabs outside the slice show a labelled placeholder screen in the app.
 
 ## Run the reference setup
 

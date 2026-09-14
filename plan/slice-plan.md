@@ -1,11 +1,11 @@
 # Checkpoint plan: Bluesky showcase slice
 
-> Drafted with plan-checkpoints 1.0.0. Source: `full-app-plan.md` (121 checkpoints drafted from `bluesky-analysis.json`, assess-rn-app 0.1.0, bluesky-social/social-app at commit 2bfb94d).
+> Drafted with plan-checkpoints 1.0.0. Source: `full-app-plan.md` (127 checkpoints drafted from `bluesky-assessment.json`, bluesky-social/social-app at commit 2bfb94d).
 > This showcase ports a slice of the app, not the full app. The slice takes the foundation and three screens from the full plan and splits the shared post components into their own scope.
 
 ```plan
 app: bsky.app
-assessment: bluesky-analysis.json
+assessment: bluesky-assessment.json
 design: keep-design
 ```
 

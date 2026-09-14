@@ -1,0 +1,4732 @@
+{
+  "tool": {
+    "name": "assess-rn-app",
+    "version": "0.1.0"
+  },
+  "generatedAt": "2026-09-14T19:50:51.514Z",
+  "repo": "bluesky-social/social-app@2bfb94d",
+  "apps": [
+    {
+      "name": "bsky.app",
+      "path": ".",
+      "packageJson": "package.json",
+      "versions": {
+        "reactNative": {
+          "declared": "0.86.0",
+          "installed": "0.86.0",
+          "evidence": [
+            "package.json",
+            "node_modules/react-native/package.json"
+          ]
+        },
+        "expo": {
+          "declared": "57.0.8",
+          "installed": "57.0.8",
+          "evidence": [
+            "package.json",
+            "node_modules/expo/package.json"
+          ],
+          "sdk": 57
+        },
+        "react": {
+          "declared": "19.2.3",
+          "installed": "19.2.3",
+          "evidence": [
+            "package.json",
+            "node_modules/react/package.json"
+          ]
+        },
+        "newArchitecture": {
+          "value": "enabled",
+          "note": "React Native 0.82+ runs the New Architecture only; any false flag is ignored.",
+          "flags": [
+            {
+              "file": "android/gradle.properties",
+              "value": true,
+              "how": "gradle.properties newArchEnabled"
+            }
+          ]
+        },
+        "hermes": {
+          "value": "enabled",
+          "flags": [
+            {
+              "file": "android/gradle.properties",
+              "value": true
+            },
+            {
+              "file": "ios/Podfile.properties.json",
+              "value": true
+            }
+          ]
+        },
+        "typescript": {
+          "value": true,
+          "version": "6.0.2",
+          "tsFiles": 2399,
+          "jsFiles": 51,
+          "evidence": [
+            "tsconfig.json",
+            "package.json",
+            "node_modules/typescript/package.json"
+          ]
+        }
+      },
+      "navigation": {
+        "method": "react-navigation",
+        "navigatorFiles": [
+          "src/Navigation.tsx"
+        ],
+        "screenCount": 78,
+        "screenElements": 88,
+        "screensResolved": 78,
+        "navigators": [
+          {
+            "name": "HomeTab",
+            "component": "HomeTabNavigator",
+            "file": "src/Navigation.tsx"
+          },
+          {
+            "name": "SearchTab",
+            "component": "SearchTabNavigator",
+            "file": "src/Navigation.tsx"
+          },
+          {
+            "name": "MessagesTab",
+            "component": "MessagesTabNavigator",
+            "file": "src/Navigation.tsx"
+          },
+          {
+            "name": "NotificationsTab",
+            "component": "NotificationsTabNavigator",
+            "file": "src/Navigation.tsx"
+          },
+          {
+            "name": "MyProfileTab",
+            "component": "MyProfileTabNavigator",
+            "file": "src/Navigation.tsx"
+          }
+        ],
+        "screens": [
+          {
+            "route": "NotFound",
+            "file": "src/view/screens/NotFound.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "NotFoundScreen",
+            "importSpecifier": "#/view/screens/NotFound",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 59,
+            "complexity": "simple",
+            "nativeImports": [
+              "@react-navigation/native"
+            ]
+          },
+          {
+            "route": "Lists",
+            "file": "src/view/screens/Lists.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "ListsScreen",
+            "importSpecifier": "#/view/screens/Lists",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 77,
+            "complexity": "simple",
+            "nativeImports": [
+              "@react-navigation/native"
+            ]
+          },
+          {
+            "route": "Moderation",
+            "file": "src/screens/Moderation/index.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "ModerationScreen",
+            "importSpecifier": "#/screens/Moderation",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 587,
+            "complexity": "complex",
+            "nativeImports": []
+          },
+          {
+            "route": "ModerationInbox",
+            "file": "src/screens/ModerationInbox/index.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "ModerationInboxScreen",
+            "importSpecifier": "#/screens/ModerationInbox",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 207,
+            "complexity": "medium",
+            "nativeImports": []
+          },
+          {
+            "route": "ModerationInboxSettings",
+            "file": "src/screens/ModerationInbox/Settings.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "ModerationInboxSettingsScreen",
+            "importSpecifier": "#/screens/ModerationInbox/Settings",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 132,
+            "complexity": "medium",
+            "nativeImports": []
+          },
+          {
+            "route": "ModerationInboxReportDetails",
+            "file": "src/screens/ModerationInbox/Report.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "ModerationInboxReportDetailsScreen",
+            "importSpecifier": "#/screens/ModerationInbox/Report",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 89,
+            "complexity": "medium",
+            "nativeImports": []
+          },
+          {
+            "route": "ModerationInboxSubjectDetails",
+            "file": "src/screens/ModerationInbox/Subject.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "ModerationInboxSubjectDetailsScreen",
+            "importSpecifier": "#/screens/ModerationInbox/Subject",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 84,
+            "complexity": "medium",
+            "nativeImports": []
+          },
+          {
+            "route": "ModerationModlists",
+            "file": "src/view/screens/ModerationModlists.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "ModerationModlistsScreen",
+            "importSpecifier": "#/view/screens/ModerationModlists",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 78,
+            "complexity": "simple",
+            "nativeImports": [
+              "@react-navigation/native"
+            ]
+          },
+          {
+            "route": "ModerationMutedAccounts",
+            "file": "src/view/screens/ModerationMutedAccounts.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "ModerationMutedAccounts",
+            "importSpecifier": "#/view/screens/ModerationMutedAccounts",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 190,
+            "complexity": "medium",
+            "nativeImports": [
+              "@react-navigation/native-stack"
+            ]
+          },
+          {
+            "route": "ModerationBlockedAccounts",
+            "file": "src/view/screens/ModerationBlockedAccounts.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "ModerationBlockedAccounts",
+            "importSpecifier": "#/view/screens/ModerationBlockedAccounts",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 178,
+            "complexity": "medium",
+            "nativeImports": [
+              "@react-navigation/native-stack"
+            ]
+          },
+          {
+            "route": "ModerationInteractionSettings",
+            "file": "src/screens/ModerationInteractionSettings/index.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "ModerationInteractionSettings",
+            "importSpecifier": "#/screens/ModerationInteractionSettings",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 120,
+            "complexity": "medium",
+            "nativeImports": []
+          },
+          {
+            "route": "ModerationVerificationSettings",
+            "file": "src/screens/Moderation/VerificationSettings.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "ModerationVerificationSettings",
+            "importSpecifier": "#/screens/Moderation/VerificationSettings",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 98,
+            "complexity": "medium",
+            "nativeImports": []
+          },
+          {
+            "route": "Settings",
+            "file": "src/screens/Settings/Settings.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "SettingsScreen",
+            "importSpecifier": "#/screens/Settings/Settings",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 672,
+            "complexity": "complex",
+            "nativeImports": [
+              "react-native-reanimated",
+              "@react-navigation/native",
+              "@react-navigation/native-stack"
+            ]
+          },
+          {
+            "route": "LanguageSettings",
+            "file": "src/screens/Settings/LanguageSettings.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "LanguageSettingsScreen",
+            "importSpecifier": "#/screens/Settings/LanguageSettings",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 241,
+            "complexity": "medium",
+            "nativeImports": []
+          },
+          {
+            "route": "Profile",
+            "file": "src/view/screens/Profile.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "ProfileScreen",
+            "importSpecifier": "#/view/screens/Profile",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 641,
+            "complexity": "complex",
+            "nativeImports": [
+              "@react-navigation/native",
+              "react-native-safe-area-context"
+            ]
+          },
+          {
+            "route": "ProfileFollowers",
+            "file": "src/screens/Profile/ProfileFollowers.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "ProfileFollowersScreen",
+            "importSpecifier": "#/screens/Profile/ProfileFollowers",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 43,
+            "complexity": "simple",
+            "nativeImports": []
+          },
+          {
+            "route": "ProfileFollows",
+            "file": "src/screens/Profile/ProfileFollows.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "ProfileFollowsScreen",
+            "importSpecifier": "#/screens/Profile/ProfileFollows",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 43,
+            "complexity": "simple",
+            "nativeImports": []
+          },
+          {
+            "route": "ProfileKnownFollowers",
+            "file": "src/screens/Profile/KnownFollowers.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "ProfileKnownFollowersScreen",
+            "importSpecifier": "#/screens/Profile/KnownFollowers",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 126,
+            "complexity": "medium",
+            "nativeImports": []
+          },
+          {
+            "route": "ProfileList",
+            "file": "src/screens/ProfileList/index.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "ProfileListScreen",
+            "importSpecifier": "#/screens/ProfileList",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 275,
+            "complexity": "complex",
+            "nativeImports": [
+              "react-native-reanimated",
+              "@react-navigation/native"
+            ]
+          },
+          {
+            "route": "ProfileSearch",
+            "file": "src/screens/Profile/ProfileSearch.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "ProfileSearchScreen",
+            "importSpecifier": "#/screens/Profile/ProfileSearch",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 40,
+            "complexity": "simple",
+            "nativeImports": []
+          },
+          {
+            "route": "PostThread",
+            "file": "src/view/screens/PostThread.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "PostThreadScreen",
+            "importSpecifier": "#/view/screens/PostThread",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 17,
+            "complexity": "simple",
+            "nativeImports": []
+          },
+          {
+            "route": "PostLikedBy",
+            "file": "src/screens/Post/PostLikedBy.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "PostLikedByScreen",
+            "importSpecifier": "#/screens/Post/PostLikedBy",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 40,
+            "complexity": "simple",
+            "nativeImports": []
+          },
+          {
+            "route": "PostRepostedBy",
+            "file": "src/screens/Post/PostRepostedBy.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "PostRepostedByScreen",
+            "importSpecifier": "#/screens/Post/PostRepostedBy",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 44,
+            "complexity": "simple",
+            "nativeImports": []
+          },
+          {
+            "route": "PostQuotes",
+            "file": "src/screens/Post/PostQuotes.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "PostQuotesScreen",
+            "importSpecifier": "#/screens/Post/PostQuotes",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 44,
+            "complexity": "simple",
+            "nativeImports": []
+          },
+          {
+            "route": "CustomFeed",
+            "file": "src/screens/CustomFeed/index.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "CustomFeedScreen",
+            "importSpecifier": "#/screens/CustomFeed",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 205,
+            "complexity": "medium",
+            "nativeImports": [
+              "react-native-reanimated",
+              "@react-navigation/native",
+              "@react-navigation/native-stack"
+            ]
+          },
+          {
+            "route": "CustomFeedLikedBy",
+            "file": "src/screens/CustomFeed/CustomFeedLikedBy.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "CustomFeedLikedByScreen",
+            "importSpecifier": "#/screens/CustomFeed/CustomFeedLikedBy",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 27,
+            "complexity": "simple",
+            "nativeImports": []
+          },
+          {
+            "route": "ProfileLabelerLikedBy",
+            "file": "src/screens/Profile/ProfileLabelerLikedBy.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "ProfileLabelerLikedByScreen",
+            "importSpecifier": "#/screens/Profile/ProfileLabelerLikedBy",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 23,
+            "complexity": "simple",
+            "nativeImports": []
+          },
+          {
+            "route": "Debug",
+            "file": "src/view/screens/Storybook/index.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "StorybookScreen",
+            "importSpecifier": "#/view/screens/Storybook",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 21,
+            "complexity": "simple",
+            "nativeImports": []
+          },
+          {
+            "route": "DebugMod",
+            "file": "src/view/screens/DebugMod.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "DebugModScreen",
+            "importSpecifier": "#/view/screens/DebugMod",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 1146,
+            "complexity": "complex",
+            "nativeImports": [
+              "react-native-reanimated"
+            ]
+          },
+          {
+            "route": "InviteScanner",
+            "file": "src/features/inviteFriends/InviteScannerScreen.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "InviteScannerScreen",
+            "importSpecifier": "#/features/inviteFriends",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [
+              "src/features/inviteFriends/index.ts"
+            ],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 246,
+            "complexity": "medium",
+            "nativeImports": [
+              "expo-camera",
+              "@react-navigation/native",
+              "react-native-safe-area-context",
+              "react-native-svg"
+            ]
+          },
+          {
+            "route": "SharedPreferencesTester",
+            "file": "src/screens/E2E/SharedPreferencesTesterScreen.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "SharedPreferencesTesterScreen",
+            "importSpecifier": "#/screens/E2E/SharedPreferencesTesterScreen",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 113,
+            "complexity": "medium",
+            "nativeImports": []
+          },
+          {
+            "route": "Log",
+            "file": "src/screens/Log.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "LogScreen",
+            "importSpecifier": "#/screens/Log",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 124,
+            "complexity": "medium",
+            "nativeImports": []
+          },
+          {
+            "route": "Support",
+            "file": "src/view/screens/Support.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "SupportScreen",
+            "importSpecifier": "#/view/screens/Support",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 41,
+            "complexity": "simple",
+            "nativeImports": []
+          },
+          {
+            "route": "PrivacyPolicy",
+            "file": "src/view/screens/PrivacyPolicy.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "PrivacyPolicyScreen",
+            "importSpecifier": "#/view/screens/PrivacyPolicy",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 40,
+            "complexity": "simple",
+            "nativeImports": []
+          },
+          {
+            "route": "TermsOfService",
+            "file": "src/view/screens/TermsOfService.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "TermsOfServiceScreen",
+            "importSpecifier": "#/view/screens/TermsOfService",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 38,
+            "complexity": "simple",
+            "nativeImports": []
+          },
+          {
+            "route": "CommunityGuidelines",
+            "file": "src/view/screens/CommunityGuidelines.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "CommunityGuidelinesScreen",
+            "importSpecifier": "#/view/screens/CommunityGuidelines",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 43,
+            "complexity": "simple",
+            "nativeImports": []
+          },
+          {
+            "route": "CopyrightPolicy",
+            "file": "src/view/screens/CopyrightPolicy.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "CopyrightPolicyScreen",
+            "importSpecifier": "#/view/screens/CopyrightPolicy",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 40,
+            "complexity": "simple",
+            "nativeImports": []
+          },
+          {
+            "route": "AppPasswords",
+            "file": "src/screens/Settings/AppPasswords.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "AppPasswordsScreen",
+            "importSpecifier": "#/screens/Settings/AppPasswords",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 210,
+            "complexity": "medium",
+            "nativeImports": [
+              "react-native-reanimated",
+              "@react-navigation/native-stack"
+            ]
+          },
+          {
+            "route": "SavedFeeds",
+            "file": "src/screens/SavedFeeds.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "SavedFeeds",
+            "importSpecifier": "#/screens/SavedFeeds",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 588,
+            "complexity": "complex",
+            "nativeImports": [
+              "react-native-reanimated",
+              "@react-navigation/native",
+              "@react-navigation/native-stack"
+            ]
+          },
+          {
+            "route": "PreferencesFollowingFeed",
+            "file": "src/screens/Settings/FollowingFeedPreferences.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "FollowingFeedPreferencesScreen",
+            "importSpecifier": "#/screens/Settings/FollowingFeedPreferences",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 146,
+            "complexity": "medium",
+            "nativeImports": []
+          },
+          {
+            "route": "PreferencesThreads",
+            "file": "src/screens/Settings/ThreadPreferences.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "ThreadPreferencesScreen",
+            "importSpecifier": "#/screens/Settings/ThreadPreferences",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 104,
+            "complexity": "medium",
+            "nativeImports": []
+          },
+          {
+            "route": "PreferencesExternalEmbeds",
+            "file": "src/screens/Settings/ExternalMediaPreferences.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "ExternalMediaPreferencesScreen",
+            "importSpecifier": "#/screens/Settings/ExternalMediaPreferences",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 107,
+            "complexity": "medium",
+            "nativeImports": []
+          },
+          {
+            "route": "AccessibilitySettings",
+            "file": "src/screens/Settings/AccessibilitySettings.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "AccessibilitySettingsScreen",
+            "importSpecifier": "#/screens/Settings/AccessibilitySettings",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 102,
+            "complexity": "medium",
+            "nativeImports": [
+              "@react-navigation/native-stack"
+            ]
+          },
+          {
+            "route": "AppearanceSettings",
+            "file": "src/screens/Settings/AppearanceSettings.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "AppearanceSettingsScreen",
+            "importSpecifier": "#/screens/Settings/AppearanceSettings",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 220,
+            "complexity": "medium",
+            "nativeImports": [
+              "react-native-reanimated"
+            ]
+          },
+          {
+            "route": "AccountSettings",
+            "file": "src/screens/Settings/AccountSettings.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "AccountSettingsScreen",
+            "importSpecifier": "#/screens/Settings/AccountSettings",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 206,
+            "complexity": "medium",
+            "nativeImports": [
+              "@react-navigation/native-stack"
+            ]
+          },
+          {
+            "route": "BetaFeaturesSettings",
+            "file": "src/screens/Settings/BetaFeaturesSettings.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "BetaFeaturesSettingsScreen",
+            "importSpecifier": "#/screens/Settings/BetaFeaturesSettings",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 227,
+            "complexity": "medium",
+            "nativeImports": [
+              "@react-navigation/native-stack"
+            ]
+          },
+          {
+            "route": "AutomationLabelSettings",
+            "file": "src/screens/Settings/AutomationLabelSettings.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "AutomationLabelSettingsScreen",
+            "importSpecifier": "#/screens/Settings/AutomationLabelSettings",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 198,
+            "complexity": "medium",
+            "nativeImports": [
+              "@react-navigation/native-stack"
+            ]
+          },
+          {
+            "route": "PrivacyAndSecuritySettings",
+            "file": "src/screens/Settings/PrivacyAndSecuritySettings.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "PrivacyAndSecuritySettingsScreen",
+            "importSpecifier": "#/screens/Settings/PrivacyAndSecuritySettings",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 163,
+            "complexity": "medium",
+            "nativeImports": [
+              "@react-navigation/native-stack"
+            ]
+          },
+          {
+            "route": "ActivityPrivacySettings",
+            "file": "src/screens/Settings/ActivityPrivacySettings.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "ActivityPrivacySettingsScreen",
+            "importSpecifier": "#/screens/Settings/ActivityPrivacySettings",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 135,
+            "complexity": "medium",
+            "nativeImports": []
+          },
+          {
+            "route": "FindContactsSettings",
+            "file": "src/screens/Settings/FindContactsSettings.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "FindContactsSettingsScreen",
+            "importSpecifier": "#/screens/Settings/FindContactsSettings",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 564,
+            "complexity": "complex",
+            "nativeImports": [
+              "expo-contacts",
+              "@react-navigation/native"
+            ]
+          },
+          {
+            "route": "NotificationSettings",
+            "file": "src/screens/Settings/NotificationSettings/index.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "NotificationSettingsScreen",
+            "importSpecifier": "#/screens/Settings/NotificationSettings",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 390,
+            "complexity": "complex",
+            "nativeImports": [
+              "expo-notifications"
+            ]
+          },
+          {
+            "route": "ActivityNotificationSettings",
+            "file": "src/screens/Settings/NotificationSettings/ActivityNotificationSettings.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "ActivityNotificationSettingsScreen",
+            "importSpecifier": "#/screens/Settings/NotificationSettings/ActivityNotificationSettings",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 251,
+            "complexity": "complex",
+            "nativeImports": []
+          },
+          {
+            "route": "ContentAndMediaSettings",
+            "file": "src/screens/Settings/ContentAndMediaSettings.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "ContentAndMediaSettingsScreen",
+            "importSpecifier": "#/screens/Settings/ContentAndMediaSettings",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 177,
+            "complexity": "medium",
+            "nativeImports": [
+              "@react-navigation/native-stack"
+            ]
+          },
+          {
+            "route": "InterestsSettings",
+            "file": "src/screens/Settings/InterestsSettings.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "InterestsSettingsScreen",
+            "importSpecifier": "#/screens/Settings/InterestsSettings",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 232,
+            "complexity": "medium",
+            "nativeImports": [
+              "@react-navigation/native-stack"
+            ]
+          },
+          {
+            "route": "AboutSettings",
+            "file": "src/screens/Settings/AboutSettings.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "AboutSettingsScreen",
+            "importSpecifier": "#/screens/Settings/AboutSettings",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 203,
+            "complexity": "medium",
+            "nativeImports": [
+              "@react-navigation/native-stack",
+              "expo-clipboard",
+              "expo-file-system",
+              "expo-image"
+            ]
+          },
+          {
+            "route": "AppIconSettings",
+            "file": "src/screens/Settings/AppIconSettings/index.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "AppIconSettingsScreen",
+            "importSpecifier": "#/screens/Settings/AppIconSettings",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 234,
+            "complexity": "medium",
+            "nativeImports": [
+              "@bsky.app/expo-dynamic-app-icon",
+              "@react-navigation/native-stack"
+            ]
+          },
+          {
+            "route": "Hashtag",
+            "file": "src/screens/Hashtag.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "HashtagScreen",
+            "importSpecifier": "#/screens/Hashtag",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 262,
+            "complexity": "complex",
+            "nativeImports": [
+              "@react-navigation/native-stack"
+            ]
+          },
+          {
+            "route": "Topic",
+            "file": "src/screens/Topic.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "TopicScreen",
+            "importSpecifier": "#/screens/Topic",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 178,
+            "complexity": "medium",
+            "nativeImports": [
+              "@react-navigation/native-stack"
+            ]
+          },
+          {
+            "route": "MessagesConversation",
+            "file": "src/screens/Messages/Conversation.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "MessagesConversationScreen",
+            "importSpecifier": "#/screens/Messages/Conversation",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 279,
+            "complexity": "complex",
+            "nativeImports": [
+              "@bsky.app/expo-scroll-edge-effect",
+              "@react-navigation/native",
+              "@react-navigation/native-stack",
+              "react-native-safe-area-context"
+            ]
+          },
+          {
+            "route": "MessagesConversationSettings",
+            "file": "src/screens/Messages/ConversationSettings/index.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "MessagesConversationSettingsScreen",
+            "importSpecifier": "#/screens/Messages/ConversationSettings",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 647,
+            "complexity": "complex",
+            "nativeImports": [
+              "@react-navigation/native"
+            ]
+          },
+          {
+            "route": "MessagesJoinRequests",
+            "file": "src/screens/Messages/JoinRequests.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "MessagesJoinRequestsScreen",
+            "importSpecifier": "#/screens/Messages/JoinRequests",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 460,
+            "complexity": "complex",
+            "nativeImports": [
+              "@react-navigation/native"
+            ]
+          },
+          {
+            "route": "MessagesSettings",
+            "file": "src/screens/Messages/Settings.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "MessagesSettingsScreen",
+            "importSpecifier": "#/screens/Messages/Settings",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 364,
+            "complexity": "complex",
+            "nativeImports": [
+              "@react-navigation/native-stack"
+            ]
+          },
+          {
+            "route": "MessagesInbox",
+            "file": "src/screens/Messages/Inbox.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "MessagesInboxScreen",
+            "importSpecifier": "#/screens/Messages/Inbox",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 299,
+            "complexity": "complex",
+            "nativeImports": [
+              "@react-navigation/native"
+            ]
+          },
+          {
+            "route": "NotificationsActivityList",
+            "file": "src/screens/Notifications/ActivityList.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "NotificationsActivityListScreen",
+            "importSpecifier": "#/screens/Notifications/ActivityList",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 47,
+            "complexity": "simple",
+            "nativeImports": [
+              "@react-navigation/native-stack"
+            ]
+          },
+          {
+            "route": "LegacyNotificationSettings",
+            "file": "src/screens/Settings/LegacyNotificationSettings.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "LegacyNotificationSettingsScreen",
+            "importSpecifier": "#/screens/Settings/LegacyNotificationSettings",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 18,
+            "complexity": "simple",
+            "nativeImports": [
+              "@react-navigation/native"
+            ]
+          },
+          {
+            "route": "Feeds",
+            "file": "src/view/screens/Feeds.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "FeedsScreen",
+            "importSpecifier": "#/view/screens/Feeds",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 741,
+            "complexity": "complex",
+            "nativeImports": []
+          },
+          {
+            "route": "StarterPack",
+            "file": "src/screens/StarterPack/StarterPackScreen.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "StarterPackScreen",
+            "importSpecifier": "#/screens/StarterPack/StarterPackScreen",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 844,
+            "complexity": "complex",
+            "nativeImports": [
+              "@react-navigation/native",
+              "@react-navigation/native-stack",
+              "expo-image"
+            ]
+          },
+          {
+            "route": "StarterPackShort",
+            "file": "src/screens/StarterPack/StarterPackScreen.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "StarterPackScreenShort",
+            "importSpecifier": "#/screens/StarterPack/StarterPackScreen",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 844,
+            "complexity": "complex",
+            "nativeImports": [
+              "@react-navigation/native",
+              "@react-navigation/native-stack",
+              "expo-image"
+            ]
+          },
+          {
+            "route": "StarterPackWizard",
+            "file": "src/screens/StarterPack/Wizard/index.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "Wizard",
+            "importSpecifier": "#/screens/StarterPack/Wizard",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 600,
+            "complexity": "complex",
+            "nativeImports": [
+              "react-native-keyboard-controller",
+              "@react-navigation/native",
+              "@react-navigation/native-stack",
+              "expo-image",
+              "react-native-safe-area-context"
+            ]
+          },
+          {
+            "route": "StarterPackEdit",
+            "file": "src/screens/StarterPack/Wizard/index.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "Wizard",
+            "importSpecifier": "#/screens/StarterPack/Wizard",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 600,
+            "complexity": "complex",
+            "nativeImports": [
+              "react-native-keyboard-controller",
+              "@react-navigation/native",
+              "@react-navigation/native-stack",
+              "expo-image",
+              "react-native-safe-area-context"
+            ]
+          },
+          {
+            "route": "VideoFeed",
+            "file": "src/screens/VideoFeed/index.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "VideoFeed",
+            "importSpecifier": "#/screens/VideoFeed",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 1243,
+            "complexity": "complex",
+            "nativeImports": [
+              "expo-video",
+              "react-native-gesture-handler",
+              "react-native-reanimated",
+              "@react-navigation/native",
+              "@react-navigation/native-stack",
+              "expo-image",
+              "expo-linear-gradient",
+              "react-native-safe-area-context"
+            ]
+          },
+          {
+            "route": "Bookmarks",
+            "file": "src/screens/Bookmarks.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "BookmarksScreen",
+            "importSpecifier": "#/screens/Bookmarks",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 304,
+            "complexity": "complex",
+            "nativeImports": [
+              "@react-navigation/native"
+            ]
+          },
+          {
+            "route": "FindContactsFlow",
+            "file": "src/screens/FindContactsFlowScreen.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "FindContactsFlowScreen",
+            "importSpecifier": "#/screens/FindContactsFlowScreen",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 61,
+            "complexity": "simple",
+            "nativeImports": [
+              "react-native-reanimated",
+              "@react-navigation/native"
+            ]
+          },
+          {
+            "route": "Home",
+            "file": "src/view/screens/Home.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "HomeScreen",
+            "importSpecifier": "#/view/screens/Home",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 349,
+            "complexity": "complex",
+            "nativeImports": [
+              "react-native-reanimated",
+              "@react-navigation/native"
+            ]
+          },
+          {
+            "route": "Start",
+            "file": "src/view/screens/Home.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "HomeScreen",
+            "importSpecifier": "#/view/screens/Home",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 349,
+            "complexity": "complex",
+            "nativeImports": [
+              "react-native-reanimated",
+              "@react-navigation/native"
+            ]
+          },
+          {
+            "route": "Search",
+            "file": "src/screens/Search/index.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "SearchScreen",
+            "importSpecifier": "#/screens/Search",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 17,
+            "complexity": "simple",
+            "nativeImports": []
+          },
+          {
+            "route": "Notifications",
+            "file": "src/view/screens/Notifications.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "NotificationsScreen",
+            "importSpecifier": "#/view/screens/Notifications",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 290,
+            "complexity": "complex",
+            "nativeImports": [
+              "@react-navigation/native"
+            ]
+          },
+          {
+            "route": "Messages",
+            "file": "src/screens/Messages/ChatList.tsx",
+            "routeFile": "src/Navigation.tsx",
+            "resolved": true,
+            "component": "MessagesScreen",
+            "importSpecifier": "#/screens/Messages/ChatList",
+            "resolvedVia": "tsconfig.json paths \"#/*\"",
+            "reexportedVia": [],
+            "platformVariants": [],
+            "group": "Navigation",
+            "dynamic": false,
+            "lines": 644,
+            "complexity": "complex",
+            "nativeImports": [
+              "@react-navigation/native",
+              "@react-navigation/native-stack"
+            ]
+          }
+        ],
+        "confidence": "medium",
+        "confidenceNote": "Counted unique name= values on <X.Screen> elements (and static `screens: {}` entries) in files importing @react-navigation. Screens whose component looks like a navigator are reported as nested navigators, not screens. Each component (component=, getComponent=, require().default, React.lazy(import()), static `screen:`) was traced through its import (relative paths, tsconfig/jsconfig paths and baseUrl, package.json imports, index files, platform variants, explicit re-exports): 78 of 78 resolved; unresolved screens keep the route file and resolved: false. Lines are non-blank lines of the component file only. Conditional stacks, dynamic names and screens registered through helpers are missed or double-counted — read the navigators."
+      },
+      "dependencies": {
+        "native": [
+          {
+            "name": "expo-notifications",
+            "version": "57.0.7",
+            "installedVersion": "57.0.7",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-notifications",
+            "category": "notifications",
+            "ios": "UNUserNotificationCenter + APNs (registerForRemoteNotifications)",
+            "android": "FCM FirebaseMessagingService + NotificationCompat (POST_NOTIFICATIONS on Android 13+)",
+            "difficulty": "high",
+            "note": "Expo push tokens become raw APNs/FCM tokens: the backend send path changes too. Test cold-start tap routing.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-notifications/package.json"
+            ]
+          },
+          {
+            "name": "expo-updates",
+            "version": "57.0.10",
+            "installedVersion": "57.0.10",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-updates",
+            "category": "other",
+            "ios": "No native equivalent for code; replace with remote config, feature flags, phased releases",
+            "android": "No native equivalent for code; replace with remote config, feature flags, staged rollouts, Play In-App Updates",
+            "difficulty": "high",
+            "note": "Hot-fix-by-OTA disappears; the release process, not code, is what gets replaced.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-updates/package.json"
+            ]
+          },
+          {
+            "name": "@bitdrift/react-native",
+            "version": "^0.6.8",
+            "installedVersion": "0.6.14",
+            "via": null,
+            "source": "node_modules",
+            "key": null,
+            "category": "other",
+            "ios": "unknown — inspect",
+            "android": "unknown — inspect",
+            "difficulty": "unknown",
+            "note": "Unmapped package with native code (ios/, android/, *.podspec). Inspect what it does.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "*.podspec"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/@bitdrift/react-native/package.json"
+            ]
+          },
+          {
+            "name": "@bsky.app/expo-dynamic-app-icon",
+            "version": "^1.8.5",
+            "installedVersion": "1.8.5",
+            "via": null,
+            "source": "node_modules",
+            "key": null,
+            "category": "other",
+            "ios": "unknown — inspect",
+            "android": "unknown — inspect",
+            "difficulty": "unknown",
+            "note": "Unmapped package with native code (ios/, android/, expo-module.config.json). Inspect what it does.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/@bsky.app/expo-dynamic-app-icon/package.json"
+            ]
+          },
+          {
+            "name": "@bsky.app/expo-guess-language",
+            "version": "^0.2.8",
+            "installedVersion": "0.2.8",
+            "via": null,
+            "source": "node_modules",
+            "key": null,
+            "category": "other",
+            "ios": "unknown — inspect",
+            "android": "unknown — inspect",
+            "difficulty": "unknown",
+            "note": "Unmapped package with native code (ios/, android/, expo-module.config.json). Inspect what it does.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/@bsky.app/expo-guess-language/package.json"
+            ]
+          },
+          {
+            "name": "@bsky.app/expo-image-crop-tool",
+            "version": "^0.5.1",
+            "installedVersion": "0.5.1",
+            "via": null,
+            "source": "node_modules",
+            "key": null,
+            "category": "other",
+            "ios": "unknown — inspect",
+            "android": "unknown — inspect",
+            "difficulty": "unknown",
+            "note": "Unmapped package with native code (ios/, android/, expo-module.config.json). Inspect what it does.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/@bsky.app/expo-image-crop-tool/package.json"
+            ]
+          },
+          {
+            "name": "@bsky.app/expo-scroll-edge-effect",
+            "version": "^0.1.9",
+            "installedVersion": "0.1.9",
+            "via": null,
+            "source": "node_modules",
+            "key": null,
+            "category": "other",
+            "ios": "unknown — inspect",
+            "android": "unknown — inspect",
+            "difficulty": "unknown",
+            "note": "Unmapped package with native code (ios/, expo-module.config.json). Inspect what it does.",
+            "nativeMarkers": [
+              "ios/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/@bsky.app/expo-scroll-edge-effect/package.json"
+            ]
+          },
+          {
+            "name": "@bsky.app/expo-translate-text",
+            "version": "^0.2.9",
+            "installedVersion": "0.2.9",
+            "via": null,
+            "source": "node_modules",
+            "key": null,
+            "category": "other",
+            "ios": "unknown — inspect",
+            "android": "unknown — inspect",
+            "difficulty": "unknown",
+            "note": "Unmapped package with native code (ios/, android/, expo-module.config.json). Inspect what it does.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/@bsky.app/expo-translate-text/package.json"
+            ]
+          },
+          {
+            "name": "@bsky.app/peek-menu",
+            "version": "^0.3.2",
+            "installedVersion": "0.3.2",
+            "via": null,
+            "source": "node_modules",
+            "key": null,
+            "category": "other",
+            "ios": "unknown — inspect",
+            "android": "unknown — inspect",
+            "difficulty": "unknown",
+            "note": "Unmapped package with native code (ios/, expo-module.config.json). Inspect what it does.",
+            "nativeMarkers": [
+              "ios/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/@bsky.app/peek-menu/package.json"
+            ]
+          },
+          {
+            "name": "@bsky.app/react-native-uitextview",
+            "version": "^2.7.1",
+            "installedVersion": "2.7.1",
+            "via": null,
+            "source": "node_modules",
+            "key": null,
+            "category": "other",
+            "ios": "unknown — inspect",
+            "android": "unknown — inspect",
+            "difficulty": "unknown",
+            "note": "Unmapped package with native code (ios/, android/, *.podspec). Inspect what it does.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "*.podspec"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/@bsky.app/react-native-uitextview/package.json"
+            ]
+          },
+          {
+            "name": "@bsky.app/sift",
+            "version": "^0.3.9",
+            "installedVersion": "0.3.9",
+            "via": null,
+            "source": "node_modules",
+            "key": null,
+            "category": "other",
+            "ios": "unknown — inspect",
+            "android": "unknown — inspect",
+            "difficulty": "unknown",
+            "note": "Unmapped package with native code (expo-module.config.json). Inspect what it does.",
+            "nativeMarkers": [
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/@bsky.app/sift/package.json"
+            ]
+          },
+          {
+            "name": "@bsky.app/tapper",
+            "version": "^0.6.1",
+            "installedVersion": "0.6.1",
+            "via": null,
+            "source": "node_modules",
+            "key": null,
+            "category": "other",
+            "ios": "unknown — inspect",
+            "android": "unknown — inspect",
+            "difficulty": "unknown",
+            "note": "Unmapped package with native code (expo-module.config.json). Inspect what it does.",
+            "nativeMarkers": [
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/@bsky.app/tapper/package.json"
+            ]
+          },
+          {
+            "name": "@bsky.app/video",
+            "version": "0.3.6",
+            "installedVersion": "0.3.6",
+            "via": null,
+            "source": "node_modules",
+            "key": null,
+            "category": "other",
+            "ios": "unknown — inspect",
+            "android": "unknown — inspect",
+            "difficulty": "unknown",
+            "note": "Unmapped package with native code (ios/, android/, expo-module.config.json). Inspect what it does.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/@bsky.app/video/package.json"
+            ]
+          },
+          {
+            "name": "@bsky.app/video-compressor",
+            "version": "0.2.0",
+            "installedVersion": "0.2.0",
+            "via": null,
+            "source": "node_modules",
+            "key": null,
+            "category": "other",
+            "ios": "unknown — inspect",
+            "android": "unknown — inspect",
+            "difficulty": "unknown",
+            "note": "Unmapped package with native code (ios/, android/, expo-module.config.json). Inspect what it does.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/@bsky.app/video-compressor/package.json"
+            ]
+          },
+          {
+            "name": "expo-age-range",
+            "version": "57.0.2",
+            "installedVersion": "57.0.2",
+            "via": null,
+            "source": "node_modules",
+            "key": null,
+            "category": "other",
+            "ios": "unknown — inspect",
+            "android": "unknown — inspect",
+            "difficulty": "unknown",
+            "note": "Unmapped package with native code (ios/, android/, expo-module.config.json). Inspect what it does.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-age-range/package.json"
+            ]
+          },
+          {
+            "name": "expo-asset",
+            "version": "~57.0.7",
+            "installedVersion": "57.0.12",
+            "via": null,
+            "source": "node_modules",
+            "key": null,
+            "category": "other",
+            "ios": "unknown — inspect",
+            "android": "unknown — inspect",
+            "difficulty": "unknown",
+            "note": "Unmapped package with native code (ios/, android/, expo-module.config.json). Inspect what it does.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-asset/package.json"
+            ]
+          },
+          {
+            "name": "expo-glass-effect",
+            "version": "57.0.1",
+            "installedVersion": "57.0.1",
+            "via": null,
+            "source": "node_modules",
+            "key": null,
+            "category": "other",
+            "ios": "unknown — inspect",
+            "android": "unknown — inspect",
+            "difficulty": "unknown",
+            "note": "Unmapped package with native code (ios/, expo-module.config.json). Inspect what it does.",
+            "nativeMarkers": [
+              "ios/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-glass-effect/package.json"
+            ]
+          },
+          {
+            "name": "expo-intent-launcher",
+            "version": "~57.0.1",
+            "installedVersion": "57.0.1",
+            "via": null,
+            "source": "node_modules",
+            "key": null,
+            "category": "other",
+            "ios": "unknown — inspect",
+            "android": "unknown — inspect",
+            "difficulty": "unknown",
+            "note": "Unmapped package with native code (android/, expo-module.config.json). Inspect what it does.",
+            "nativeMarkers": [
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-intent-launcher/package.json"
+            ]
+          },
+          {
+            "name": "expo-paste-input",
+            "version": "^0.2.1",
+            "installedVersion": "0.2.1",
+            "via": null,
+            "source": "node_modules",
+            "key": null,
+            "category": "other",
+            "ios": "unknown — inspect",
+            "android": "unknown — inspect",
+            "difficulty": "unknown",
+            "note": "Unmapped package with native code (ios/, android/, expo-module.config.json). Inspect what it does.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-paste-input/package.json"
+            ]
+          },
+          {
+            "name": "expo-privacy-sensitive",
+            "version": "^0.2.0",
+            "installedVersion": "0.2.0",
+            "via": null,
+            "source": "node_modules",
+            "key": null,
+            "category": "other",
+            "ios": "unknown — inspect",
+            "android": "unknown — inspect",
+            "difficulty": "unknown",
+            "note": "Unmapped package with native code (ios/, expo-module.config.json). Inspect what it does.",
+            "nativeMarkers": [
+              "ios/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-privacy-sensitive/package.json"
+            ]
+          },
+          {
+            "name": "expo-screen-orientation",
+            "version": "~57.0.1",
+            "installedVersion": "57.0.1",
+            "via": null,
+            "source": "node_modules",
+            "key": null,
+            "category": "other",
+            "ios": "unknown — inspect",
+            "android": "unknown — inspect",
+            "difficulty": "unknown",
+            "note": "Unmapped package with native code (ios/, android/, expo-module.config.json). Inspect what it does.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-screen-orientation/package.json"
+            ]
+          },
+          {
+            "name": "expo-sms",
+            "version": "^57.0.1",
+            "installedVersion": "57.0.1",
+            "via": null,
+            "source": "node_modules",
+            "key": null,
+            "category": "other",
+            "ios": "unknown — inspect",
+            "android": "unknown — inspect",
+            "difficulty": "unknown",
+            "note": "Unmapped package with native code (ios/, android/, expo-module.config.json). Inspect what it does.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-sms/package.json"
+            ]
+          },
+          {
+            "name": "expo-video-thumbnails",
+            "version": "^57.0.1",
+            "installedVersion": "57.0.1",
+            "via": null,
+            "source": "node_modules",
+            "key": null,
+            "category": "other",
+            "ios": "unknown — inspect",
+            "android": "unknown — inspect",
+            "difficulty": "unknown",
+            "note": "Unmapped package with native code (ios/, android/, expo-module.config.json). Inspect what it does.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-video-thumbnails/package.json"
+            ]
+          },
+          {
+            "name": "react-native-date-picker",
+            "version": "^5.0.13",
+            "installedVersion": "5.0.13",
+            "via": null,
+            "source": "node_modules",
+            "key": null,
+            "category": "other",
+            "ios": "unknown — inspect",
+            "android": "unknown — inspect",
+            "difficulty": "unknown",
+            "note": "Unmapped package with native code (ios/, android/, *.podspec). Inspect what it does.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "*.podspec"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/react-native-date-picker/package.json"
+            ]
+          },
+          {
+            "name": "react-native-device-attest",
+            "version": "^0.1.6",
+            "installedVersion": "0.1.6",
+            "via": null,
+            "source": "node_modules",
+            "key": null,
+            "category": "other",
+            "ios": "unknown — inspect",
+            "android": "unknown — inspect",
+            "difficulty": "unknown",
+            "note": "Unmapped package with native code (ios/, android/, expo-module.config.json). Inspect what it does.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/react-native-device-attest/package.json"
+            ]
+          },
+          {
+            "name": "react-native-view-shot",
+            "version": "^5.1.0",
+            "installedVersion": "5.1.1",
+            "via": null,
+            "source": "node_modules",
+            "key": null,
+            "category": "other",
+            "ios": "unknown — inspect",
+            "android": "unknown — inspect",
+            "difficulty": "unknown",
+            "note": "Unmapped package with native code (ios/, android/, *.podspec). Inspect what it does.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "*.podspec"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/react-native-view-shot/package.json"
+            ]
+          },
+          {
+            "name": "@react-native-async-storage/async-storage",
+            "version": "2.2.0",
+            "installedVersion": "2.2.0",
+            "via": null,
+            "source": "module-map",
+            "key": "@react-native-async-storage/async-storage",
+            "category": "storage",
+            "ios": "UserDefaults / file in Application Support",
+            "android": "DataStore Preferences",
+            "difficulty": "medium",
+            "note": "Existing AsyncStorage data (manifest file on iOS, SQLite on Android) must be migrated on first launch.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "*.podspec"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/@react-native-async-storage/async-storage/package.json"
+            ]
+          },
+          {
+            "name": "expo-camera",
+            "version": "~57.0.3",
+            "installedVersion": "57.0.3",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-camera",
+            "category": "camera",
+            "ios": "AVFoundation AVCaptureSession (+ VisionKit DataScannerViewController for codes)",
+            "android": "CameraX (+ ML Kit Barcode Scanning)",
+            "difficulty": "medium",
+            "note": "Preview, capture and code scanning are separate native wiring on each platform.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-camera/package.json"
+            ]
+          },
+          {
+            "name": "expo-contacts",
+            "version": "^57.0.2",
+            "installedVersion": "57.0.4",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-contacts",
+            "category": "other",
+            "ios": "Contacts CNContactStore / ContactAccessButton (limited access)",
+            "android": "ContactsContract via ContentResolver",
+            "difficulty": "medium",
+            "note": "Limited contact access on iOS 18+ changes the flow.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-contacts/package.json"
+            ]
+          },
+          {
+            "name": "expo-linking",
+            "version": "~57.0.4",
+            "installedVersion": "57.0.6",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-linking",
+            "category": "navigation",
+            "ios": "Universal Links (Associated Domains) + onOpenURL",
+            "android": "App Links (intent-filter android:autoVerify) + Navigation Compose deepLinks",
+            "difficulty": "medium",
+            "note": "Every URL the app handles must be re-mapped; test cold-start links on both platforms.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-linking/package.json"
+            ]
+          },
+          {
+            "name": "expo-location",
+            "version": "~57.0.6",
+            "installedVersion": "57.0.11",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-location",
+            "category": "maps",
+            "ios": "CLLocationManager / CLLocationUpdate.liveUpdates, CLMonitor for geofences",
+            "android": "FusedLocationProviderClient, GeofencingClient",
+            "difficulty": "medium",
+            "note": "Background location makes this high: Always authorisation on iOS, a location foreground service on Android.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-location/package.json"
+            ]
+          },
+          {
+            "name": "expo-media-library",
+            "version": "57.0.3",
+            "installedVersion": "57.0.3",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-media-library",
+            "category": "media",
+            "ios": "PhotoKit (PHPhotoLibrary / PHAsset)",
+            "android": "MediaStore (READ_MEDIA_IMAGES / READ_MEDIA_VIDEO, partial access)",
+            "difficulty": "medium",
+            "note": "Limited-library access behaves differently per platform.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-media-library/package.json"
+            ]
+          },
+          {
+            "name": "expo-video",
+            "version": "~57.0.2",
+            "installedVersion": "57.0.2",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-video",
+            "category": "media",
+            "ios": "AVPlayer / VideoPlayer (AVKit), AVPictureInPictureController",
+            "android": "Media3 ExoPlayer + media3-ui",
+            "difficulty": "medium",
+            "note": "Picture-in-picture, background audio and now-playing each need platform setup.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-video/package.json"
+            ]
+          },
+          {
+            "name": "react-native-gesture-handler",
+            "version": "~2.32.0",
+            "installedVersion": "2.32.0",
+            "via": null,
+            "source": "module-map",
+            "key": "react-native-gesture-handler",
+            "category": "animation",
+            "ios": "SwiftUI gestures (DragGesture, MagnifyGesture) / UIGestureRecognizer",
+            "android": "Modifier.pointerInput / draggable / transformable",
+            "difficulty": "medium",
+            "note": "Composed gestures need re-tuning per platform.",
+            "nativeMarkers": [
+              "android/",
+              "*.podspec"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/react-native-gesture-handler/package.json"
+            ]
+          },
+          {
+            "name": "react-native-keyboard-controller",
+            "version": "1.21.9",
+            "installedVersion": "1.21.9",
+            "via": null,
+            "source": "module-map",
+            "key": "react-native-keyboard-controller",
+            "category": "ui",
+            "ios": "Keyboard avoidance, .scrollDismissesKeyboard, keyboardLayoutGuide",
+            "android": "Modifier.imePadding / WindowInsets.ime",
+            "difficulty": "medium",
+            "note": "Interactive keyboard animations behave differently per platform.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "*.podspec"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/react-native-keyboard-controller/package.json"
+            ]
+          },
+          {
+            "name": "react-native-reanimated",
+            "version": "~4.6.0",
+            "installedVersion": "4.6.0",
+            "via": null,
+            "source": "module-map",
+            "key": "react-native-reanimated",
+            "category": "animation",
+            "ios": "withAnimation / PhaseAnimator / KeyframeAnimator / matchedGeometryEffect",
+            "android": "animate*AsState / updateTransition / Animatable / SharedTransitionLayout",
+            "difficulty": "medium",
+            "note": "Gesture-driven worklet animations are the expensive ones; audit each use.",
+            "nativeMarkers": [
+              "android/",
+              "*.podspec"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/react-native-reanimated/package.json"
+            ]
+          },
+          {
+            "name": "@react-navigation/bottom-tabs",
+            "version": "^7.15.5",
+            "installedVersion": "7.16.0",
+            "via": null,
+            "source": "module-map",
+            "key": "@react-navigation/*",
+            "category": "navigation",
+            "ios": "NavigationStack / TabView",
+            "android": "Navigation Compose",
+            "difficulty": "low",
+            "note": "Navigator structure is rebuilt screen by screen; cost is counted under screens.",
+            "nativeMarkers": [],
+            "evidence": [
+              "package.json",
+              "node_modules/@react-navigation/bottom-tabs/package.json"
+            ]
+          },
+          {
+            "name": "@react-navigation/native",
+            "version": "^7.1.33",
+            "installedVersion": "7.2.4",
+            "via": null,
+            "source": "module-map",
+            "key": "@react-navigation/*",
+            "category": "navigation",
+            "ios": "NavigationStack / TabView",
+            "android": "Navigation Compose",
+            "difficulty": "low",
+            "note": "Navigator structure is rebuilt screen by screen; cost is counted under screens.",
+            "nativeMarkers": [],
+            "evidence": [
+              "package.json",
+              "node_modules/@react-navigation/native/package.json"
+            ]
+          },
+          {
+            "name": "@react-navigation/native-stack",
+            "version": "^7.14.4",
+            "installedVersion": "7.15.0",
+            "via": null,
+            "source": "module-map",
+            "key": "@react-navigation/*",
+            "category": "navigation",
+            "ios": "NavigationStack / TabView",
+            "android": "Navigation Compose",
+            "difficulty": "low",
+            "note": "Navigator structure is rebuilt screen by screen; cost is counted under screens.",
+            "nativeMarkers": [],
+            "evidence": [
+              "package.json",
+              "node_modules/@react-navigation/native-stack/package.json"
+            ]
+          },
+          {
+            "name": "@sentry/react-native",
+            "version": "~8.18.0",
+            "installedVersion": "8.18.0",
+            "via": null,
+            "source": "module-map",
+            "key": "@sentry/react-native",
+            "category": "analytics",
+            "ios": "Sentry Cocoa SDK (dSYM upload)",
+            "android": "Sentry Android SDK + Gradle plugin (mapping upload)",
+            "difficulty": "low",
+            "note": "JS source maps give way to dSYM / ProGuard mapping uploads; keep release naming.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json",
+              "*.podspec"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/@sentry/react-native/package.json"
+            ]
+          },
+          {
+            "name": "expo-application",
+            "version": "~57.0.2",
+            "installedVersion": "57.0.2",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-application",
+            "category": "other",
+            "ios": "Bundle.main (CFBundleShortVersionString)",
+            "android": "PackageManager.getPackageInfo",
+            "difficulty": "low",
+            "note": "Straight replacement.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-application/package.json"
+            ]
+          },
+          {
+            "name": "expo-blur",
+            "version": "~57.0.2",
+            "installedVersion": "57.0.2",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-blur",
+            "category": "ui",
+            "ios": "Materials (.ultraThinMaterial) / UIVisualEffectView; .glassEffect on iOS 26",
+            "android": "Modifier.blur (API 31+) / RenderEffect",
+            "difficulty": "low",
+            "note": "Android has no backdrop blur primitive; design needs a fallback.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-blur/package.json"
+            ]
+          },
+          {
+            "name": "expo-build-properties",
+            "version": "~57.0.7",
+            "installedVersion": "57.0.12",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-build-properties",
+            "category": "other",
+            "ios": "Xcode build settings (deployment target, SPM / CocoaPods)",
+            "android": "Gradle settings (compileSdk, minSdk, R8) in build.gradle.kts",
+            "difficulty": "low",
+            "note": "Becomes project configuration; no runtime code.",
+            "nativeMarkers": [],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-build-properties/package.json"
+            ]
+          },
+          {
+            "name": "expo-clipboard",
+            "version": "~57.0.1",
+            "installedVersion": "57.0.1",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-clipboard",
+            "category": "ui",
+            "ios": "UIPasteboard / PasteButton",
+            "android": "LocalClipboard / ClipboardManager",
+            "difficulty": "low",
+            "note": "Straight replacement.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-clipboard/package.json"
+            ]
+          },
+          {
+            "name": "expo-dev-client",
+            "version": "~57.0.9",
+            "installedVersion": "57.0.13",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-dev-client",
+            "category": "other",
+            "ios": "Xcode debug builds + SwiftUI Previews",
+            "android": "Android Studio debug builds + Compose Previews",
+            "difficulty": "low",
+            "note": "Developer tooling only; nothing to port.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-dev-client/package.json"
+            ]
+          },
+          {
+            "name": "expo-device",
+            "version": "~57.0.1",
+            "installedVersion": "57.0.1",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-device",
+            "category": "other",
+            "ios": "UIDevice / ProcessInfo",
+            "android": "android.os.Build",
+            "difficulty": "low",
+            "note": "Straight replacement.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-device/package.json"
+            ]
+          },
+          {
+            "name": "expo-file-system",
+            "version": "~57.0.1",
+            "installedVersion": "57.0.4",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-file-system",
+            "category": "storage",
+            "ios": "FileManager (Documents / Caches), URLSession downloads",
+            "android": "Context.filesDir / cacheDir, WorkManager or DownloadManager for downloads",
+            "difficulty": "low",
+            "note": "Check stored paths: Expo document directory locations must be preserved.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-file-system/package.json"
+            ]
+          },
+          {
+            "name": "expo-font",
+            "version": "~57.0.1",
+            "installedVersion": "57.0.1",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-font",
+            "category": "ui",
+            "ios": "Bundled fonts via UIAppFonts + Font.custom",
+            "android": "res/font + FontFamily",
+            "difficulty": "low",
+            "note": "Check font licences allow native embedding.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-font/package.json"
+            ]
+          },
+          {
+            "name": "expo-haptics",
+            "version": "~57.0.1",
+            "installedVersion": "57.0.1",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-haptics",
+            "category": "ui",
+            "ios": "UIImpactFeedbackGenerator / SwiftUI .sensoryFeedback",
+            "android": "LocalHapticFeedback (Compose) / View.performHapticFeedback",
+            "difficulty": "low",
+            "note": "Straight replacement.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-haptics/package.json"
+            ]
+          },
+          {
+            "name": "expo-image",
+            "version": "57.0.1",
+            "installedVersion": "57.0.1",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-image",
+            "category": "media",
+            "ios": "AsyncImage, or Nuke / Kingfisher for caching",
+            "android": "Coil 3 (AsyncImage)",
+            "difficulty": "low",
+            "note": "Blurhash/thumbhash placeholders need a small library.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-image/package.json"
+            ]
+          },
+          {
+            "name": "expo-image-manipulator",
+            "version": "~57.0.6",
+            "installedVersion": "57.0.10",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-image-manipulator",
+            "category": "media",
+            "ios": "Core Image / UIGraphicsImageRenderer",
+            "android": "android.graphics.Bitmap / ImageDecoder",
+            "difficulty": "low",
+            "note": "Straight replacement.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-image-manipulator/package.json"
+            ]
+          },
+          {
+            "name": "expo-image-picker",
+            "version": "~57.0.6",
+            "installedVersion": "57.0.11",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-image-picker",
+            "category": "media",
+            "ios": "PhotosPicker / PHPickerViewController (UIImagePickerController for camera capture)",
+            "android": "Photo Picker (ActivityResultContracts.PickVisualMedia; TakePicture for capture)",
+            "difficulty": "low",
+            "note": "Straight replacement; the system pickers need no photo permission.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-image-picker/package.json"
+            ]
+          },
+          {
+            "name": "expo-keep-awake",
+            "version": "~57.0.1",
+            "installedVersion": "57.0.1",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-keep-awake",
+            "category": "other",
+            "ios": "UIApplication.isIdleTimerDisabled",
+            "android": "Modifier.keepScreenOn / FLAG_KEEP_SCREEN_ON",
+            "difficulty": "low",
+            "note": "Straight replacement.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-keep-awake/package.json"
+            ]
+          },
+          {
+            "name": "expo-linear-gradient",
+            "version": "~57.0.1",
+            "installedVersion": "57.0.1",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-linear-gradient",
+            "category": "ui",
+            "ios": "LinearGradient (SwiftUI) / CAGradientLayer",
+            "android": "Brush.linearGradient",
+            "difficulty": "low",
+            "note": "Straight replacement.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-linear-gradient/package.json"
+            ]
+          },
+          {
+            "name": "expo-localization",
+            "version": "~57.0.1",
+            "installedVersion": "57.0.1",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-localization",
+            "category": "other",
+            "ios": "Locale.current / Bundle.preferredLocalizations + String Catalogs",
+            "android": "LocaleListCompat / per-app language (AppCompatDelegate.setApplicationLocales) + strings.xml",
+            "difficulty": "low",
+            "note": "Moving translations from JS files into String Catalogs and strings.xml is its own checkpoint.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-localization/package.json"
+            ]
+          },
+          {
+            "name": "expo-sharing",
+            "version": "~57.0.7",
+            "installedVersion": "57.0.13",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-sharing",
+            "category": "ui",
+            "ios": "ShareLink / UIActivityViewController",
+            "android": "Intent.ACTION_SEND + Intent.createChooser, FileProvider",
+            "difficulty": "low",
+            "note": "Straight replacement.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-sharing/package.json"
+            ]
+          },
+          {
+            "name": "expo-splash-screen",
+            "version": "~57.0.5",
+            "installedVersion": "57.0.7",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-splash-screen",
+            "category": "ui",
+            "ios": "Launch screen (UILaunchScreen in Info.plist)",
+            "android": "androidx.core SplashScreen API (installSplashScreen)",
+            "difficulty": "low",
+            "note": "Keep-visible-while-loading logic moves to app start-up code.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-splash-screen/package.json"
+            ]
+          },
+          {
+            "name": "expo-system-ui",
+            "version": "~57.0.1",
+            "installedVersion": "57.0.2",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-system-ui",
+            "category": "ui",
+            "ios": "UIWindow background / overrideUserInterfaceStyle",
+            "android": "enableEdgeToEdge, app theme",
+            "difficulty": "low",
+            "note": "Straight replacement.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-system-ui/package.json"
+            ]
+          },
+          {
+            "name": "expo-web-browser",
+            "version": "~57.0.2",
+            "installedVersion": "57.0.2",
+            "via": null,
+            "source": "module-map",
+            "key": "expo-web-browser",
+            "category": "auth",
+            "ios": "ASWebAuthenticationSession (auth) / SFSafariViewController (browsing)",
+            "android": "Custom Tabs (androidx.browser)",
+            "difficulty": "low",
+            "note": "Straight replacement.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "expo-module.config.json"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/expo-web-browser/package.json"
+            ]
+          },
+          {
+            "name": "react-native-edge-to-edge",
+            "version": "^1.8.1",
+            "installedVersion": "1.8.1",
+            "via": null,
+            "source": "module-map",
+            "key": "react-native-edge-to-edge",
+            "category": "ui",
+            "ios": "Default behaviour",
+            "android": "enableEdgeToEdge()",
+            "difficulty": "low",
+            "note": "Disappears.",
+            "nativeMarkers": [
+              "android/"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/react-native-edge-to-edge/package.json"
+            ]
+          },
+          {
+            "name": "react-native-mmkv",
+            "version": "^3.3.3",
+            "installedVersion": "3.3.3",
+            "via": null,
+            "source": "module-map",
+            "key": "react-native-mmkv",
+            "category": "storage",
+            "ios": "UserDefaults / SwiftData, or the MMKV iOS SDK",
+            "android": "Jetpack DataStore, or the MMKV Android SDK",
+            "difficulty": "low",
+            "note": "Keep the MMKV native SDK for the first native release if users have persisted state, or migrate it on first launch.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "*.podspec"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/react-native-mmkv/package.json"
+            ]
+          },
+          {
+            "name": "react-native-pager-view",
+            "version": "6.8.0",
+            "installedVersion": "6.8.0",
+            "via": null,
+            "source": "module-map",
+            "key": "react-native-pager-view",
+            "category": "ui",
+            "ios": "TabView .page style / UIPageViewController",
+            "android": "HorizontalPager",
+            "difficulty": "low",
+            "note": "Straight replacement.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "*.podspec"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/react-native-pager-view/package.json"
+            ]
+          },
+          {
+            "name": "react-native-safe-area-context",
+            "version": "~5.7.0",
+            "installedVersion": "5.7.0",
+            "via": null,
+            "source": "module-map",
+            "key": "react-native-safe-area-context",
+            "category": "ui",
+            "ios": "Safe areas (.safeAreaInset / .safeAreaPadding)",
+            "android": "WindowInsets (enableEdgeToEdge, Modifier.windowInsetsPadding)",
+            "difficulty": "low",
+            "note": "Handled by the platform layout system.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "*.podspec"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/react-native-safe-area-context/package.json"
+            ]
+          },
+          {
+            "name": "react-native-screens",
+            "version": "4.26.2",
+            "installedVersion": "4.26.2",
+            "via": null,
+            "source": "module-map",
+            "key": "react-native-screens",
+            "category": "navigation",
+            "ios": "UINavigationController / NavigationStack (already native)",
+            "android": "Navigation Compose / Fragments (already native)",
+            "difficulty": "low",
+            "note": "Disappears: it wraps the primitives you will use directly.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "*.podspec"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/react-native-screens/package.json"
+            ]
+          },
+          {
+            "name": "react-native-svg",
+            "version": "15.15.4",
+            "installedVersion": "15.15.4",
+            "via": null,
+            "source": "module-map",
+            "key": "react-native-svg",
+            "category": "ui",
+            "ios": "SF Symbols, SwiftUI Shape/Path, vector PDF/SVG in the asset catalog",
+            "android": "ImageVector / vector drawables, Compose Canvas",
+            "difficulty": "low",
+            "note": "Static icons are low; generated SVG (charts, drawings) is medium.",
+            "nativeMarkers": [
+              "android/",
+              "*.podspec"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/react-native-svg/package.json"
+            ]
+          },
+          {
+            "name": "react-native-webview",
+            "version": "^13.16.1",
+            "installedVersion": "13.17.0",
+            "via": null,
+            "source": "module-map",
+            "key": "react-native-webview",
+            "category": "ui",
+            "ios": "WKWebView (SwiftUI WebView on iOS 26)",
+            "android": "android.webkit.WebView via AndroidView (androidx.webkit)",
+            "difficulty": "low",
+            "note": "If the page talks to the app via postMessage, each bridge message needs a native handler: medium.",
+            "nativeMarkers": [
+              "ios/",
+              "android/",
+              "*.podspec"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/react-native-webview/package.json"
+            ]
+          },
+          {
+            "name": "react-native-worklets",
+            "version": "0.12.2",
+            "installedVersion": "0.12.2",
+            "via": null,
+            "source": "module-map",
+            "key": "react-native-worklets",
+            "category": "animation",
+            "ios": "n/a (native threads)",
+            "android": "n/a (native threads)",
+            "difficulty": "low",
+            "note": "Goes away with Reanimated.",
+            "nativeMarkers": [
+              "android/",
+              "*.podspec"
+            ],
+            "evidence": [
+              "package.json",
+              "node_modules/react-native-worklets/package.json"
+            ]
+          }
+        ],
+        "jsOnly": [
+          {
+            "name": "@atproto/common-web",
+            "version": "0.5.10",
+            "via": null
+          },
+          {
+            "name": "@atproto/lex",
+            "version": "0.3.8",
+            "via": null
+          },
+          {
+            "name": "@atproto/lex-password-session",
+            "version": "0.2.2",
+            "via": null
+          },
+          {
+            "name": "@atproto/syntax",
+            "version": "0.7.5",
+            "via": null
+          },
+          {
+            "name": "@braintree/sanitize-url",
+            "version": "^6.0.2",
+            "via": null
+          },
+          {
+            "name": "@bsky.app/alf",
+            "version": "^0.1.15",
+            "via": null
+          },
+          {
+            "name": "@bsky/sdk",
+            "version": "1.1.0",
+            "via": null
+          },
+          {
+            "name": "@emoji-mart/data",
+            "version": "^1.2.1",
+            "via": null
+          },
+          {
+            "name": "@emoji-mart/react",
+            "version": "^1.1.1",
+            "via": null
+          },
+          {
+            "name": "@expo/html-elements",
+            "version": "^0.12.5",
+            "via": null
+          },
+          {
+            "name": "@expo/webpack-config",
+            "version": "^19.0.1",
+            "via": null
+          },
+          {
+            "name": "@floating-ui/dom",
+            "version": "^1.6.3",
+            "via": null
+          },
+          {
+            "name": "@floating-ui/react-dom",
+            "version": "^2.0.8",
+            "via": null
+          },
+          {
+            "name": "@formatjs/intl-displaynames",
+            "version": "^7.3.9",
+            "via": null
+          },
+          {
+            "name": "@formatjs/intl-locale",
+            "version": "^5.3.8",
+            "via": null
+          },
+          {
+            "name": "@formatjs/intl-numberformat",
+            "version": "^9.3.10",
+            "via": null
+          },
+          {
+            "name": "@formatjs/intl-pluralrules",
+            "version": "^6.3.9",
+            "via": null
+          },
+          {
+            "name": "@growthbook/growthbook",
+            "version": "^1.6.5",
+            "via": null
+          },
+          {
+            "name": "@growthbook/growthbook-react",
+            "version": "^1.6.5",
+            "via": null
+          },
+          {
+            "name": "@ipld/dag-cbor",
+            "version": "^9.2.7",
+            "via": null
+          },
+          {
+            "name": "@lingui/core",
+            "version": "^5.9.2",
+            "via": null
+          },
+          {
+            "name": "@lingui/react",
+            "version": "^5.9.2",
+            "via": null
+          },
+          {
+            "name": "@tanstack/query-async-storage-persister",
+            "version": "^5.96.2",
+            "via": null
+          },
+          {
+            "name": "@tanstack/react-query",
+            "version": "^5.96.2",
+            "via": null
+          },
+          {
+            "name": "@tanstack/react-query-persist-client",
+            "version": "^5.96.2",
+            "via": null
+          },
+          {
+            "name": "@tiptap/core",
+            "version": "^2.9.1",
+            "via": null
+          },
+          {
+            "name": "@tiptap/extension-document",
+            "version": "^2.9.1",
+            "via": null
+          },
+          {
+            "name": "@tiptap/extension-hard-break",
+            "version": "^2.9.1",
+            "via": null
+          },
+          {
+            "name": "@tiptap/extension-history",
+            "version": "^2.9.1",
+            "via": null
+          },
+          {
+            "name": "@tiptap/extension-mention",
+            "version": "^2.9.1",
+            "via": null
+          },
+          {
+            "name": "@tiptap/extension-paragraph",
+            "version": "^2.9.1",
+            "via": null
+          },
+          {
+            "name": "@tiptap/extension-placeholder",
+            "version": "^2.9.1",
+            "via": null
+          },
+          {
+            "name": "@tiptap/extension-text",
+            "version": "^2.9.1",
+            "via": null
+          },
+          {
+            "name": "@tiptap/pm",
+            "version": "^2.9.1",
+            "via": null
+          },
+          {
+            "name": "@tiptap/react",
+            "version": "^2.9.1",
+            "via": null
+          },
+          {
+            "name": "@tiptap/suggestion",
+            "version": "^2.9.1",
+            "via": null
+          },
+          {
+            "name": "array.prototype.findlast",
+            "version": "^1.2.3",
+            "via": null
+          },
+          {
+            "name": "babel-plugin-transform-remove-console",
+            "version": "^6.9.4",
+            "via": null
+          },
+          {
+            "name": "bcp-47",
+            "version": "^2.1.0",
+            "via": null
+          },
+          {
+            "name": "bcp-47-match",
+            "version": "^2.0.3",
+            "via": null
+          },
+          {
+            "name": "bidi-js",
+            "version": "^1.0.3",
+            "via": null
+          },
+          {
+            "name": "date-fns",
+            "version": "^4.4.0",
+            "via": null
+          },
+          {
+            "name": "email-validator",
+            "version": "^2.0.4",
+            "via": null
+          },
+          {
+            "name": "emoji-mart",
+            "version": "^5.6.0",
+            "via": null
+          },
+          {
+            "name": "emoji-regex",
+            "version": "^10.4.0",
+            "via": null
+          },
+          {
+            "name": "eventemitter3",
+            "version": "^5.0.1",
+            "via": null
+          },
+          {
+            "name": "fast-deep-equal",
+            "version": "^3.1.3",
+            "via": null
+          },
+          {
+            "name": "fast-text-encoding",
+            "version": "^1.0.6",
+            "via": null
+          },
+          {
+            "name": "fuse.js",
+            "version": "^7.1.0",
+            "via": null
+          },
+          {
+            "name": "hls.js",
+            "version": "^1.6.2",
+            "via": null
+          },
+          {
+            "name": "idb-keyval",
+            "version": "^6.2.2",
+            "via": null
+          },
+          {
+            "name": "js-sha256",
+            "version": "^0.9.0",
+            "via": null
+          },
+          {
+            "name": "jwt-decode",
+            "version": "^4.0.0",
+            "via": null
+          },
+          {
+            "name": "lande",
+            "version": "^1.0.10",
+            "via": null
+          },
+          {
+            "name": "libphonenumber-js",
+            "version": "^1.12.31",
+            "via": null
+          },
+          {
+            "name": "lodash.chunk",
+            "version": "^4.2.0",
+            "via": null
+          },
+          {
+            "name": "lodash.debounce",
+            "version": "^4.0.8",
+            "via": null
+          },
+          {
+            "name": "lodash.shuffle",
+            "version": "^4.2.0",
+            "via": null
+          },
+          {
+            "name": "lodash.throttle",
+            "version": "^4.1.1",
+            "via": null
+          },
+          {
+            "name": "mediabunny",
+            "version": "^1.25.3",
+            "via": null
+          },
+          {
+            "name": "multiformats",
+            "version": "^13.4.2",
+            "via": null
+          },
+          {
+            "name": "nanoid",
+            "version": "^5.0.5",
+            "via": null
+          },
+          {
+            "name": "normalize-url",
+            "version": "^8.0.0",
+            "via": null
+          },
+          {
+            "name": "psl",
+            "version": "1.9.0",
+            "via": null
+          },
+          {
+            "name": "radix-ui",
+            "version": "^1.4.3",
+            "via": null
+          },
+          {
+            "name": "react-compiler-runtime",
+            "version": "1.0.0",
+            "via": null
+          },
+          {
+            "name": "react-hotkeys-hook",
+            "version": "5.2.4",
+            "via": null
+          },
+          {
+            "name": "react-image-crop",
+            "version": "^11.0.7",
+            "via": null
+          },
+          {
+            "name": "react-is",
+            "version": "19",
+            "via": null
+          },
+          {
+            "name": "react-keyed-flatten-children",
+            "version": "^5.0.0",
+            "via": null
+          },
+          {
+            "name": "react-native-drawer-layout",
+            "version": "^4.2.3",
+            "via": null
+          },
+          {
+            "name": "react-native-progress",
+            "version": "^5.0.1",
+            "via": null
+          },
+          {
+            "name": "react-native-qrcode-styled",
+            "version": "^0.3.3",
+            "via": null
+          },
+          {
+            "name": "react-native-uuid",
+            "version": "^2.0.3",
+            "via": null
+          },
+          {
+            "name": "react-native-web",
+            "version": "^0.21.0",
+            "via": null
+          },
+          {
+            "name": "react-native-web-webview",
+            "version": "^1.0.2",
+            "via": null
+          },
+          {
+            "name": "react-remove-scroll-bar",
+            "version": "^2.3.8",
+            "via": null
+          },
+          {
+            "name": "react-responsive",
+            "version": "^10.0.1",
+            "via": null
+          },
+          {
+            "name": "react-textarea-autosize",
+            "version": "^8.5.3",
+            "via": null
+          },
+          {
+            "name": "setimmediate",
+            "version": "^1.0.5",
+            "via": null
+          },
+          {
+            "name": "slugify",
+            "version": "^1.6.9",
+            "via": null
+          },
+          {
+            "name": "sonner",
+            "version": "^2.0.7",
+            "via": null
+          },
+          {
+            "name": "sonner-native",
+            "version": "0.26.4",
+            "via": null
+          },
+          {
+            "name": "tippy.js",
+            "version": "^6.3.7",
+            "via": null
+          },
+          {
+            "name": "tlds",
+            "version": "^1.234.0",
+            "via": null
+          },
+          {
+            "name": "tldts",
+            "version": "^6.1.46",
+            "via": null
+          },
+          {
+            "name": "unicode-segmenter",
+            "version": "0.14.5",
+            "via": null
+          },
+          {
+            "name": "zod",
+            "version": "^3.25.76",
+            "via": null
+          }
+        ],
+        "workspacePackages": [
+          {
+            "name": "react-native-scroll-forwarder",
+            "path": "modules/react-native-scroll-forwarder",
+            "packageJson": "modules/react-native-scroll-forwarder/package.json",
+            "via": null
+          }
+        ],
+        "targetsWeb": {
+          "value": true,
+          "evidence": [
+            "package.json",
+            "app.config.js"
+          ]
+        }
+      },
+      "customNative": {
+        "workflow": "Expo CNG (native projects generated locally by prebuild and gitignored)",
+        "platforms": {
+          "ios": {
+            "present": true,
+            "gitignored": true,
+            "generated": true,
+            "nativeFiles": 5,
+            "customFiles": 0,
+            "customFileList": [],
+            "templateFiles": [
+              "ios/Bluesky/AppDelegate.swift",
+              "ios/BlueskyClip/AppDelegate.swift"
+            ]
+          },
+          "android": {
+            "present": true,
+            "gitignored": true,
+            "generated": true,
+            "nativeFiles": 2,
+            "customFiles": 0,
+            "customFileList": [],
+            "templateFiles": [
+              "android/app/src/main/java/xyz/blueskyweb/app/MainActivity.kt",
+              "android/app/src/main/java/xyz/blueskyweb/app/MainApplication.kt"
+            ]
+          }
+        },
+        "localModules": [
+          {
+            "name": "bottom-sheet",
+            "path": "modules/bottom-sheet",
+            "swift": 5,
+            "kotlin": 4,
+            "evidence": [
+              "modules/bottom-sheet/expo-module.config.json",
+              "modules/bottom-sheet/android/src/main/java/expo/modules/bottomsheet/BottomSheetModule.kt",
+              "modules/bottom-sheet/android/src/main/java/expo/modules/bottomsheet/BottomSheetView.kt",
+              "modules/bottom-sheet/android/src/main/java/expo/modules/bottomsheet/DialogRootViewGroup.kt",
+              "modules/bottom-sheet/android/src/main/java/expo/modules/bottomsheet/SheetManager.kt",
+              "modules/bottom-sheet/ios/BottomSheetModule.swift",
+              "modules/bottom-sheet/ios/SheetManager.swift",
+              "modules/bottom-sheet/ios/SheetView.swift",
+              "modules/bottom-sheet/ios/SheetViewController.swift",
+              "modules/bottom-sheet/ios/Util.swift"
+            ]
+          },
+          {
+            "name": "expo-background-notification-handler",
+            "path": "modules/expo-background-notification-handler",
+            "swift": 1,
+            "kotlin": 4,
+            "evidence": [
+              "modules/expo-background-notification-handler/expo-module.config.json",
+              "modules/expo-background-notification-handler/android/src/main/java/expo/modules/backgroundnotificationhandler/BackgroundNotificationHandler.kt",
+              "modules/expo-background-notification-handler/android/src/main/java/expo/modules/backgroundnotificationhandler/BackgroundNotificationHandlerInterface.kt",
+              "modules/expo-background-notification-handler/android/src/main/java/expo/modules/backgroundnotificationhandler/ExpoBackgroundNotificationHandlerModule.kt",
+              "modules/expo-background-notification-handler/android/src/main/java/expo/modules/backgroundnotificationhandler/NotificationPrefs.kt",
+              "modules/expo-background-notification-handler/ios/ExpoBackgroundNotificationHandlerModule.swift"
+            ]
+          },
+          {
+            "name": "expo-bluesky-gif-view",
+            "path": "modules/expo-bluesky-gif-view",
+            "swift": 3,
+            "kotlin": 3,
+            "evidence": [
+              "modules/expo-bluesky-gif-view/expo-module.config.json",
+              "modules/expo-bluesky-gif-view/android/src/main/java/expo/modules/blueskygifview/AppCompatImageViewExtended.kt",
+              "modules/expo-bluesky-gif-view/android/src/main/java/expo/modules/blueskygifview/ExpoBlueskyGifViewModule.kt",
+              "modules/expo-bluesky-gif-view/android/src/main/java/expo/modules/blueskygifview/GifView.kt",
+              "modules/expo-bluesky-gif-view/ios/ExpoBlueskyGifViewModule.swift",
+              "modules/expo-bluesky-gif-view/ios/GifView.swift",
+              "modules/expo-bluesky-gif-view/ios/Util.swift"
+            ]
+          },
+          {
+            "name": "expo-bluesky-swiss-army",
+            "path": "modules/expo-bluesky-swiss-army",
+            "swift": 8,
+            "kotlin": 7,
+            "evidence": [
+              "modules/expo-bluesky-swiss-army/expo-module.config.json",
+              "modules/expo-bluesky-swiss-army/android/src/main/java/expo/modules/blueskyswissarmy/platforminfo/ExpoPlatformInfoModule.kt",
+              "modules/expo-bluesky-swiss-army/android/src/main/java/expo/modules/blueskyswissarmy/referrer/ExpoBlueskyReferrerModule.kt",
+              "modules/expo-bluesky-swiss-army/android/src/main/java/expo/modules/blueskyswissarmy/sharedprefs/ExpoBlueskySharedPrefsModule.kt",
+              "modules/expo-bluesky-swiss-army/android/src/main/java/expo/modules/blueskyswissarmy/sharedprefs/SharedPrefs.kt",
+              "modules/expo-bluesky-swiss-army/android/src/main/java/expo/modules/blueskyswissarmy/visibilityview/ExpoBlueskyVisibilityViewModule.kt",
+              "modules/expo-bluesky-swiss-army/android/src/main/java/expo/modules/blueskyswissarmy/visibilityview/VisibilityView.kt",
+              "modules/expo-bluesky-swiss-army/android/src/main/java/expo/modules/blueskyswissarmy/visibilityview/VisibilityViewManager.kt",
+              "modules/expo-bluesky-swiss-army/ios/NotificationSettings/ExpoBlueskyNotificationSettingsModule.swift",
+              "modules/expo-bluesky-swiss-army/ios/PlatformInfo/ExpoPlatformInfoModule.swift",
+              "modules/expo-bluesky-swiss-army/ios/Referrer/ExpoBlueskyReferrerModule.swift"
+            ]
+          },
+          {
+            "name": "expo-emoji-picker",
+            "path": "modules/expo-emoji-picker",
+            "swift": 2,
+            "kotlin": 2,
+            "evidence": [
+              "modules/expo-emoji-picker/expo-module.config.json",
+              "modules/expo-emoji-picker/android/src/main/java/expo/community/modules/emojipicker/EmojiPickerModule.kt",
+              "modules/expo-emoji-picker/android/src/main/java/expo/community/modules/emojipicker/EmojiPickerModuleView.kt",
+              "modules/expo-emoji-picker/ios/EmojiPickerModule.swift",
+              "modules/expo-emoji-picker/ios/EmojiPickerView.swift"
+            ]
+          },
+          {
+            "name": "expo-receive-android-intents",
+            "path": "modules/expo-receive-android-intents",
+            "swift": 0,
+            "kotlin": 1,
+            "evidence": [
+              "modules/expo-receive-android-intents/expo-module.config.json",
+              "modules/expo-receive-android-intents/android/src/main/java/xyz/blueskyweb/app/exporeceiveandroidintents/ExpoReceiveAndroidIntentsModule.kt"
+            ]
+          }
+        ],
+        "otherNativeFiles": [
+          "modules/BlueskyClip/AppDelegate.swift",
+          "modules/BlueskyClip/ViewController.swift",
+          "modules/BlueskyNSE/NotificationService.swift",
+          "modules/Share-with-Bluesky/ShareViewController.swift"
+        ],
+        "configPlugins": [
+          {
+            "name": "expo-dev-client",
+            "local": false,
+            "evidence": [
+              "app.config.js"
+            ]
+          },
+          {
+            "name": "expo-video",
+            "local": false,
+            "evidence": [
+              "app.config.js"
+            ]
+          },
+          {
+            "name": "expo-localization",
+            "local": false,
+            "evidence": [
+              "app.config.js"
+            ]
+          },
+          {
+            "name": "expo-web-browser",
+            "local": false,
+            "evidence": [
+              "app.config.js"
+            ]
+          },
+          {
+            "name": "react-native-edge-to-edge",
+            "local": false,
+            "evidence": [
+              "app.config.js"
+            ]
+          },
+          {
+            "name": "expo-build-properties",
+            "local": false,
+            "evidence": [
+              "app.config.js"
+            ]
+          },
+          {
+            "name": "expo-notifications",
+            "local": false,
+            "evidence": [
+              "app.config.js"
+            ]
+          },
+          {
+            "name": "@bitdrift/react-native",
+            "local": false,
+            "evidence": [
+              "app.config.js"
+            ]
+          },
+          {
+            "name": "./plugins/starterPackAppClipExtension/withStarterPackAppClip.js",
+            "local": true,
+            "evidence": [
+              "app.config.js"
+            ]
+          },
+          {
+            "name": "./plugins/withGradleJVMHeapSizeIncrease.js",
+            "local": true,
+            "evidence": [
+              "app.config.js"
+            ]
+          },
+          {
+            "name": "./plugins/withAndroidManifestLargeHeapPlugin.js",
+            "local": true,
+            "evidence": [
+              "app.config.js"
+            ]
+          },
+          {
+            "name": "./plugins/withAndroidManifestFCMIconPlugin.js",
+            "local": true,
+            "evidence": [
+              "app.config.js"
+            ]
+          },
+          {
+            "name": "./plugins/withAndroidManifestIntentQueriesPlugin.js",
+            "local": true,
+            "evidence": [
+              "app.config.js"
+            ]
+          },
+          {
+            "name": "./plugins/withAndroidStylesAccentColorPlugin.js",
+            "local": true,
+            "evidence": [
+              "app.config.js"
+            ]
+          },
+          {
+            "name": "./plugins/withAndroidNoJitpackPlugin.js",
+            "local": true,
+            "evidence": [
+              "app.config.js"
+            ]
+          },
+          {
+            "name": "./plugins/shareExtension/withShareExtensions.js",
+            "local": true,
+            "evidence": [
+              "app.config.js"
+            ]
+          },
+          {
+            "name": "./plugins/notificationsExtension/withNotificationsExtension.js",
+            "local": true,
+            "evidence": [
+              "app.config.js"
+            ]
+          },
+          {
+            "name": "expo-font",
+            "local": false,
+            "evidence": [
+              "app.config.js"
+            ]
+          },
+          {
+            "name": "expo-splash-screen",
+            "local": false,
+            "evidence": [
+              "app.config.js"
+            ]
+          },
+          {
+            "name": "@bsky.app/expo-dynamic-app-icon",
+            "local": false,
+            "evidence": [
+              "app.config.js"
+            ]
+          },
+          {
+            "name": "expo-screen-orientation",
+            "local": false,
+            "evidence": [
+              "app.config.js"
+            ]
+          },
+          {
+            "name": "expo-location",
+            "local": false,
+            "evidence": [
+              "app.config.js"
+            ]
+          },
+          {
+            "name": "expo-contacts",
+            "local": false,
+            "evidence": [
+              "app.config.js"
+            ]
+          }
+        ],
+        "patches": [
+          {
+            "package": "@formatjs/bigdecimal",
+            "file": "patches/@formatjs__bigdecimal@0.2.5.patch"
+          },
+          {
+            "package": "@sentry/expo-upload-sourcemaps",
+            "file": "patches/@sentry__expo-upload-sourcemaps@8.18.0.patch"
+          },
+          {
+            "package": "expo-age-range",
+            "file": "patches/expo-age-range@57.0.2.patch"
+          },
+          {
+            "package": "expo-haptics",
+            "file": "patches/expo-haptics@57.0.1.patch"
+          },
+          {
+            "package": "expo-media-library",
+            "file": "patches/expo-media-library@57.0.3.patch"
+          },
+          {
+            "package": "expo-modules-core",
+            "file": "patches/expo-modules-core@57.0.8.patch"
+          },
+          {
+            "package": "expo-notifications",
+            "file": "patches/expo-notifications@57.0.7.patch"
+          },
+          {
+            "package": "expo-updates",
+            "file": "patches/expo-updates@57.0.10.patch"
+          },
+          {
+            "package": "expo",
+            "file": "patches/expo@57.0.8.patch"
+          },
+          {
+            "package": "react-native-date-picker",
+            "file": "patches/react-native-date-picker@5.0.13.patch"
+          },
+          {
+            "package": "react-native-dotenv",
+            "file": "patches/react-native-dotenv@3.4.11.patch"
+          },
+          {
+            "package": "react-native-drawer-layout",
+            "file": "patches/react-native-drawer-layout@4.2.3.patch"
+          },
+          {
+            "package": "react-native-keyboard-controller",
+            "file": "patches/react-native-keyboard-controller@1.21.9.patch"
+          },
+          {
+            "package": "react-native-pager-view",
+            "file": "patches/react-native-pager-view@6.8.0.patch"
+          },
+          {
+            "package": "react-native-screens",
+            "file": "patches/react-native-screens@4.26.2.patch"
+          },
+          {
+            "package": "react-native-svg",
+            "file": "patches/react-native-svg@15.15.4.patch"
+          },
+          {
+            "package": "react-native",
+            "file": "patches/react-native@0.86.0.patch"
+          }
+        ],
+        "customNativeFileCount": 44
+      },
+      "ota": {
+        "present": true,
+        "configuredOnly": false,
+        "status": "expo-updates active",
+        "packages": [
+          {
+            "name": "expo-updates",
+            "version": "57.0.10",
+            "evidence": [
+              "package.json"
+            ]
+          }
+        ],
+        "updatesConfig": {
+          "value": "{url: 'https://updates.bsky.app/manifest', enabled: UPDATES_ENABLED, fallbackToCacheTimeout: 30000, codeSigningCertificate: UPDATES_ENABLED ? './code-signing/certificate.pem' : undefined, codeSigningM",
+          "file": "app.config.js"
+        },
+        "runtimeVersion": {
+          "value": "{ policy: 'appVersion', }",
+          "file": "app.config.js"
+        },
+        "easChannels": [
+          {
+            "profile": "development",
+            "channel": "development",
+            "file": "eas.json"
+          },
+          {
+            "profile": "preview",
+            "channel": "production",
+            "file": "eas.json"
+          },
+          {
+            "profile": "production",
+            "channel": "production",
+            "file": "eas.json"
+          },
+          {
+            "profile": "testflight",
+            "channel": "testflight",
+            "file": "eas.json"
+          },
+          {
+            "profile": "testflight-android",
+            "channel": "testflight",
+            "file": "eas.json"
+          }
+        ]
+      },
+      "permissions": {
+        "iosUsageDescriptions": [
+          {
+            "key": "NSCameraUsageDescription",
+            "value": "Used for profile pictures, posts, and other kinds of content.",
+            "evidence": [
+              "app.config.js",
+              "ios/Bluesky/Info.plist"
+            ]
+          },
+          {
+            "key": "NSMicrophoneUsageDescription",
+            "value": "Used for posts and other kinds of content.",
+            "evidence": [
+              "app.config.js",
+              "ios/Bluesky/Info.plist"
+            ]
+          },
+          {
+            "key": "NSPhotoLibraryAddUsageDescription",
+            "value": "Used to save images to your library.",
+            "evidence": [
+              "app.config.js",
+              "ios/Bluesky/Info.plist"
+            ]
+          },
+          {
+            "key": "NSPhotoLibraryUsageDescription",
+            "value": "Used for profile pictures, posts, and other kinds of content",
+            "evidence": [
+              "app.config.js",
+              "ios/Bluesky/Info.plist"
+            ]
+          },
+          {
+            "key": "NSContactsUsageDescription",
+            "value": "I agree to allow Bluesky to use my contacts for friend discovery until I opt out.",
+            "evidence": [
+              "ios/Bluesky/Info.plist"
+            ]
+          },
+          {
+            "key": "NSLocalNetworkUsageDescription",
+            "value": "Expo Dev Launcher uses the local network to discover and connect to development servers running on your computer.",
+            "evidence": [
+              "ios/Bluesky/Info.plist"
+            ]
+          },
+          {
+            "key": "NSLocationAlwaysAndWhenInUseUsageDescription",
+            "value": "Allow $(PRODUCT_NAME) to access your location",
+            "evidence": [
+              "ios/Bluesky/Info.plist"
+            ]
+          },
+          {
+            "key": "NSLocationAlwaysUsageDescription",
+            "value": "Allow $(PRODUCT_NAME) to access your location",
+            "evidence": [
+              "ios/Bluesky/Info.plist"
+            ]
+          },
+          {
+            "key": "NSLocationWhenInUseUsageDescription",
+            "value": "Allow $(PRODUCT_NAME) to access your location",
+            "evidence": [
+              "ios/Bluesky/Info.plist"
+            ]
+          },
+          {
+            "key": "NSMotionUsageDescription",
+            "value": "Allow $(PRODUCT_NAME) to detect your current motion activity",
+            "evidence": [
+              "ios/Bluesky/Info.plist"
+            ]
+          }
+        ],
+        "iosBackgroundModes": [
+          {
+            "key": "remote-notification",
+            "value": null,
+            "evidence": [
+              "app.config.js",
+              "ios/Bluesky/Info.plist"
+            ]
+          }
+        ],
+        "iosEntitlements": [
+          {
+            "key": "com.apple.developer.kernel.increased-memory-limit",
+            "value": null,
+            "evidence": [
+              "app.config.js",
+              "ios/Bluesky/Bluesky.entitlements"
+            ]
+          },
+          {
+            "key": "com.apple.developer.kernel.extended-virtual-addressing",
+            "value": null,
+            "evidence": [
+              "app.config.js",
+              "ios/Bluesky/Bluesky.entitlements"
+            ]
+          },
+          {
+            "key": "com.apple.security.application-groups",
+            "value": null,
+            "evidence": [
+              "app.config.js",
+              "ios/Bluesky/Bluesky.entitlements",
+              "ios/BlueskyClip/BlueskyClip.entitlements",
+              "ios/BlueskyNSE/BlueskyNSE.entitlements",
+              "ios/Share-with-Bluesky/Share-with-Bluesky.entitlements"
+            ]
+          },
+          {
+            "key": "com.apple.developer.usernotifications.communication",
+            "value": null,
+            "evidence": [
+              "app.config.js",
+              "ios/Bluesky/Bluesky.entitlements"
+            ]
+          },
+          {
+            "key": "com.apple.developer.declared-age-range",
+            "value": null,
+            "evidence": [
+              "app.config.js",
+              "ios/Bluesky/Bluesky.entitlements"
+            ]
+          },
+          {
+            "key": "aps-environment",
+            "value": null,
+            "evidence": [
+              "ios/Bluesky/Bluesky.entitlements"
+            ]
+          },
+          {
+            "key": "com.apple.developer.associated-appclip-app-identifiers",
+            "value": null,
+            "evidence": [
+              "ios/Bluesky/Bluesky.entitlements"
+            ]
+          },
+          {
+            "key": "com.apple.developer.associated-domains",
+            "value": null,
+            "evidence": [
+              "ios/Bluesky/Bluesky.entitlements",
+              "ios/BlueskyClip/BlueskyClip.entitlements"
+            ]
+          },
+          {
+            "key": "com.apple.developer.parent-application-identifiers",
+            "value": null,
+            "evidence": [
+              "ios/BlueskyClip/BlueskyClip.entitlements"
+            ]
+          }
+        ],
+        "androidPermissions": [
+          {
+            "key": "android.permission.SYSTEM_ALERT_WINDOW",
+            "value": null,
+            "evidence": [
+              "android/app/src/debug/AndroidManifest.xml",
+              "android/app/src/debugOptimized/AndroidManifest.xml",
+              "android/app/src/main/AndroidManifest.xml"
+            ]
+          },
+          {
+            "key": "android.permission.ACCESS_COARSE_LOCATION",
+            "value": null,
+            "evidence": [
+              "android/app/src/main/AndroidManifest.xml"
+            ]
+          },
+          {
+            "key": "android.permission.ACCESS_FINE_LOCATION",
+            "value": null,
+            "evidence": [
+              "android/app/src/main/AndroidManifest.xml"
+            ]
+          },
+          {
+            "key": "android.permission.CAMERA",
+            "value": null,
+            "evidence": [
+              "android/app/src/main/AndroidManifest.xml"
+            ]
+          },
+          {
+            "key": "android.permission.INTERNET",
+            "value": null,
+            "evidence": [
+              "android/app/src/main/AndroidManifest.xml"
+            ]
+          },
+          {
+            "key": "android.permission.READ_CONTACTS",
+            "value": null,
+            "evidence": [
+              "android/app/src/main/AndroidManifest.xml"
+            ]
+          },
+          {
+            "key": "android.permission.READ_EXTERNAL_STORAGE",
+            "value": null,
+            "evidence": [
+              "android/app/src/main/AndroidManifest.xml"
+            ]
+          },
+          {
+            "key": "android.permission.READ_MEDIA_AUDIO",
+            "value": null,
+            "evidence": [
+              "android/app/src/main/AndroidManifest.xml"
+            ]
+          },
+          {
+            "key": "android.permission.READ_MEDIA_IMAGES",
+            "value": null,
+            "evidence": [
+              "android/app/src/main/AndroidManifest.xml"
+            ]
+          },
+          {
+            "key": "android.permission.READ_MEDIA_VIDEO",
+            "value": null,
+            "evidence": [
+              "android/app/src/main/AndroidManifest.xml"
+            ]
+          },
+          {
+            "key": "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
+            "value": null,
+            "evidence": [
+              "android/app/src/main/AndroidManifest.xml"
+            ]
+          },
+          {
+            "key": "android.permission.RECORD_AUDIO",
+            "value": null,
+            "evidence": [
+              "android/app/src/main/AndroidManifest.xml"
+            ]
+          },
+          {
+            "key": "android.permission.VIBRATE",
+            "value": null,
+            "evidence": [
+              "android/app/src/main/AndroidManifest.xml"
+            ]
+          },
+          {
+            "key": "android.permission.WRITE_CONTACTS",
+            "value": null,
+            "evidence": [
+              "android/app/src/main/AndroidManifest.xml"
+            ]
+          },
+          {
+            "key": "android.permission.WRITE_EXTERNAL_STORAGE",
+            "value": null,
+            "evidence": [
+              "android/app/src/main/AndroidManifest.xml"
+            ]
+          }
+        ],
+        "pluginPermissionOptions": [
+          {
+            "key": "contactsPermission",
+            "value": "I agree to allow Bluesky to use my contacts for friend discovery until I opt out.",
+            "evidence": [
+              "app.config.js"
+            ]
+          }
+        ],
+        "deepLinks": {
+          "schemes": [
+            {
+              "value": "bluesky",
+              "file": "app.config.js"
+            },
+            {
+              "value": "https",
+              "file": "app.config.js"
+            },
+            {
+              "value": "http",
+              "file": "app.config.js"
+            },
+            {
+              "value": "bluesky",
+              "file": "ios/Bluesky/Info.plist"
+            },
+            {
+              "value": "xyz.blueskyweb.app",
+              "file": "ios/Bluesky/Info.plist"
+            },
+            {
+              "value": "exp+bluesky",
+              "file": "ios/Bluesky/Info.plist"
+            }
+          ],
+          "associatedDomains": [],
+          "autoVerify": [
+            "app.config.js",
+            "android/app/src/main/AndroidManifest.xml"
+          ]
+        }
+      },
+      "size": {
+        "app": {
+          "files": 2362,
+          "lines": 261583,
+          "byExt": {
+            ".js": {
+              "files": 45,
+              "lines": 3483
+            },
+            ".ts": {
+              "files": 1262,
+              "lines": 89151
+            },
+            ".tsx": {
+              "files": 1055,
+              "lines": 168949
+            }
+          }
+        },
+        "workspacePackages": [
+          {
+            "name": "react-native-scroll-forwarder",
+            "path": "modules/react-native-scroll-forwarder",
+            "files": 5,
+            "lines": 35,
+            "byExt": {
+              ".tsx": {
+                "files": 4,
+                "lines": 20
+              },
+              ".ts": {
+                "files": 1,
+                "lines": 15
+              }
+            }
+          }
+        ],
+        "tests": {
+          "unitTestFiles": 85,
+          "configs": [
+            "package.json"
+          ],
+          "e2e": [
+            {
+              "tool": "maestro",
+              "flows": 23,
+              "file": "__e2e__/flows"
+            }
+          ]
+        }
+      },
+      "summary": {
+        "nativeDependencyCount": 67,
+        "byDifficulty": {
+          "high": 2,
+          "medium": 10,
+          "low": 31,
+          "unknown": 24
+        },
+        "hardParts": [
+          {
+            "title": "expo-notifications",
+            "why": "Expo push tokens become raw APNs/FCM tokens: the backend send path changes too. Test cold-start tap routing.",
+            "evidence": [
+              "package.json",
+              "node_modules/expo-notifications/package.json"
+            ]
+          },
+          {
+            "title": "expo-updates",
+            "why": "Hot-fix-by-OTA disappears; the release process, not code, is what gets replaced.",
+            "evidence": [
+              "package.json",
+              "node_modules/expo-updates/package.json"
+            ]
+          },
+          {
+            "title": "24 unmapped native package(s): @bitdrift/react-native, @bsky.app/expo-dynamic-app-icon, @bsky.app/expo-guess-language, @bsky.app/expo-image-crop-tool, @bsky.app/expo-scroll-edge-effect, @bsky.app/expo-translate-text, @bsky.app/peek-menu, @bsky.app/react-native-uitextview, @bsky.app/sift, @bsky.app/tapper, @bsky.app/video, @bsky.app/video-compressor, expo-age-range, expo-asset, expo-glass-effect, expo-intent-launcher, expo-paste-input, expo-privacy-sensitive, expo-screen-orientation, expo-sms, expo-video-thumbnails, react-native-date-picker, react-native-device-attest, react-native-view-shot",
+            "why": "Not in the module map; each needs inspection before it can be estimated.",
+            "evidence": [
+              "package.json",
+              "node_modules/@bitdrift/react-native/package.json",
+              "package.json",
+              "node_modules/@bsky.app/expo-dynamic-app-icon/package.json",
+              "package.json",
+              "node_modules/@bsky.app/expo-guess-language/package.json",
+              "package.json",
+              "node_modules/@bsky.app/expo-image-crop-tool/package.json",
+              "package.json",
+              "node_modules/@bsky.app/expo-scroll-edge-effect/package.json",
+              "package.json",
+              "node_modules/@bsky.app/expo-translate-text/package.json",
+              "package.json",
+              "node_modules/@bsky.app/peek-menu/package.json",
+              "package.json",
+              "node_modules/@bsky.app/react-native-uitextview/package.json",
+              "package.json",
+              "node_modules/@bsky.app/sift/package.json",
+              "package.json",
+              "node_modules/@bsky.app/tapper/package.json",
+              "package.json",
+              "node_modules/@bsky.app/video/package.json",
+              "package.json",
+              "node_modules/@bsky.app/video-compressor/package.json",
+              "package.json",
+              "node_modules/expo-age-range/package.json",
+              "package.json",
+              "node_modules/expo-asset/package.json",
+              "package.json",
+              "node_modules/expo-glass-effect/package.json",
+              "package.json",
+              "node_modules/expo-intent-launcher/package.json",
+              "package.json",
+              "node_modules/expo-paste-input/package.json",
+              "package.json",
+              "node_modules/expo-privacy-sensitive/package.json",
+              "package.json",
+              "node_modules/expo-screen-orientation/package.json",
+              "package.json",
+              "node_modules/expo-sms/package.json",
+              "package.json",
+              "node_modules/expo-video-thumbnails/package.json",
+              "package.json",
+              "node_modules/react-native-date-picker/package.json",
+              "package.json",
+              "node_modules/react-native-device-attest/package.json",
+              "package.json",
+              "node_modules/react-native-view-shot/package.json"
+            ]
+          },
+          {
+            "title": "Local Expo module bottom-sheet (5 iOS / 4 Android files)",
+            "why": "Native code already exists but is wrapped for JS; its API must be re-exposed to SwiftUI and Compose.",
+            "evidence": [
+              "modules/bottom-sheet/expo-module.config.json",
+              "modules/bottom-sheet/android/src/main/java/expo/modules/bottomsheet/BottomSheetModule.kt",
+              "modules/bottom-sheet/android/src/main/java/expo/modules/bottomsheet/BottomSheetView.kt",
+              "modules/bottom-sheet/android/src/main/java/expo/modules/bottomsheet/DialogRootViewGroup.kt",
+              "modules/bottom-sheet/android/src/main/java/expo/modules/bottomsheet/SheetManager.kt",
+              "modules/bottom-sheet/ios/BottomSheetModule.swift",
+              "modules/bottom-sheet/ios/SheetManager.swift",
+              "modules/bottom-sheet/ios/SheetView.swift",
+              "modules/bottom-sheet/ios/SheetViewController.swift",
+              "modules/bottom-sheet/ios/Util.swift"
+            ]
+          },
+          {
+            "title": "Local Expo module expo-background-notification-handler (1 iOS / 4 Android files)",
+            "why": "Native code already exists but is wrapped for JS; its API must be re-exposed to SwiftUI and Compose.",
+            "evidence": [
+              "modules/expo-background-notification-handler/expo-module.config.json",
+              "modules/expo-background-notification-handler/android/src/main/java/expo/modules/backgroundnotificationhandler/BackgroundNotificationHandler.kt",
+              "modules/expo-background-notification-handler/android/src/main/java/expo/modules/backgroundnotificationhandler/BackgroundNotificationHandlerInterface.kt",
+              "modules/expo-background-notification-handler/android/src/main/java/expo/modules/backgroundnotificationhandler/ExpoBackgroundNotificationHandlerModule.kt",
+              "modules/expo-background-notification-handler/android/src/main/java/expo/modules/backgroundnotificationhandler/NotificationPrefs.kt",
+              "modules/expo-background-notification-handler/ios/ExpoBackgroundNotificationHandlerModule.swift"
+            ]
+          },
+          {
+            "title": "Local Expo module expo-bluesky-gif-view (3 iOS / 3 Android files)",
+            "why": "Native code already exists but is wrapped for JS; its API must be re-exposed to SwiftUI and Compose.",
+            "evidence": [
+              "modules/expo-bluesky-gif-view/expo-module.config.json",
+              "modules/expo-bluesky-gif-view/android/src/main/java/expo/modules/blueskygifview/AppCompatImageViewExtended.kt",
+              "modules/expo-bluesky-gif-view/android/src/main/java/expo/modules/blueskygifview/ExpoBlueskyGifViewModule.kt",
+              "modules/expo-bluesky-gif-view/android/src/main/java/expo/modules/blueskygifview/GifView.kt",
+              "modules/expo-bluesky-gif-view/ios/ExpoBlueskyGifViewModule.swift",
+              "modules/expo-bluesky-gif-view/ios/GifView.swift",
+              "modules/expo-bluesky-gif-view/ios/Util.swift"
+            ]
+          },
+          {
+            "title": "Local Expo module expo-bluesky-swiss-army (8 iOS / 7 Android files)",
+            "why": "Native code already exists but is wrapped for JS; its API must be re-exposed to SwiftUI and Compose.",
+            "evidence": [
+              "modules/expo-bluesky-swiss-army/expo-module.config.json",
+              "modules/expo-bluesky-swiss-army/android/src/main/java/expo/modules/blueskyswissarmy/platforminfo/ExpoPlatformInfoModule.kt",
+              "modules/expo-bluesky-swiss-army/android/src/main/java/expo/modules/blueskyswissarmy/referrer/ExpoBlueskyReferrerModule.kt",
+              "modules/expo-bluesky-swiss-army/android/src/main/java/expo/modules/blueskyswissarmy/sharedprefs/ExpoBlueskySharedPrefsModule.kt",
+              "modules/expo-bluesky-swiss-army/android/src/main/java/expo/modules/blueskyswissarmy/sharedprefs/SharedPrefs.kt",
+              "modules/expo-bluesky-swiss-army/android/src/main/java/expo/modules/blueskyswissarmy/visibilityview/ExpoBlueskyVisibilityViewModule.kt",
+              "modules/expo-bluesky-swiss-army/android/src/main/java/expo/modules/blueskyswissarmy/visibilityview/VisibilityView.kt",
+              "modules/expo-bluesky-swiss-army/android/src/main/java/expo/modules/blueskyswissarmy/visibilityview/VisibilityViewManager.kt",
+              "modules/expo-bluesky-swiss-army/ios/NotificationSettings/ExpoBlueskyNotificationSettingsModule.swift",
+              "modules/expo-bluesky-swiss-army/ios/PlatformInfo/ExpoPlatformInfoModule.swift",
+              "modules/expo-bluesky-swiss-army/ios/Referrer/ExpoBlueskyReferrerModule.swift"
+            ]
+          },
+          {
+            "title": "Local Expo module expo-emoji-picker (2 iOS / 2 Android files)",
+            "why": "Native code already exists but is wrapped for JS; its API must be re-exposed to SwiftUI and Compose.",
+            "evidence": [
+              "modules/expo-emoji-picker/expo-module.config.json",
+              "modules/expo-emoji-picker/android/src/main/java/expo/community/modules/emojipicker/EmojiPickerModule.kt",
+              "modules/expo-emoji-picker/android/src/main/java/expo/community/modules/emojipicker/EmojiPickerModuleView.kt",
+              "modules/expo-emoji-picker/ios/EmojiPickerModule.swift",
+              "modules/expo-emoji-picker/ios/EmojiPickerView.swift"
+            ]
+          },
+          {
+            "title": "Local Expo module expo-receive-android-intents (0 iOS / 1 Android files)",
+            "why": "Native code already exists but is wrapped for JS; its API must be re-exposed to SwiftUI and Compose.",
+            "evidence": [
+              "modules/expo-receive-android-intents/expo-module.config.json",
+              "modules/expo-receive-android-intents/android/src/main/java/xyz/blueskyweb/app/exporeceiveandroidintents/ExpoReceiveAndroidIntentsModule.kt"
+            ]
+          },
+          {
+            "title": "9 local config plugin(s): ./plugins/starterPackAppClipExtension/withStarterPackAppClip.js, ./plugins/withGradleJVMHeapSizeIncrease.js, ./plugins/withAndroidManifestLargeHeapPlugin.js, ./plugins/withAndroidManifestFCMIconPlugin.js, ./plugins/withAndroidManifestIntentQueriesPlugin.js, ./plugins/withAndroidStylesAccentColorPlugin.js, ./plugins/withAndroidNoJitpackPlugin.js, ./plugins/shareExtension/withShareExtensions.js, ./plugins/notificationsExtension/withNotificationsExtension.js",
+            "why": "Each mutates the generated native projects; that behaviour must be reproduced in the hand-owned Xcode and Gradle projects.",
+            "evidence": [
+              "app.config.js",
+              "app.config.js",
+              "app.config.js",
+              "app.config.js",
+              "app.config.js",
+              "app.config.js",
+              "app.config.js",
+              "app.config.js",
+              "app.config.js"
+            ]
+          },
+          {
+            "title": "17 patched package(s): @formatjs/bigdecimal, @sentry/expo-upload-sourcemaps, expo-age-range, expo-haptics, expo-media-library, expo-modules-core, expo-notifications, expo-updates, expo, react-native-date-picker, react-native-dotenv, react-native-drawer-layout, react-native-keyboard-controller, react-native-pager-view, react-native-screens, react-native-svg, react-native",
+            "why": "Patches encode bug fixes or behaviour changes that the native replacement must preserve.",
+            "evidence": [
+              "patches/@formatjs__bigdecimal@0.2.5.patch",
+              "patches/@sentry__expo-upload-sourcemaps@8.18.0.patch",
+              "patches/expo-age-range@57.0.2.patch",
+              "patches/expo-haptics@57.0.1.patch",
+              "patches/expo-media-library@57.0.3.patch",
+              "patches/expo-modules-core@57.0.8.patch",
+              "patches/expo-notifications@57.0.7.patch",
+              "patches/expo-updates@57.0.10.patch",
+              "patches/expo@57.0.8.patch",
+              "patches/react-native-date-picker@5.0.13.patch",
+              "patches/react-native-dotenv@3.4.11.patch",
+              "patches/react-native-drawer-layout@4.2.3.patch",
+              "patches/react-native-keyboard-controller@1.21.9.patch",
+              "patches/react-native-pager-view@6.8.0.patch",
+              "patches/react-native-screens@4.26.2.patch",
+              "patches/react-native-svg@15.15.4.patch",
+              "patches/react-native@0.86.0.patch"
+            ]
+          },
+          {
+            "title": "OTA: expo-updates active",
+            "why": "Native apps cannot hot-fix code; the release process (feature flags, phased rollout, remote config) has to replace OTA before cutover.",
+            "evidence": [
+              "package.json",
+              "app.config.js",
+              "app.config.js"
+            ]
+          },
+          {
+            "title": "iOS background modes: remote-notification",
+            "why": "Background behaviour is invisible to static analysis; verify it on a device.",
+            "evidence": [
+              "app.config.js",
+              "ios/Bluesky/Info.plist"
+            ]
+          },
+          {
+            "title": "The app also targets web",
+            "why": "A native migration drops the shared web build; decide whether web stays on React Native Web or moves elsewhere.",
+            "evidence": [
+              "package.json",
+              "app.config.js"
+            ]
+          }
+        ],
+        "effort": {
+          "label": "Heuristic starting point for a human estimate — not a quote.",
+          "unit": "engineer-days, both platforms, with coding agents",
+          "components": [
+            {
+              "label": "Screens — simple (<= 80 lines)",
+              "count": 22,
+              "daysEach": 1,
+              "days": 22
+            },
+            {
+              "label": "Screens — medium (<= 250 lines)",
+              "count": 30,
+              "daysEach": 2.5,
+              "days": 75
+            },
+            {
+              "label": "Screens — complex (> 250 lines)",
+              "count": 26,
+              "daysEach": 4,
+              "days": 104
+            },
+            {
+              "label": "Native dependencies — high",
+              "count": 2,
+              "daysEach": 5,
+              "days": 10
+            },
+            {
+              "label": "Native dependencies — medium",
+              "count": 10,
+              "daysEach": 2,
+              "days": 20
+            },
+            {
+              "label": "Native dependencies — low",
+              "count": 31,
+              "daysEach": 0.5,
+              "days": 15.5
+            },
+            {
+              "label": "Native dependencies — unknown",
+              "count": 24,
+              "daysEach": 3,
+              "days": 72
+            },
+            {
+              "label": "Local Expo modules",
+              "count": 6,
+              "daysEach": 3,
+              "days": 18
+            },
+            {
+              "label": "Local config plugins",
+              "count": 9,
+              "daysEach": 1,
+              "days": 9
+            },
+            {
+              "label": "Patched packages",
+              "count": 17,
+              "daysEach": 0.5,
+              "days": 8.5
+            },
+            {
+              "label": "Foundation (design system, navigation shell, API/auth client, CI)",
+              "count": 1,
+              "daysEach": 10,
+              "days": 10
+            },
+            {
+              "label": "Cutover (store release, phased rollout, parity sign-off)",
+              "count": 1,
+              "daysEach": 5,
+              "days": 5
+            }
+          ],
+          "totalDays": 369,
+          "band": {
+            "low": 295,
+            "high": 555
+          },
+          "assumptions": [
+            "Screen complexity is inferred from one file's non-blank line count (the expo-router route file, or the React Navigation component file the analyzer traced); components imported by that file are not counted.",
+            "Dependency days assume a native equivalent is adopted as mapped, both platforms together.",
+            "Backend, design and QA outside the app are excluded.",
+            "Team already writes Swift and Kotlin; add ramp-up time if not.",
+            "Screen count from react-navigation (medium confidence)."
+          ]
+        }
+      },
+      "evidence": [
+        ".gitignore",
+        "__e2e__/flows",
+        "__mocks__/@gorhom/bottom-sheet.tsx",
+        "__mocks__/@miblanchard/react-native-slider.js",
+        "__mocks__/expo-localization.js",
+        "__mocks__/multiformats/cid.js",
+        "__mocks__/multiformats/hashes/hasher.js",
+        "__mocks__/react-native-svg.js",
+        "__mocks__/sentry-expo.js",
+        "__tests__/lib/async/bundle.test.ts",
+        "__tests__/lib/email.test.ts",
+        "__tests__/lib/errors.test.ts",
+        "android/",
+        "android/app/src/debug/AndroidManifest.xml",
+        "android/app/src/debugOptimized/AndroidManifest.xml",
+        "android/app/src/main/AndroidManifest.xml",
+        "android/gradle.properties",
+        "app.config.js",
+        "eas.json",
+        "ios/",
+        "ios/Bluesky/Bluesky.entitlements",
+        "ios/Bluesky/Info.plist",
+        "ios/BlueskyClip/BlueskyClip.entitlements",
+        "ios/BlueskyNSE/BlueskyNSE.entitlements",
+        "ios/Podfile.properties.json",
+        "ios/Share-with-Bluesky/Share-with-Bluesky.entitlements",
+        "modules/BlueskyClip/AppDelegate.swift",
+        "modules/BlueskyClip/ViewController.swift",
+        "modules/BlueskyNSE/NotificationService.swift",
+        "modules/Share-with-Bluesky/ShareViewController.swift",
+        "modules/bottom-sheet/android/src/main/java/expo/modules/bottomsheet/BottomSheetModule.kt",
+        "modules/bottom-sheet/android/src/main/java/expo/modules/bottomsheet/BottomSheetView.kt",
+        "modules/bottom-sheet/android/src/main/java/expo/modules/bottomsheet/DialogRootViewGroup.kt",
+        "modules/bottom-sheet/android/src/main/java/expo/modules/bottomsheet/SheetManager.kt",
+        "modules/bottom-sheet/expo-module.config.json",
+        "modules/bottom-sheet/ios/BottomSheetModule.swift",
+        "modules/bottom-sheet/ios/SheetManager.swift",
+        "modules/bottom-sheet/ios/SheetView.swift",
+        "modules/bottom-sheet/ios/SheetViewController.swift",
+        "modules/bottom-sheet/ios/Util.swift",
+        "modules/expo-background-notification-handler/android/src/main/java/expo/modules/backgroundnotificationhandler/BackgroundNotificationHandler.kt",
+        "modules/expo-background-notification-handler/android/src/main/java/expo/modules/backgroundnotificationhandler/BackgroundNotificationHandlerInterface.kt",
+        "modules/expo-background-notification-handler/android/src/main/java/expo/modules/backgroundnotificationhandler/ExpoBackgroundNotificationHandlerModule.kt",
+        "modules/expo-background-notification-handler/android/src/main/java/expo/modules/backgroundnotificationhandler/NotificationPrefs.kt",
+        "modules/expo-background-notification-handler/expo-module.config.json",
+        "modules/expo-background-notification-handler/ios/ExpoBackgroundNotificationHandlerModule.swift",
+        "modules/expo-bluesky-gif-view/android/src/main/java/expo/modules/blueskygifview/AppCompatImageViewExtended.kt",
+        "modules/expo-bluesky-gif-view/android/src/main/java/expo/modules/blueskygifview/ExpoBlueskyGifViewModule.kt",
+        "modules/expo-bluesky-gif-view/android/src/main/java/expo/modules/blueskygifview/GifView.kt",
+        "modules/expo-bluesky-gif-view/expo-module.config.json",
+        "modules/expo-bluesky-gif-view/ios/ExpoBlueskyGifViewModule.swift",
+        "modules/expo-bluesky-gif-view/ios/GifView.swift",
+        "modules/expo-bluesky-gif-view/ios/Util.swift",
+        "modules/expo-bluesky-swiss-army/android/src/main/java/expo/modules/blueskyswissarmy/platforminfo/ExpoPlatformInfoModule.kt",
+        "modules/expo-bluesky-swiss-army/android/src/main/java/expo/modules/blueskyswissarmy/referrer/ExpoBlueskyReferrerModule.kt",
+        "modules/expo-bluesky-swiss-army/android/src/main/java/expo/modules/blueskyswissarmy/sharedprefs/ExpoBlueskySharedPrefsModule.kt",
+        "modules/expo-bluesky-swiss-army/android/src/main/java/expo/modules/blueskyswissarmy/sharedprefs/SharedPrefs.kt",
+        "modules/expo-bluesky-swiss-army/android/src/main/java/expo/modules/blueskyswissarmy/visibilityview/ExpoBlueskyVisibilityViewModule.kt",
+        "modules/expo-bluesky-swiss-army/android/src/main/java/expo/modules/blueskyswissarmy/visibilityview/VisibilityView.kt",
+        "modules/expo-bluesky-swiss-army/android/src/main/java/expo/modules/blueskyswissarmy/visibilityview/VisibilityViewManager.kt",
+        "modules/expo-bluesky-swiss-army/expo-module.config.json",
+        "modules/expo-bluesky-swiss-army/ios/NotificationSettings/ExpoBlueskyNotificationSettingsModule.swift",
+        "modules/expo-bluesky-swiss-army/ios/PlatformInfo/ExpoPlatformInfoModule.swift",
+        "modules/expo-bluesky-swiss-army/ios/Referrer/ExpoBlueskyReferrerModule.swift",
+        "modules/expo-emoji-picker/android/src/main/java/expo/community/modules/emojipicker/EmojiPickerModule.kt",
+        "modules/expo-emoji-picker/android/src/main/java/expo/community/modules/emojipicker/EmojiPickerModuleView.kt",
+        "modules/expo-emoji-picker/expo-module.config.json",
+        "modules/expo-emoji-picker/ios/EmojiPickerModule.swift",
+        "modules/expo-emoji-picker/ios/EmojiPickerView.swift",
+        "modules/expo-receive-android-intents/android/src/main/java/xyz/blueskyweb/app/exporeceiveandroidintents/ExpoReceiveAndroidIntentsModule.kt",
+        "modules/expo-receive-android-intents/expo-module.config.json",
+        "modules/react-native-scroll-forwarder/package.json",
+        "node_modules/@bitdrift/react-native/package.json",
+        "node_modules/@bsky.app/expo-dynamic-app-icon/package.json",
+        "node_modules/@bsky.app/expo-guess-language/package.json",
+        "node_modules/@bsky.app/expo-image-crop-tool/package.json",
+        "node_modules/@bsky.app/expo-scroll-edge-effect/package.json",
+        "node_modules/@bsky.app/expo-translate-text/package.json",
+        "node_modules/@bsky.app/peek-menu/package.json",
+        "node_modules/@bsky.app/react-native-uitextview/package.json",
+        "node_modules/@bsky.app/sift/package.json",
+        "node_modules/@bsky.app/tapper/package.json",
+        "node_modules/@bsky.app/video-compressor/package.json",
+        "node_modules/@bsky.app/video/package.json",
+        "node_modules/@react-native-async-storage/async-storage/package.json",
+        "node_modules/@react-navigation/bottom-tabs/package.json",
+        "node_modules/@react-navigation/native-stack/package.json",
+        "node_modules/@react-navigation/native/package.json",
+        "node_modules/@sentry/react-native/package.json",
+        "node_modules/expo-age-range/package.json",
+        "node_modules/expo-application/package.json",
+        "node_modules/expo-asset/package.json",
+        "node_modules/expo-blur/package.json",
+        "node_modules/expo-build-properties/package.json",
+        "node_modules/expo-camera/package.json",
+        "node_modules/expo-clipboard/package.json",
+        "node_modules/expo-contacts/package.json",
+        "node_modules/expo-dev-client/package.json",
+        "node_modules/expo-device/package.json",
+        "node_modules/expo-file-system/package.json",
+        "node_modules/expo-font/package.json",
+        "node_modules/expo-glass-effect/package.json",
+        "node_modules/expo-haptics/package.json",
+        "node_modules/expo-image-manipulator/package.json",
+        "node_modules/expo-image-picker/package.json",
+        "node_modules/expo-image/package.json",
+        "node_modules/expo-intent-launcher/package.json",
+        "node_modules/expo-keep-awake/package.json",
+        "node_modules/expo-linear-gradient/package.json",
+        "node_modules/expo-linking/package.json",
+        "node_modules/expo-localization/package.json",
+        "node_modules/expo-location/package.json",
+        "node_modules/expo-media-library/package.json",
+        "node_modules/expo-notifications/package.json",
+        "node_modules/expo-paste-input/package.json",
+        "node_modules/expo-privacy-sensitive/package.json",
+        "node_modules/expo-screen-orientation/package.json",
+        "node_modules/expo-sharing/package.json",
+        "node_modules/expo-sms/package.json",
+        "node_modules/expo-splash-screen/package.json",
+        "node_modules/expo-system-ui/package.json",
+        "node_modules/expo-updates/package.json",
+        "node_modules/expo-video-thumbnails/package.json",
+        "node_modules/expo-video/package.json",
+        "node_modules/expo-web-browser/package.json",
+        "node_modules/expo/package.json",
+        "node_modules/react-native-date-picker/package.json",
+        "node_modules/react-native-device-attest/package.json",
+        "node_modules/react-native-edge-to-edge/package.json",
+        "node_modules/react-native-gesture-handler/package.json",
+        "node_modules/react-native-keyboard-controller/package.json",
+        "node_modules/react-native-mmkv/package.json",
+        "node_modules/react-native-pager-view/package.json",
+        "node_modules/react-native-reanimated/package.json",
+        "node_modules/react-native-safe-area-context/package.json",
+        "node_modules/react-native-screens/package.json",
+        "node_modules/react-native-svg/package.json",
+        "node_modules/react-native-view-shot/package.json",
+        "node_modules/react-native-webview/package.json",
+        "node_modules/react-native-worklets/package.json",
+        "node_modules/react-native/package.json",
+        "node_modules/react/package.json",
+        "node_modules/typescript/package.json",
+        "package.json",
+        "patches/@formatjs__bigdecimal@0.2.5.patch",
+        "patches/@sentry__expo-upload-sourcemaps@8.18.0.patch",
+        "patches/expo-age-range@57.0.2.patch",
+        "patches/expo-haptics@57.0.1.patch",
+        "patches/expo-media-library@57.0.3.patch",
+        "patches/expo-modules-core@57.0.8.patch",
+        "patches/expo-notifications@57.0.7.patch",
+        "patches/expo-updates@57.0.10.patch",
+        "patches/expo@57.0.8.patch",
+        "patches/react-native-date-picker@5.0.13.patch",
+        "patches/react-native-dotenv@3.4.11.patch",
+        "patches/react-native-drawer-layout@4.2.3.patch",
+        "patches/react-native-keyboard-controller@1.21.9.patch",
+        "patches/react-native-pager-view@6.8.0.patch",
+        "patches/react-native-screens@4.26.2.patch",
+        "patches/react-native-svg@15.15.4.patch",
+        "patches/react-native@0.86.0.patch",
+        "src/Navigation.tsx",
+        "src/features/inviteFriends/InviteScannerScreen.tsx",
+        "src/features/inviteFriends/index.ts",
+        "src/screens/Bookmarks.tsx",
+        "src/screens/CustomFeed/CustomFeedLikedBy.tsx",
+        "src/screens/CustomFeed/index.tsx",
+        "src/screens/E2E/SharedPreferencesTesterScreen.tsx",
+        "src/screens/FindContactsFlowScreen.tsx",
+        "src/screens/Hashtag.tsx",
+        "src/screens/Log.tsx",
+        "src/screens/Messages/ChatList.tsx",
+        "src/screens/Messages/Conversation.tsx",
+        "src/screens/Messages/ConversationSettings/index.tsx",
+        "src/screens/Messages/Inbox.tsx",
+        "src/screens/Messages/JoinRequests.tsx",
+        "src/screens/Messages/Settings.tsx",
+        "src/screens/Moderation/VerificationSettings.tsx",
+        "src/screens/Moderation/index.tsx",
+        "src/screens/ModerationInbox/Report.tsx",
+        "src/screens/ModerationInbox/Settings.tsx",
+        "src/screens/ModerationInbox/Subject.tsx",
+        "src/screens/ModerationInbox/index.tsx",
+        "src/screens/ModerationInteractionSettings/index.tsx",
+        "src/screens/Notifications/ActivityList.tsx",
+        "src/screens/Post/PostLikedBy.tsx",
+        "src/screens/Post/PostQuotes.tsx",
+        "src/screens/Post/PostRepostedBy.tsx",
+        "src/screens/Profile/KnownFollowers.tsx",
+        "src/screens/Profile/ProfileFollowers.tsx",
+        "src/screens/Profile/ProfileFollows.tsx",
+        "src/screens/Profile/ProfileLabelerLikedBy.tsx",
+        "src/screens/Profile/ProfileSearch.tsx",
+        "src/screens/ProfileList/index.tsx",
+        "src/screens/SavedFeeds.tsx",
+        "src/screens/Search/index.tsx",
+        "src/screens/Settings/AboutSettings.tsx",
+        "src/screens/Settings/AccessibilitySettings.tsx",
+        "src/screens/Settings/AccountSettings.tsx",
+        "src/screens/Settings/ActivityPrivacySettings.tsx",
+        "src/screens/Settings/AppIconSettings/index.tsx",
+        "src/screens/Settings/AppPasswords.tsx",
+        "src/screens/Settings/AppearanceSettings.tsx",
+        "src/screens/Settings/AutomationLabelSettings.tsx",
+        "src/screens/Settings/BetaFeaturesSettings.tsx",
+        "src/screens/Settings/ContentAndMediaSettings.tsx",
+        "src/screens/Settings/ExternalMediaPreferences.tsx",
+        "src/screens/Settings/FindContactsSettings.tsx",
+        "src/screens/Settings/FollowingFeedPreferences.tsx",
+        "src/screens/Settings/InterestsSettings.tsx",
+        "src/screens/Settings/LanguageSettings.tsx",
+        "src/screens/Settings/LegacyNotificationSettings.tsx",
+        "src/screens/Settings/NotificationSettings/ActivityNotificationSettings.tsx",
+        "src/screens/Settings/NotificationSettings/index.tsx",
+        "src/screens/Settings/PrivacyAndSecuritySettings.tsx",
+        "src/screens/Settings/Settings.tsx",
+        "src/screens/Settings/ThreadPreferences.tsx",
+        "src/screens/StarterPack/StarterPackScreen.tsx",
+        "src/screens/StarterPack/Wizard/index.tsx",
+        "src/screens/Topic.tsx",
+        "src/screens/VideoFeed/index.tsx",
+        "src/view/screens/CommunityGuidelines.tsx",
+        "src/view/screens/CopyrightPolicy.tsx",
+        "src/view/screens/DebugMod.tsx",
+        "src/view/screens/Feeds.tsx",
+        "src/view/screens/Home.tsx",
+        "src/view/screens/Lists.tsx",
+        "src/view/screens/ModerationBlockedAccounts.tsx",
+        "src/view/screens/ModerationModlists.tsx",
+        "src/view/screens/ModerationMutedAccounts.tsx",
+        "src/view/screens/NotFound.tsx",
+        "src/view/screens/Notifications.tsx",
+        "src/view/screens/PostThread.tsx",
+        "src/view/screens/PrivacyPolicy.tsx",
+        "src/view/screens/Profile.tsx",
+        "src/view/screens/Storybook/index.tsx",
+        "src/view/screens/Support.tsx",
+        "src/view/screens/TermsOfService.tsx",
+        "tsconfig.json"
+      ]
+    }
+  ],
+  "skippedPackages": [],
+  "warnings": []
+}
