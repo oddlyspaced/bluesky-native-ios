@@ -1,0 +1,131 @@
+# Checkpoint plan: Bluesky showcase slice
+
+> Drafted with plan-checkpoints 1.0.0. Source: `full-app-plan.md` (121 checkpoints drafted from `bluesky-analysis.json`, assess-rn-app 0.1.0, bluesky-social/social-app at commit 2bfb94d).
+> This showcase ports a slice of the app, not the full app. The slice takes the foundation and three screens from the full plan and splits the shared post components into their own scope.
+
+```plan
+app: bsky.app
+assessment: bluesky-analysis.json
+design: keep-design
+```
+
+## Design decision
+
+`design: keep-design`. The SwiftUI and Compose apps keep the Bluesky design: ALF tokens, the Inter font and the Bluesky icon set. They do not adopt SF Symbols or Material defaults. Reason: the showcase proves the migration changes the code, not the product.
+
+## Environment
+
+- Server: the upstream e2e dev network (`dev-env/mock-server.ts`). PDS on `http://localhost:3000`, seeded with `POST http://localhost:1986/?users&follows&posts&feeds&thread`.
+- Reference: the upstream React Native e2e build (`pnpm e2e:build`, `pnpm e2e:build-android`) on the same seed.
+- Parity driver: one Maestro capture flow for both apps. React Native `testID` values are reused as `accessibilityIdentifier` (iOS) and `testTag` (Android).
+
+## Out of scope
+
+Search, chat, notifications, composer, feeds tab, onboarding, settings, moderation, push notifications, OTA and cutover. The full plan lists them.
+
+## Acceptance
+
+```acceptance
+state: not accepted
+```
+
+## Checkpoints
+
+### CP-00: Foundation
+
+```checkpoint
+id: CP-00
+title: Foundation
+kind: foundation
+depends: none
+status: in-progress
+scope:
+  - src/alf/tokens.ts
+  - src/alf/themes.ts
+  - src/alf/atoms.ts
+  - src/alf/fonts.ts
+  - src/state/session/index.tsx
+  - src/view/shell/bottom-bar/BottomBar.tsx
+  - dev-env/constants.ts
+```
+
+Design tokens and Inter font, XRPC client with the AppView proxy header, session (create session, keep tokens), bottom tab shell, debug-only "Sign in as Alice" entry with id `e2eSignInAlice`.
+
+Gates:
+
+- [ ] Tests pass on iOS and Android
+- [ ] Parity report passes, or every drift is accepted in writing
+- [ ] parity-reviewer passes
+- [ ] architecture-reviewer passes
+- [ ] Human approval recorded
+
+### CP-01: Screen Home
+
+```checkpoint
+id: CP-01
+title: Screen Home
+kind: screen
+depends: CP-00
+status: in-progress
+scope:
+  - src/view/screens/Home.tsx
+  - src/view/com/posts/PostFeedItem.tsx
+```
+
+Following timeline: header, Following and Feeds tabs, composer prompt row, feed items with thread lines, like and repost with optimistic state, pull to refresh.
+
+Gates:
+
+- [ ] Tests pass on iOS and Android
+- [ ] Parity report passes, or every drift is accepted in writing
+- [ ] parity-reviewer passes
+- [ ] architecture-reviewer passes
+- [ ] Human approval recorded
+
+### CP-02: Screen PostThread
+
+```checkpoint
+id: CP-02
+title: Screen PostThread
+kind: screen
+depends: CP-01
+status: in-progress
+scope:
+  - src/screens/PostThread/index.tsx
+  - src/screens/PostThread/components/ThreadItemAnchor.tsx
+  - src/screens/PostThread/components/ThreadItemPost.tsx
+  - src/screens/PostThread/components/ThreadItemTreePost.tsx
+```
+
+Anchor post with full timestamp and reply setting, replies, like and repost, back navigation.
+
+Gates:
+
+- [ ] Tests pass on iOS and Android
+- [ ] Parity report passes, or every drift is accepted in writing
+- [ ] parity-reviewer passes
+- [ ] architecture-reviewer passes
+- [ ] Human approval recorded
+
+### CP-03: Screen Profile
+
+```checkpoint
+id: CP-03
+title: Screen Profile
+kind: screen
+depends: CP-01
+status: in-progress
+scope:
+  - src/view/screens/Profile.tsx
+  - src/screens/Profile/Header
+```
+
+Own profile: banner, avatar, actions, counts, bio, section tabs, Posts tab feed.
+
+Gates:
+
+- [ ] Tests pass on iOS and Android
+- [ ] Parity report passes, or every drift is accepted in writing
+- [ ] parity-reviewer passes
+- [ ] architecture-reviewer passes
+- [ ] Human approval recorded
