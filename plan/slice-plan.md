@@ -19,9 +19,37 @@ design: keep-design
 - Reference: the upstream React Native e2e build (`pnpm e2e:build`, `pnpm e2e:build-android`) on the same seed.
 - Parity driver: one Maestro capture flow for both apps. React Native `testID` values are reused as `accessibilityIdentifier` (iOS) and `testTag` (Android).
 
+## In scope for every screen in the slice
+
+- Light, dark and dim themes, following the system setting, as in the React Native app.
+- Dynamic Type (iOS) and font scale (Android), with the React Native app's multiplier and cap.
+- Analytics events with the same names and properties as the React Native app, written to a local event log, and compared with an event diff.
+- Rich text facets (links, mentions, tags) in post text.
+- Loading, empty, error, load-more error and not-found states.
+- Accessibility labels, roles and hints, and every React Native `testID` reused as `accessibilityIdentifier` and `testTag`.
+
 ## Out of scope
 
 Search, chat, notifications, composer, feeds tab, onboarding, settings, moderation, push notifications, OTA and cutover. The full plan lists them.
+
+## Proposed out of scope, awaiting owner acceptance
+
+These differences are not accepted yet. The gate "Parity report passes, or every drift is accepted in writing" stays open until a named owner accepts each row here.
+
+| Difference | Reason |
+|---|---|
+| Post embeds: images, video, external link cards, quote posts, record-with-media | The seed data has no embeds. Each embed type is a separate component set and fits a later checkpoint. |
+| Long-press repost to quote | Needs the composer, which is out of scope. |
+| Chat unread badge | Chat is out of scope. |
+| Other profile tabs (Replies, Media, Videos, Likes, Feeds, Starter Packs) and other users' profiles | The slice covers the own profile, Posts tab only. |
+| Licensing substitutions: open icon set, neutral logo mark, code-drawn default avatar, app name without "Bluesky" | Upstream `ASSETS.md` sections 2 and 3: upstream icons and marks are not licensed for redistribution. |
+
+## Reviews
+
+| Date | Platform | Review | Result |
+|---|---|---|---|
+| 2026-09-15 | iOS | `reviews/2026-09-15-ios-CP00-03-parity-review-1.md` | 14 blockers |
+| 2026-09-15 | iOS | `reviews/2026-09-15-ios-CP00-03-architecture-review-1.md` | 2 blockers |
 
 ## Acceptance
 
