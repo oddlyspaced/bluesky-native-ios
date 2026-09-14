@@ -6,7 +6,7 @@ enum AppConfig {
 
     #if E2E
     /// `E2E_APPVIEW_DID` from RN `dev-env/constants.ts`, as set by `TestCtrls.e2e.tsx`.
-    static let appViewProxy: String? = "did:plc:kmmukaomzqnk3fln2m5guony#bsky_appview"
+    static let appViewProxy: String? = "did:plc:bw7ad3erl7btq6qwf66yqiov#bsky_appview"
     #else
     /// RN default `BLUESKY_PROXY_DID` (`src/lib/constants.ts`).
     static let appViewProxy: String? = "did:web:api.bsky.app#bsky_appview"

@@ -31,7 +31,7 @@ The app talks to a real AT Protocol server. It uses no mock data and no hard-cod
 
 **Debug sign-in.** The Debug build defines the `E2E` compilation condition. It mirrors RN `TestCtrls.e2e.tsx`:
 - A 1x1pt red control column at top 100, right 0.
-- `e2eSignInAlice`, `e2eSignInBob` and `e2eSignOut` sign in to `http://localhost:3000` or sign out. They use proxy `did:plc:kmmukaomzqnk3fln2m5guony#bsky_appview`.
+- `e2eSignInAlice`, `e2eSignInBob` and `e2eSignOut` sign in to `http://localhost:3000` or sign out. They use proxy `did:plc:bw7ad3erl7btq6qwf66yqiov#bsky_appview`.
 
 ## What is not ported
 
@@ -126,7 +126,7 @@ To refresh a fixture after a seed, run this in `BlueskyNativeTests/Fixtures`. Re
 TOKEN=$(curl -s -X POST http://localhost:3000/xrpc/com.atproto.server.createSession \
   -H 'Content-Type: application/json' -d '{"identifier":"alice.test","password":"hunter2"}' | jq -r .accessJwt)
 curl -s -H "Authorization: Bearer $TOKEN" \
-  -H 'atproto-proxy: did:plc:kmmukaomzqnk3fln2m5guony#bsky_appview' \
+  -H 'atproto-proxy: did:plc:bw7ad3erl7btq6qwf66yqiov#bsky_appview' \
   "http://localhost:3000/xrpc/app.bsky.feed.getTimeline?limit=30" > getTimeline.json
 ```
 

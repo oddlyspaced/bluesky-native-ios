@@ -26,7 +26,7 @@ final class RecordingTransport: HTTPTransport, @unchecked Sendable {
 @Suite("XRPC client")
 struct NetworkingTests {
     let service = URL(string: "http://localhost:3000")!
-    let proxy = "did:plc:kmmukaomzqnk3fln2m5guony#bsky_appview"
+    let proxy = "did:plc:bw7ad3erl7btq6qwf66yqiov#bsky_appview"
 
     private func session(access: String = "a1", refresh: String = "r1") -> StoredSession {
         StoredSession(service: service, did: "did:plc:alice", handle: "alice.test", accessJwt: access, refreshJwt: refresh)
