@@ -23,6 +23,8 @@ This port covers part of the app, not all of it. The assessment finds 78 screens
 ## Run the reference setup
 
 1. Start the upstream e2e dev network from `bluesky-social/social-app` at commit 2bfb94d: `pnpm e2e:mock-server`.
+   - Keep ports 2584 and 3000 to 3003 free. The network takes the next free port for each service, and the AppView DID depends on those ports. If another process holds one of them, the mock server stops with "E2E AppView DID changed".
+   - With free ports, the AppView DID is `did:plc:bw7ad3erl7btq6qwf66yqiov`. This is the value in upstream `dev-env/constants.ts`, and both native apps use it.
 2. Seed the test data: `curl -X POST "http://localhost:1986/?users&follows&posts&feeds&thread"`.
 3. Build the React Native e2e app: `pnpm e2e:build` (iOS) or `pnpm e2e:build-android` (Android). Start Metro with `pnpm e2e:start`.
 4. On Android, forward the ports: `adb reverse tcp:3000 tcp:3000` and `adb reverse tcp:8081 tcp:8081`.
