@@ -9,7 +9,6 @@
 {"name":"post:view","props":{"uri":"bob.test|Post","authorDid":"bob.test","isReply":false,"logContext":"FeedItem","feedDescriptor":"following","position":2}}
 {"name":"post:view","props":{"uri":"alice.test|Post","authorDid":"alice.test","isReply":false,"logContext":"FeedItem","feedDescriptor":"following","position":3}}
 {"name":"post:clickthroughItem","props":{"uri":"bob.test|Thread root","authorDid":"bob.test","logContext":"FeedItem","feedDescriptor":"following"}}
-{"name":"thread:preferences:load","props":{"sort":"hotness","view":"linear"}}
 {"name":"post:view","props":{"uri":"bob.test|Thread root","authorDid":"bob.test","isReply":false,"logContext":"Post","feedDescriptor":"following"}}
 {"name":"router:navigate","props":{"from":"Home"}}
 {"name":"post:view","props":{"uri":"carla.test|Thread reply","authorDid":"carla.test","isReply":true,"logContext":"PostThreadItem"}}

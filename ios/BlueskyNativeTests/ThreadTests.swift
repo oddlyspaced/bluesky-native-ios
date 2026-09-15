@@ -159,6 +159,27 @@ struct ThreadTests {
         #expect(await api.calls.filter { $0 == "getPreferences" }.count == 2)
     }
 
+    /// RN `useThreadPreferences.ts:50-71`: preferences cached when the screen appears send no
+    /// metric; preferences that arrive after it appears send one.
+    @Test func preferencesMetricOnlyWhenPreferencesArriveAfterAppear() async throws {
+        let api = FakeBlueskyAPI()
+        await api.setThread(try Fixtures.decode(PostThreadV2Response.self, "getPostThreadV2"))
+        let prefs = PreferencesModel(api: api)
+        _ = try await prefs.load()
+        let cached = ThreadModel(api: api, anchor: "at://root", feedDescriptor: "following", preferences: prefs,
+                                 analytics: analytics, userDid: "did:plc:alice")
+        await cached.loadIfNeeded()
+        #expect(cached.status == .loaded)
+        #expect(analytics.events(named: "thread:preferences:load").isEmpty)
+
+        let late = ThreadModel(api: api, anchor: "at://root", feedDescriptor: "following",
+                               preferences: PreferencesModel(api: api), analytics: analytics, userDid: "did:plc:alice")
+        await late.loadIfNeeded()
+        #expect(analytics.events(named: "thread:preferences:load").count == 1)
+        await late.retry()
+        #expect(analytics.events(named: "thread:preferences:load").count == 1)
+    }
+
     /// Review finding N5: the logged view is the server's `lab_treeViewEnabled`; the port still
     /// renders the linear view (the tree view is proposed out of scope).
     @Test func preferencesMetricLogsTheServerView() async throws {

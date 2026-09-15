@@ -277,6 +277,8 @@ final class ThreadModel {
     @ObservationIgnored private let faults: DebugFaults?
     @ObservationIgnored private let userDid: String
     @ObservationIgnored private var reportedPreferences = false
+    /// The server preferences this screen saw when it appeared (RN `useState(serverPrefs)`).
+    @ObservationIgnored private var preferencesAtAppear: ActorPreferences?
     @ObservationIgnored private var reportedAnchorUri: String?
     @ObservationIgnored private var viewedPosts = Set<String>()
     @ObservationIgnored private var loadTask: Task<Void, Never>?
@@ -293,6 +295,7 @@ final class ThreadModel {
         self.faults = faults
         self.userDid = userDid
         self.placeholder = placeholder
+        preferencesAtAppear = preferences.preferences
         let onViewable: @MainActor ([String]) -> Void = { [weak self] ids in self?.reportViewable(ids) }
         tracker = viewWaiter.map { ViewabilityTracker(waiter: $0, onViewable: onViewable) }
             ?? ViewabilityTracker(onViewable: onViewable)
@@ -346,12 +349,10 @@ final class ThreadModel {
         await loadIfNeeded()
     }
 
-    /// Events of the thread screen's first render, in RN's order: `thread:preferences:load` is
-    /// sent during render when preferences are loaded (`useThreadPreferences.ts:50-70`), then the
-    /// anchor `post:view` effect runs on the placeholder anchor from the query cache, before the
-    /// network answers (`PostThread/index.tsx:95-112`, review finding N23). Both are idempotent.
+    /// Events of the thread screen's first render: the anchor `post:view` effect runs on the
+    /// placeholder anchor from the query cache, before the network answers
+    /// (`PostThread/index.tsx:95-112`, review finding N23). Idempotent.
     func reportRenderEvents() {
-        if let loaded = preferences.preferences { reportPreferences(loaded) }
         if let placeholder { reportAnchorView(placeholder) }
     }
 
@@ -369,7 +370,7 @@ final class ThreadModel {
             status = Self.failure(for: error)
             return
         }
-        reportPreferences(prefs)
+        preferencesArrived(prefs)
         do {
             if faults?.consume(.thread) == true { throw InjectedFault() }
             let response = try await api.getPostThreadV2(
@@ -387,9 +388,18 @@ final class ThreadModel {
         }
     }
 
-    /// `thread:preferences:load`, once per screen, with the merged server values
-    /// (`useThreadPreferences.ts:65-70`: `sort` raw with the `hotness` default, `view` from
-    /// `lab_treeViewEnabled`).
+    /// `thread:preferences:load` (`useThreadPreferences.ts:50-71`). RN starts `prevServerPrefs` as
+    /// the preferences cached when the screen mounts and sends the metric, once, only when server
+    /// preferences arrive or change after that. Preferences already cached on appear (Home loaded
+    /// them) send nothing; a failed load sends nothing.
+    private func preferencesArrived(_ prefs: ActorPreferences) {
+        guard prefs != preferencesAtAppear else { return }
+        preferencesAtAppear = prefs
+        reportPreferences(prefs)
+    }
+
+    /// The metric with the merged server values: `sort` raw with the `hotness` default, `view` from
+    /// `lab_treeViewEnabled` (`useThreadPreferences.ts:65-70`).
     private func reportPreferences(_ prefs: ActorPreferences) {
         guard !reportedPreferences else { return }
         reportedPreferences = true
