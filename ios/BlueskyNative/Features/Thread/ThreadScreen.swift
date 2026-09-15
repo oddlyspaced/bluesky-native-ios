@@ -40,7 +40,6 @@ struct ThreadScreen: View {
         .background(theme.bg)
         .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { windowHeight = $0 }
         .toolbar(.hidden, for: .navigationBar)
-        .background(InteractivePopEnabler())
         .task {
             model.setPlaceholder(container.cachedPost(uri: model.anchorUri))
             await model.loadIfNeeded()
@@ -125,39 +124,6 @@ extension AccountContainer {
             }
         }
         return nil
-    }
-}
-
-/// Keeps the swipe-back gesture while the navigation bar is hidden (review finding P10).
-struct InteractivePopEnabler: UIViewControllerRepresentable {
-    func makeCoordinator() -> Coordinator { Coordinator() }
-
-    func makeUIViewController(context: Context) -> UIViewController {
-        let controller = Probe()
-        controller.coordinator = context.coordinator
-        return controller
-    }
-
-    func updateUIViewController(_ controller: UIViewController, context: Context) {}
-
-    final class Coordinator: NSObject, UIGestureRecognizerDelegate {
-        weak var navigationController: UINavigationController?
-
-        func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-            (navigationController?.viewControllers.count ?? 0) > 1
-        }
-    }
-
-    private final class Probe: UIViewController {
-        var coordinator: Coordinator?
-
-        override func didMove(toParent parent: UIViewController?) {
-            super.didMove(toParent: parent)
-            guard let navigationController = parent?.navigationController ?? navigationController else { return }
-            coordinator?.navigationController = navigationController
-            navigationController.interactivePopGestureRecognizer?.isEnabled = true
-            navigationController.interactivePopGestureRecognizer?.delegate = coordinator
-        }
     }
 }
 

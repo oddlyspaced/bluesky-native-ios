@@ -25,8 +25,16 @@ appId: io.nativestarter.showcase.bluesky
             SERVER_PATH: ${output.seed}
 - runFlow:
     file: launch.yml
-- tapOn:
-    id: "e2eSignInAlice"
+# The 1pt test control can be tapped before the app is ready; retry until the signed-out
+# screen is gone. A second tap runs only when the first did not sign in.
+- retry:
+    maxRetries: 2
+    commands:
+      - tapOn:
+          id: "e2eSignInAlice"
+      - extendedWaitUntil:
+          notVisible: "Create account"
+          timeout: 30000
 
 # Home: wait for a real feed item (standard seed) or the end-of-feed block (empty seed).
 - runFlow:
@@ -63,8 +71,9 @@ appId: io.nativestarter.showcase.bluesky
           start: "1%, 45%"
           end: "90%, 45%"
           duration: 400
+      # "Thread reply" is also a Home feed row, so the check uses the thread-only reply prompt.
       - extendedWaitUntil:
-          notVisible: "Thread reply"
+          notVisible: "Write your reply"
           timeout: 10000
       - assertVisible:
           id: "feedItem-by-alice.test"

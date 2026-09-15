@@ -44,7 +44,6 @@ struct ProfileScreen: View {
         }
         .background(theme.bg)
         .toolbar(.hidden, for: .navigationBar)
-        .background(InteractivePopEnabler())
         // `Layout.Screen testID="profileScreen"` (`Profile.tsx:63`, review finding N7).
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("profileScreen")
