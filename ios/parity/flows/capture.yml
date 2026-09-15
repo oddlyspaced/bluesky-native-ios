@@ -1,0 +1,62 @@
+# Read-only capture of the three slice screens: home, thread, profile. One flow for both builds.
+# Run from this directory with check-parity/scripts/capture.mjs (--label rn|native), or through
+# ../run-capture.sh for the dark, largest-text and empty states.
+#
+# Variables: LABEL (rn|native, required), SEED and SUFFIX (optional).
+# Maestro 2.4.0 lets a flow-header `env:` block override `-e` values, so the defaults are
+# computed with evalScript instead of a header block.
+appId: io.nativestarter.showcase.bluesky
+---
+- evalScript: "${output.seed = (typeof SEED === 'undefined' ? '?users&follows&posts&feeds&thread' : SEED)}"
+- evalScript: "${output.suffix = (typeof SUFFIX === 'undefined' ? '' : SUFFIX)}"
+- evalScript: "${output.full = (output.seed === '?users&follows&posts&feeds&thread')}"
+- runScript:
+    file: setupServer.js
+    env:
+      SERVER_PATH: ${output.seed}
+- runFlow:
+    file: launch.yml
+- tapOn:
+    id: "e2eSignInAlice"
+
+# Home: wait for a real feed item (standard seed) or the end-of-feed block (empty seed).
+- runFlow:
+    when:
+      true: ${output.full}
+    commands:
+      - extendedWaitUntil:
+          visible:
+            id: "feedItem-by-alice.test"
+          timeout: 60000
+- runFlow:
+    when:
+      true: ${!output.full}
+    commands:
+      - extendedWaitUntil:
+          visible: "Find accounts to follow"
+          timeout: 60000
+- waitForAnimationToEnd
+- takeScreenshot: home${output.suffix}
+
+# Thread (standard seed only).
+- runFlow:
+    when:
+      true: ${output.full}
+    commands:
+      - tapOn: "Thread root"
+      - extendedWaitUntil:
+          visible: "Thread reply"
+          timeout: 20000
+      - waitForAnimationToEnd
+      - takeScreenshot: thread${output.suffix}
+      - back
+
+# Profile.
+- tapOn:
+    id: "bottomBarProfileBtn"
+- extendedWaitUntil:
+    visible:
+      id: "profileView"
+    timeout: 20000
+- waitForAnimationToEnd
+- takeScreenshot: profile${output.suffix}

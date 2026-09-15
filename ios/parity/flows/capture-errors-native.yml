@@ -1,0 +1,80 @@
+# Native-only error states. The Debug build's E2E fault controls arm injected network
+# failures. RN has no equivalent control, so these states have no RN baseline.
+#
+# All faults are armed on the signed-out screen: the 1pt controls are reliable tap targets
+# there. Each fault is consumed by the first matching request:
+#   e2eFailNextFeedLoad  the Following feed's first load        -> home-error
+#   e2eFailNextRefresh   the first reload with rows on screen   -> home-load-more-error
+#   e2eFailNextThread    the first thread load                  -> thread-error
+#   e2eFailNextProfile   the profile load at sign-in            -> profile-error
+appId: io.nativestarter.showcase.bluesky
+---
+- runScript:
+    file: setupServer.js
+    env:
+      SERVER_PATH: "?users&follows&posts&feeds&thread"
+- runFlow:
+    file: launch.yml
+- tapOn:
+    id: "e2eFailNextFeedLoad"
+- tapOn:
+    id: "e2eFailNextRefresh"
+- tapOn:
+    id: "e2eFailNextThread"
+- tapOn:
+    id: "e2eFailNextProfile"
+- tapOn:
+    id: "e2eSignInAlice"
+
+# First-load feed error, then Retry.
+- extendedWaitUntil:
+    visible:
+      id: "errorMessageView"
+    timeout: 60000
+- waitForAnimationToEnd
+- takeScreenshot: home-error
+- tapOn:
+    id: "errorMessageTryAgainButton"
+- extendedWaitUntil:
+    visible:
+      id: "feedItem-by-alice.test"
+    timeout: 60000
+
+# Thread error.
+- tapOn: "Thread root"
+- extendedWaitUntil:
+    visible:
+      id: "threadErrorView"
+    timeout: 20000
+- waitForAnimationToEnd
+- takeScreenshot: thread-error
+
+# Profile error (the profile load at sign-in failed).
+- tapOn:
+    id: "bottomBarProfileBtn"
+- extendedWaitUntil:
+    visible:
+      id: "profileErrorScreen"
+    timeout: 20000
+- waitForAnimationToEnd
+- takeScreenshot: profile-error
+
+# Load-more error row: back to the Home tab, pop the thread, then re-tap Home at its root.
+# The soft reset (RN `emitSoftReset`) reloads with rows on screen and the refresh fault fails it.
+- tapOn:
+    id: "bottomBarHomeBtn"
+- tapOn:
+    id: "bottomBarHomeBtn"
+- extendedWaitUntil:
+    visible:
+      id: "feedItem-by-alice.test"
+    timeout: 20000
+- tapOn:
+    id: "bottomBarHomeBtn"
+- scrollUntilVisible:
+    element:
+      id: "loadMoreRetryBtn"
+    direction: DOWN
+    timeout: 30000
+- waitForAnimationToEnd
+- takeScreenshot: home-load-more-error

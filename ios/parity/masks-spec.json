@@ -1,0 +1,1601 @@
+{
+ "base": {
+  "home": [
+   {
+    "kind": "status"
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     30,
+     195,
+     1180,
+     305
+    ],
+    "minw": 30,
+    "reason": "header icons and logo mark (licence substitution)"
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     940,
+     500,
+     1190,
+     610
+    ],
+    "minw": 40,
+    "reason": "composer camera and image glyphs (Lucide substitute)"
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     668,
+     1160,
+     730
+    ]
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     916,
+     1160,
+     978
+    ]
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     1188,
+     1160,
+     1250
+    ]
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     1461,
+     1160,
+     1523
+    ]
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     1734,
+     1160,
+     1796
+    ]
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     815,
+     1180,
+     885
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     1063,
+     1180,
+     1133
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     1336,
+     1180,
+     1406
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     1608,
+     1180,
+     1678
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     1881,
+     1180,
+     1951
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "rect",
+    "box": [
+     66,
+     2018,
+     186,
+     2138
+    ],
+    "reason": "info glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     1005,
+     2214,
+     1095,
+     2304
+    ],
+    "reason": "compose FAB glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     90,
+     2414,
+     190,
+     2506
+    ],
+    "reason": "bottom bar home glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     321,
+     2414,
+     421,
+     2506
+    ],
+    "reason": "bottom bar search glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     553,
+     2414,
+     653,
+     2506
+    ],
+    "reason": "bottom bar chat glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2440,
+     885,
+     2506
+    ],
+    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+   }
+  ],
+  "thread": [
+   {
+    "kind": "status"
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     30,
+     195,
+     1180,
+     305
+    ],
+    "minw": 30,
+    "reason": "header back and options glyphs (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     1060,
+     386,
+     1172,
+     498
+    ],
+    "reason": "anchor logo slot: RN shows its trademark mark only in screenshots"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     36,
+     644,
+     830,
+     702
+    ],
+    "reason": "date line (capture time); the who-can-reply glyph and label move with its width"
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     20,
+     705,
+     1180,
+     790
+    ],
+    "minw": 40
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     855,
+     1160,
+     920
+    ]
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     1004,
+     1180,
+     1075
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "rect",
+    "box": [
+     90,
+     2414,
+     190,
+     2506
+    ],
+    "reason": "bottom bar home glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     321,
+     2414,
+     421,
+     2506
+    ],
+    "reason": "bottom bar search glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     553,
+     2414,
+     653,
+     2506
+    ],
+    "reason": "bottom bar chat glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2440,
+     885,
+     2506
+    ],
+    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+   }
+  ],
+  "profile": [
+   {
+    "kind": "status"
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     960,
+     500,
+     1150,
+     575
+    ],
+    "minw": 30,
+    "reason": "profile share and more glyphs (Lucide substitute)"
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     1130,
+     1160,
+     1195
+    ]
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     1280,
+     1180,
+     1350
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "rect",
+    "box": [
+     1005,
+     2214,
+     1095,
+     2304
+    ],
+    "reason": "compose FAB glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     90,
+     2414,
+     190,
+     2506
+    ],
+    "reason": "bottom bar home glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     321,
+     2414,
+     421,
+     2506
+    ],
+    "reason": "bottom bar search glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     553,
+     2414,
+     653,
+     2506
+    ],
+    "reason": "bottom bar chat glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2440,
+     885,
+     2506
+    ],
+    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+   }
+  ]
+ },
+ "interactions": {
+  "home-liked-reposted": [
+   {
+    "kind": "status"
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     30,
+     195,
+     1180,
+     305
+    ],
+    "minw": 30,
+    "reason": "header icons and logo mark (licence substitution)"
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     940,
+     500,
+     1190,
+     610
+    ],
+    "minw": 40,
+    "reason": "composer camera and image glyphs (Lucide substitute)"
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     668,
+     1160,
+     730
+    ]
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     916,
+     1160,
+     978
+    ]
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     1188,
+     1160,
+     1250
+    ]
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     1461,
+     1160,
+     1523
+    ]
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     1734,
+     1160,
+     1796
+    ]
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     815,
+     1180,
+     885
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     1063,
+     1180,
+     1133
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     1336,
+     1180,
+     1406
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     1608,
+     1180,
+     1678
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     1881,
+     1180,
+     1951
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "rect",
+    "box": [
+     66,
+     2018,
+     186,
+     2138
+    ],
+    "reason": "info glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     1005,
+     2214,
+     1095,
+     2304
+    ],
+    "reason": "compose FAB glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     90,
+     2414,
+     190,
+     2506
+    ],
+    "reason": "bottom bar home glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     321,
+     2414,
+     421,
+     2506
+    ],
+    "reason": "bottom bar search glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     553,
+     2414,
+     653,
+     2506
+    ],
+    "reason": "bottom bar chat glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2440,
+     885,
+     2506
+    ],
+    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+   }
+  ],
+  "thread-liked-reposted": [
+   {
+    "kind": "status"
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     30,
+     195,
+     1180,
+     305
+    ],
+    "minw": 30,
+    "reason": "header back and options glyphs (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     1060,
+     386,
+     1172,
+     498
+    ],
+    "reason": "anchor logo slot: RN shows its trademark mark only in screenshots"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     36,
+     644,
+     830,
+     702
+    ],
+    "reason": "date line (capture time); the who-can-reply glyph and label move with its width"
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     20,
+     852,
+     1180,
+     930
+    ],
+    "minw": 40
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     1005,
+     1160,
+     1065
+    ]
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     1152,
+     1180,
+     1220
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "rect",
+    "box": [
+     90,
+     2414,
+     190,
+     2506
+    ],
+    "reason": "bottom bar home glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     321,
+     2414,
+     421,
+     2506
+    ],
+    "reason": "bottom bar search glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     553,
+     2414,
+     653,
+     2506
+    ],
+    "reason": "bottom bar chat glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2440,
+     885,
+     2506
+    ],
+    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+   }
+  ]
+ },
+ "xxxl": {
+  "home-xxxl": [
+   {
+    "kind": "status"
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     30,
+     195,
+     1180,
+     305
+    ],
+    "minw": 30,
+    "reason": "header icons and logo mark (licence substitution)"
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     940,
+     530,
+     1190,
+     610
+    ],
+    "minw": 40,
+    "reason": "composer camera and image glyphs (Lucide substitute)"
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     698,
+     1160,
+     766
+    ]
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     1001,
+     1160,
+     1069
+    ]
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     1313,
+     1160,
+     1381
+    ]
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     1625,
+     1160,
+     1693
+    ]
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     1936,
+     1160,
+     2005
+    ]
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     880,
+     1180,
+     955
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     1180,
+     1180,
+     1250
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     1492,
+     1180,
+     1562
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     1804,
+     1180,
+     1874
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     2116,
+     1180,
+     2186
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     40,
+     2225,
+     200,
+     2375
+    ],
+    "minw": 40,
+    "reason": "info glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     1005,
+     2214,
+     1095,
+     2304
+    ],
+    "reason": "compose FAB glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     90,
+     2414,
+     190,
+     2506
+    ],
+    "reason": "bottom bar home glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     321,
+     2414,
+     421,
+     2506
+    ],
+    "reason": "bottom bar search glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     553,
+     2414,
+     653,
+     2506
+    ],
+    "reason": "bottom bar chat glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2440,
+     885,
+     2506
+    ],
+    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+   }
+  ],
+  "thread-xxxl": [
+   {
+    "kind": "status"
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     30,
+     195,
+     1180,
+     305
+    ],
+    "minw": 30,
+    "reason": "header back and options glyphs (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     1060,
+     400,
+     1172,
+     530
+    ],
+    "reason": "anchor logo slot: RN shows its trademark mark only in screenshots"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     36,
+     720,
+     1180,
+     872
+    ],
+    "reason": "date line (capture time); the who-can-reply glyph and label wrap with its width"
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     20,
+     880,
+     1180,
+     950
+    ],
+    "minw": 40
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     1050,
+     1160,
+     1118
+    ]
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     1232,
+     1180,
+     1300
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "rect",
+    "box": [
+     90,
+     2414,
+     190,
+     2506
+    ],
+    "reason": "bottom bar home glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     321,
+     2414,
+     421,
+     2506
+    ],
+    "reason": "bottom bar search glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     553,
+     2414,
+     653,
+     2506
+    ],
+    "reason": "bottom bar chat glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2440,
+     885,
+     2506
+    ],
+    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+   }
+  ],
+  "profile-xxxl": [
+   {
+    "kind": "status"
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     960,
+     500,
+     1150,
+     590
+    ],
+    "minw": 30,
+    "reason": "profile share and more glyphs (Lucide substitute)"
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     1272,
+     1160,
+     1341
+    ]
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     1455,
+     1180,
+     1520
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "rect",
+    "box": [
+     1005,
+     2214,
+     1095,
+     2304
+    ],
+    "reason": "compose FAB glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     90,
+     2414,
+     190,
+     2506
+    ],
+    "reason": "bottom bar home glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     321,
+     2414,
+     421,
+     2506
+    ],
+    "reason": "bottom bar search glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     553,
+     2414,
+     653,
+     2506
+    ],
+    "reason": "bottom bar chat glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2440,
+     885,
+     2506
+    ],
+    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+   }
+  ]
+ },
+ "empty": {
+  "home-empty": [
+   {
+    "kind": "status"
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     30,
+     195,
+     1180,
+     305
+    ],
+    "minw": 30,
+    "reason": "header icons and logo mark (licence substitution)"
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     940,
+     500,
+     1190,
+     610
+    ],
+    "minw": 40,
+    "reason": "composer camera and image glyphs (Lucide substitute)"
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     40,
+     660,
+     200,
+     815
+    ],
+    "minw": 40,
+    "reason": "info glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     1005,
+     2214,
+     1095,
+     2304
+    ],
+    "reason": "compose FAB glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     90,
+     2414,
+     190,
+     2506
+    ],
+    "reason": "bottom bar home glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     321,
+     2414,
+     421,
+     2506
+    ],
+    "reason": "bottom bar search glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     553,
+     2414,
+     653,
+     2506
+    ],
+    "reason": "bottom bar chat glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2440,
+     885,
+     2506
+    ],
+    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     845,
+     1172,
+     882,
+     1232
+    ],
+    "reason": "chevron glyph in the first end-of-feed button (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     894,
+     1525,
+     931,
+     1585
+    ],
+    "reason": "chevron glyph in the second end-of-feed button (Lucide substitute)"
+   }
+  ],
+  "profile-empty": [
+   {
+    "kind": "status"
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     960,
+     500,
+     1150,
+     575
+    ],
+    "minw": 30,
+    "reason": "profile share and more glyphs (Lucide substitute)"
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     440,
+     1240,
+     770,
+     1405
+    ],
+    "minw": 40,
+    "reason": "empty-state edit glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     1005,
+     2214,
+     1095,
+     2304
+    ],
+    "reason": "compose FAB glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     90,
+     2414,
+     190,
+     2506
+    ],
+    "reason": "bottom bar home glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     321,
+     2414,
+     421,
+     2506
+    ],
+    "reason": "bottom bar search glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     553,
+     2414,
+     653,
+     2506
+    ],
+    "reason": "bottom bar chat glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2440,
+     885,
+     2506
+    ],
+    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+   }
+  ]
+ },
+ "dark": {
+  "home-dark": [
+   {
+    "kind": "status"
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     30,
+     195,
+     1180,
+     305
+    ],
+    "minw": 30,
+    "reason": "header icons and logo mark (licence substitution)"
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     940,
+     500,
+     1190,
+     610
+    ],
+    "minw": 40,
+    "reason": "composer camera and image glyphs (Lucide substitute)"
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     668,
+     1160,
+     730
+    ]
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     916,
+     1160,
+     978
+    ]
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     1188,
+     1160,
+     1250
+    ]
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     1461,
+     1160,
+     1523
+    ]
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     1734,
+     1160,
+     1796
+    ]
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     815,
+     1180,
+     885
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     1063,
+     1180,
+     1133
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     1336,
+     1180,
+     1406
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     1608,
+     1180,
+     1678
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     1881,
+     1180,
+     1951
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "rect",
+    "box": [
+     66,
+     2018,
+     186,
+     2138
+    ],
+    "reason": "info glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     1005,
+     2214,
+     1095,
+     2304
+    ],
+    "reason": "compose FAB glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     90,
+     2414,
+     190,
+     2506
+    ],
+    "reason": "bottom bar home glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     321,
+     2414,
+     421,
+     2506
+    ],
+    "reason": "bottom bar search glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     553,
+     2414,
+     653,
+     2506
+    ],
+    "reason": "bottom bar chat glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2440,
+     885,
+     2506
+    ],
+    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+   }
+  ],
+  "thread-dark": [
+   {
+    "kind": "status"
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     30,
+     195,
+     1180,
+     305
+    ],
+    "minw": 30,
+    "reason": "header back and options glyphs (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     1060,
+     386,
+     1172,
+     498
+    ],
+    "reason": "anchor logo slot: RN shows its trademark mark only in screenshots"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     36,
+     644,
+     830,
+     702
+    ],
+    "reason": "date line (capture time); the who-can-reply glyph and label move with its width"
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     20,
+     705,
+     1180,
+     790
+    ],
+    "minw": 40
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     855,
+     1160,
+     920
+    ]
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     1004,
+     1180,
+     1075
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "rect",
+    "box": [
+     90,
+     2414,
+     190,
+     2506
+    ],
+    "reason": "bottom bar home glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     321,
+     2414,
+     421,
+     2506
+    ],
+    "reason": "bottom bar search glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     553,
+     2414,
+     653,
+     2506
+    ],
+    "reason": "bottom bar chat glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2440,
+     885,
+     2506
+    ],
+    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+   }
+  ],
+  "profile-dark": [
+   {
+    "kind": "status"
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     960,
+     500,
+     1150,
+     575
+    ],
+    "minw": 30,
+    "reason": "profile share and more glyphs (Lucide substitute)"
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     1130,
+     1160,
+     1195
+    ]
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     1280,
+     1180,
+     1350
+    ],
+    "minw": 36
+   },
+   {
+    "kind": "rect",
+    "box": [
+     1005,
+     2214,
+     1095,
+     2304
+    ],
+    "reason": "compose FAB glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     90,
+     2414,
+     190,
+     2506
+    ],
+    "reason": "bottom bar home glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     321,
+     2414,
+     421,
+     2506
+    ],
+    "reason": "bottom bar search glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     553,
+     2414,
+     653,
+     2506
+    ],
+    "reason": "bottom bar chat glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2440,
+     885,
+     2506
+    ],
+    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+   }
+  ]
+ }
+}

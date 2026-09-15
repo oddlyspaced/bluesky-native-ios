@@ -1,0 +1,23 @@
+# Launches the build under test with a clean state and waits for the signed-out screen.
+# LABEL=rn launches the RN e2e app; LABEL=native launches the SwiftUI port
+# (the pattern in check-parity/references/maestro-flows.md: one runFlow per appId).
+appId: io.nativestarter.showcase.bluesky
+---
+- runFlow:
+    when:
+      true: ${LABEL == 'rn'}
+    commands:
+      - launchApp:
+          appId: "xyz.blueskyweb.app"
+          clearState: true
+- runFlow:
+    when:
+      true: ${LABEL != 'rn'}
+    commands:
+      - launchApp:
+          appId: "io.nativestarter.showcase.bluesky"
+          clearState: true
+- extendedWaitUntil:
+    visible: "Sign in"
+    timeout: 180000
+- waitForAnimationToEnd

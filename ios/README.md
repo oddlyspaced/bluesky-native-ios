@@ -1,162 +1,155 @@
-# Bluesky native showcase (iOS)
+# Native showcase (iOS): SwiftUI port of a Bluesky slice
 
-A native SwiftUI port of a slice of the Bluesky social app, which is React Native and MIT licensed. The port was built with the Nativestarter Migration Pack. The source of the port is `bluesky-social-app`, pinned commit `2bfb94d`.
+A native SwiftUI port of a slice of the Bluesky social app, which is React Native and MIT
+licensed. The port was built with the Nativestarter Migration Pack. The source of the port is
+`bluesky-social-app` at commit `2bfb94d`.
 
 The app talks to a real AT Protocol server. It uses no mock data and no hard-coded posts.
 
-- Bundle id: `xyz.blueskyweb.app.native`
-- Display name: "Bluesky native showcase"
-- Swift 6 (strict concurrency), iOS 26 SDK, minimum iOS 17
-- SwiftUI with `@Observable` and `URLSession` async/await
-- No third-party dependencies
-
-## What is ported
-
-| Checkpoint | Scope |
+| Item | Value |
 |---|---|
-| CP-00 foundation | Design tokens from ALF (palette, spacing, radii, type scale, Inter), XRPC client with `atproto-proxy`, token refresh, keychain session, custom tab shell and bottom bar |
-| CP-01 home feed | Header, Following/Feeds tabs, "What's up?" prompt, Following timeline with the RN feed tuner (reply grouped under its parent, root deduplicated), thread lines, "We ran out of posts" fallback header, end-of-feed block, compose FAB, pull to refresh, paging |
-| CP-02 post thread | Header ("Post"), expanded anchor post with "12:55 AM · Sep 15, 2026" and "Everybody can reply", reply rows, "Write your reply" pill, back |
-| CP-03 profile | Own profile: banner under the status bar, avatar ring, Edit Profile, share and more buttons, name, handle, "2 followers 2 following 1 post", bio, 8-tab pager, Posts tab (`posts_and_author_threads`), "End of feed" |
+| Bundle id | `io.nativestarter.showcase.bluesky` |
+| Display name | "Native showcase" |
+| Xcode project, scheme, target | `BlueskyNative.xcodeproj`, `NativeShowcase`, `NativeShowcase` (tests: `NativeShowcaseTests`) |
+| Language and UI | Swift 6 with complete strict concurrency, SwiftUI with `@Observable`, `URLSession` async/await |
+| Deployment | iOS 17 minimum, iOS 26 SDK |
+| Dependencies | None |
 
-**Interactions.** These work against the server:
-- Like and unlike, with optimistic state and rollback on failure.
-- Repost and undo repost, through the RN confirm menu with "Repost" / "Remove repost", "Quote post" and "Cancel".
-- Like and repost state shows on every screen that displays the post, through a port of RN's post shadow cache.
-- Tap a post to open its thread, then go back.
-- Switch tabs. Re-tapping the active tab returns to the tab root.
-- The notification badge uses RN's `countUnread` over `listNotifications`.
+## Scope
 
-**Automation IDs.** The RN `testID`s are reused as `accessibilityIdentifier`, so one Maestro flow drives both apps. IDs: `e2eSignInAlice`, `bottomBarHomeBtn`, `bottomBarSearchBtn`, `bottomBarMessagesBtn`, `bottomBarNotificationsBtn`, `bottomBarProfileBtn`, `feedItem-by-<handle>`, `postThreadItem-by-<handle>`, `replyBtn`, `repostBtn`, `likeBtn`, `postBookmarkBtn`, `postShareBtn`, `postDropdownBtn`, `quoteBtn`, `composeFAB`, `profileView`, `profilePager`, `profileHeader*`, `viewHeaderHomeFeedPrefsBtn`, `homeScreenFeedTabs`.
+The slice is defined in `../plan/slice-plan.md`. "In scope for every screen" is binding.
 
-**Debug sign-in.** The Debug build defines the `E2E` compilation condition. It mirrors RN `TestCtrls.e2e.tsx`:
-- A 1x1pt red control column at top 100, right 0.
-- `e2eSignInAlice`, `e2eSignInBob` and `e2eSignOut` sign in to `http://localhost:3000` or sign out. They use proxy `did:plc:bw7ad3erl7btq6qwf66yqiov#bsky_appview`.
+| Checkpoint | What is ported |
+|---|---|
+| CP-00 foundation | ALF tokens with light, dark and dim themes following the system (dark system appearance gives dim, as RN's defaults); Inter with RN's Dynamic Type multiplier table; XRPC client with `atproto-proxy`; single-flight token refresh; session store with generation checks; Keychain credential actor; server session revoke on sign-out; analytics event log; image loader; custom tab shell with per-tab routers; bottom bar with unread polling; E2E test controls |
+| CP-01 home | Header (hides on scroll), Following and Feeds tabs, composer prompt with separate camera and image actions, Following timeline with RN's feed tuners and preferences, reason rows ("Reposted by you", "Pinned"), "Replied to" rows, rich text facets, "Show more" for long posts, like and repost with haptics, like animation and count wheel, fallback marker, loading, empty, first-load error and load-more error states, pull to refresh, soft reset |
+| CP-02 thread | `app.bsky.unspecced.getPostThreadV2` with RN's parameters and traversal: parents, anchor, replies, tombstones, read-more rows, the other-replies bucket; anchor with engagement stats row and who-can-reply; "Write your reply" prompt above the bottom bar; RN's thread error copy; placeholder skeletons; swipe back |
+| CP-03 profile | Own profile: banner, avatar, Edit Profile, Invite friends and More, name, handle, metrics, bio, section tabs, Posts tab feed with its empty state and "End of feed"; loading placeholder and error screen |
 
-## What is not ported
+Views and models depend on the `BlueskyAPI` protocol, the `AnalyticsSink` protocol, the
+`ImageLoading` protocol and the `HapticsPlaying` protocol. Tests inject fakes.
 
-The following items show an honest "Not part of this showcase" view or sheet:
-- The Search, Chat and Notifications tabs.
-- The composer (FAB, "What's up?", "Write your reply", the Reply button, "Quote post").
-- Bookmarks, share, post and thread options menus, and the drawer menu.
-- The Feeds screen.
-- Profile tabs other than Posts, Edit Profile.
-- Account creation and the password sign-in form.
+## Not ported
 
-The following are also not ported:
-- Rich-text facets (links, mentions, hashtags) and embeds (images, video, quotes, link cards).
-- Moderation, labels, content hiding and translations.
-- The Discover fallback feed. RN also skips it in `__DEV__`.
-- Header hide-on-scroll (minimal shell).
-- Swipe-back gesture (the navigation bar is hidden).
-- The threaded thread view and reply sorting.
-- Other users' profiles (avatar taps do nothing).
-- Dark and dim themes.
-- Dynamic Type font scaling beyond the system default.
+"Not part of this showcase" views or sheets stand in for these RN features:
 
-## Layout
+- The Search, Chat and Notifications tabs, the composer, bookmarks, share and post menus, the
+  drawer, the Feeds screen, hashtag screens and other users' profiles.
+- Profile tabs other than Posts, Edit Profile and the invite dialog.
+- Liked-by, reposted-by and quotes lists, and the thread options menu.
 
-```
-ios/
-  project.yml                   xcodegen spec (the .xcodeproj is generated and git-ignored)
-  BlueskyNative/
-    App/                        entry, scene, root view, config, debug e2e controls
-    Core/Networking/            XRPCClient, BlueskyAPI protocol, AuthenticatedBlueskyAPI
-    Core/Session/               SessionStore (@Observable), KeychainCredentialStore
-    Core/Models/                lexicon models (postView, feedViewPost, threadViewPost, ...)
-    Core/Formatting/            TimeAgo (useTimeAgo port), NiceDate, CountFormat
-    DesignSystem/               Tokens, Typography (Inter), Components, UserAvatar, Icons/
-    Features/Shell/             TabShell, BottomBar, NotInShowcaseView
-    Features/Feed/              FeedModel, FeedTuner, HomeScreen, PostFeedItemView
-    Features/Post/              PostShadowStore + PostInteractions, PostMeta, PostControls, RepostMenu
-    Features/Thread/            ThreadModel, ThreadScreen
-    Features/Profile/           ProfileModel, ProfileScreen
-    Resources/Fonts/            InterVariable.ttf + OFL.txt
-  BlueskyNativeTests/           Swift Testing suites, FakeBlueskyAPI, JSON fixtures
-  parity/                       Maestro flows, compare.sh, native screenshots
-  scripts/generate_icons.py     Lucide -> IconGlyph.generated.swift
-```
+These are proposed out of scope in `../plan/slice-plan.md`, awaiting owner acceptance:
 
-View models depend on the `BlueskyAPI` protocol only. Tests inject `FakeBlueskyAPI`.
+- Post embeds (images, video, link cards, quotes, record with media).
+- Long-press repost to quote.
+- The chat unread badge.
+- Licence substitutions: Lucide icons, a neutral logo mark, a code-drawn default avatar, and an
+  app name without "Bluesky".
+
+Also not ported: moderation and labels, translations, feature flags (GrowthBook) and
+`feature:viewed` events, feed feedback interactions (disabled for this slice's feeds in RN),
+the Discover fallback feed (RN also skips it in `__DEV__`), and a sign-in form.
 
 ## Build and run
 
-Prerequisites: Xcode 26.6, xcodegen, and a booted iOS simulator.
+Prerequisites: Xcode 26.6, xcodegen, a booted iOS simulator, and the local Bluesky dev network
+(PDS on `http://localhost:3000`, seed control on `http://localhost:1986`).
 
-1. Generate the project:
+1. Generate the project. The `.xcodeproj` and `BlueskyNative/Info.plist` are generated from
+   `project.yml`:
    ```
    cd ios
    xcodegen generate
    ```
-2. Build and install:
+2. Build and install the Debug build:
    ```
-   xcodebuild -project BlueskyNative.xcodeproj -scheme BlueskyNative \
+   xcodebuild -project BlueskyNative.xcodeproj -scheme NativeShowcase \
      -destination 'platform=iOS Simulator,id=7F73AB4A-2709-4033-89D2-35CE10E650F4' \
      -derivedDataPath build/dd build
-   xcrun simctl install 7F73AB4A-2709-4033-89D2-35CE10E650F4 build/dd/Build/Products/Debug-iphonesimulator/BlueskyNative.app
-   xcrun simctl launch 7F73AB4A-2709-4033-89D2-35CE10E650F4 xyz.blueskyweb.app.native
+   xcrun simctl install 7F73AB4A-2709-4033-89D2-35CE10E650F4 build/dd/Build/Products/Debug-iphonesimulator/NativeShowcase.app
    ```
-3. Start the local Bluesky dev network. The PDS is at `http://localhost:3000`, and the seeding control is at `http://localhost:1986`.
-4. Seed the network. This resets all data:
+3. Seed the network (this resets all data):
    ```
    curl -X POST "http://localhost:1986/?users&follows&posts&feeds&thread"
    ```
-5. Tap the red 1pt control at the top right, or run a Maestro flow. The users are alice.test, bob.test and carla.test, with password `hunter2`.
+4. Sign in with the 1x1pt red control at the top right (`e2eSignInAlice`), or run a Maestro
+   flow. The users are alice.test, bob.test and carla.test, with password `hunter2`.
 
-**Keychain on reinstall.** The keychain survives app deletion on iOS. On the first launch after install, the app clears its stored session. This matches RN, where a reinstall or Maestro `clearState` signs out.
+**Debug controls.** The Debug build defines the `E2E` compilation condition. It ports RN
+`TestCtrls.e2e.tsx`: a column of 1x1pt controls at top 100, right 0. `e2eSignInAlice`,
+`e2eSignInBob` and `e2eSignOut` work; RN's other nine controls keep their slots. A second column
+at top 100, left 0 holds five controls that RN does not have: `e2eFailNextFeedLoad`,
+`e2eFailNextLoadMore`, `e2eFailNextRefresh`, `e2eFailNextThread` and `e2eFailNextProfile`. Each
+arms one injected network failure, so Maestro can capture the error states. Arm them on the
+signed-out screen: when signed in, a 1pt control is not a reliable tap target over the header.
+
+**Release is a smoke build, not for store submission.** It has no E2E controls and no
+sign-in form, so it stops at the signed-out screen. It still allows local networking. Build it with:
+
+```
+xcodebuild -project BlueskyNative.xcodeproj -scheme NativeShowcase -configuration Release \
+  -destination 'generic/platform=iOS Simulator' -derivedDataPath build/dd build
+```
+
+**Keychain on reinstall.** The Keychain survives app deletion on iOS. On the first launch after
+an install the app clears its stored session, as RN's app storage is cleared by a reinstall or
+Maestro `clearState`.
 
 ## Test
 
 ```
-xcodebuild -project BlueskyNative.xcodeproj -scheme BlueskyNative \
+xcodebuild -project BlueskyNative.xcodeproj -scheme NativeShowcase \
   -destination 'platform=iOS Simulator,id=7F73AB4A-2709-4033-89D2-35CE10E650F4' test
 ```
 
 The suites cover:
-- XRPC decoding of JSON captured from the dev server (`BlueskyNativeTests/Fixtures`, tokens redacted), plus unions.
-- XRPC request building: proxy only on `app.bsky.*`, the auth header, record bodies, and refresh-once on `ExpiredToken`.
-- The `useTimeAgo` test cases ported from RN, `niceDate` and compact counts.
-- Optimistic like and repost: success, rollback, a fast like-then-unlike, and counts that never go negative.
-- The feed tuner, feed model (paging, fallback marker, error and retry), thread flattening, profile, unread count and session store.
-- The SVG path parser over every glyph.
 
-To refresh a fixture after a seed, run this in `BlueskyNativeTests/Fixtures`. Redact the JWTs in `createSession.json` before you commit it.
+- Decoding of JSON captured from the dev server (`BlueskyNativeTests/Fixtures`, tokens redacted),
+  including thread V2, preferences, facets, repost reasons and union members.
+- XRPC: proxy header, auth header, thread V2 parameters, like records with `via`, single-flight
+  refresh under concurrency, a revoked refresh token ending the session, a transient refresh
+  failure keeping it, and an invalidated API reporting no tokens.
+- Session store: sign-in, restore, sign-out with server revoke, first-launch Keychain clear,
+  restore running once, only corrupt Keychain items deleted, stale refreshes after sign-out or an
+  account switch dropped, auth failure signing out. A hosted Keychain round trip.
+- The toggle mutation queue (optimistic state, rollback, compensation, collapsed toggles),
+  shadows yielding to fresh server state, and the `post:like` and `post:unlike` event props.
+- Feed tuners, auto-pagination and fallback marker, first-load and load-more errors with retry,
+  refresh failure with rows, stale reload results dropped, and `post:view` once per URI with
+  position.
+- Thread traversal: parents, reply lines, tombstones, read-more rows, the other-replies bucket,
+  error copy, placeholders, and the stats-row rule.
+- Relative time (ported RN cases and boundaries), counts, display names, `cleanError`, the
+  Dynamic Type table, rich text segmentation, short URLs, link warnings, and the event log format.
 
-```
-TOKEN=$(curl -s -X POST http://localhost:3000/xrpc/com.atproto.server.createSession \
-  -H 'Content-Type: application/json' -d '{"identifier":"alice.test","password":"hunter2"}' | jq -r .accessJwt)
-curl -s -H "Authorization: Bearer $TOKEN" \
-  -H 'atproto-proxy: did:plc:bw7ad3erl7btq6qwf66yqiov#bsky_appview' \
-  "http://localhost:3000/xrpc/app.bsky.feed.getTimeline?limit=30" > getTimeline.json
-```
+## Parity
 
-## Capture parity
-
-Run Maestro from `ios/parity`, because Maestro resolves `takeScreenshot` paths against the working directory:
+Maestro flows, masks and scripts live in `parity/`. One flow drives both apps; `LABEL` selects the
+RN e2e app (`xyz.blueskyweb.app`) or this app.
 
 ```
 cd ios/parity
-maestro --device 7F73AB4A-2709-4033-89D2-35CE10E650F4 test -e PLATFORM=ios capture-native.yml
-./compare.sh <path-to-rn-baseline-shots>
-maestro --device 7F73AB4A-2709-4033-89D2-35CE10E650F4 test interactions-native.yml
+./run-capture.sh rn base        # also: dark, xxxl, empty, interactions
+./run-capture.sh native base    # also: errors (native only)
+python3 make_masks.py masks-spec.json base out/base/rn/ios out/base/native/ios masks/base.json
+node <pack>/skills/check-parity/scripts/diff.mjs --rn out/base/rn/ios --native out/base/native/ios \
+  --out out/base/diff-masked --mask masks/base.json
 ```
 
-- `capture-native.yml` runs the same steps as the RN baseline flow with the native app id. It reseeds the server first.
-- `compare.sh` prints raw and masked `magick compare -metric AE -fuzz 5%` ratios.
-- `interactions-native.yml` runs like, repost, thread, "Remove repost" and unlike on the live server.
-
-Results and accepted differences are in [PARITY.md](PARITY.md).
+`run-capture.sh` takes the shared seed lock (`/tmp/bsky-seed.lock`), sets the simulator
+appearance or content size for the state, and resets it afterwards. Results, the noise floor,
+the event diff and the remaining differences are in [PARITY.md](PARITY.md).
 
 ## Licensing
 
-The RN source code is MIT licensed. Not every asset in the RN repository is (see its `ASSETS.md`). This substitution is a real migration lesson: **check asset licences before you port "the design", not after.**
+The RN source code is MIT licensed. Not every asset in the RN repository is (see its
+`ASSETS.md`). This substitution is a real migration lesson: **check asset licences before you
+port "the design", not after.**
 
 | Upstream asset | Status | What this port does |
 |---|---|---|
-| UI glyphs in `assets/icons/` (Central icon system, Iconists) | Licensed to Bluesky for its own use only (ASSETS.md section 2) | Uses [Lucide](https://lucide.dev) icons (ISC), 24pt grid, 2pt round stroke. `scripts/generate_icons.py` converts them; the licence is in `DesignSystem/Icons/LICENSE-lucide.txt`. |
-| Butterfly logo, logomark, app icons, default avatar (Bluesky trademarks) | Not licensed (ASSETS.md section 3) | Header and splash use a neutral brand-blue diamond (`ShowcaseMark`, accessibility label "Showcase logo"). The avatar fallback is a generic silhouette drawn in code. No app icon is bundled. |
-| Splash illustration (commissioned artwork) | Licensed to Bluesky only (ASSETS.md section 1) | Not used. The signed-out screen keeps the layout without the art. |
-| Inter typeface | SIL OFL 1.1 | Bundled as `InterVariable.ttf` with `OFL.txt`, used exactly as RN does on iOS: variable `wght` axis, contextual alternates off. |
-| Name "Bluesky" | Trademark | Used descriptively only ("Bluesky native showcase", "a port of the Bluesky app"), not as the product identity. |
-
-The first icon generator copied path data from the upstream icon components. It was deleted before any generated file was written, and no upstream glyph or logo path remains in `ios/`.
+| UI glyphs in `assets/icons/` (Central icon system) | Licensed to Bluesky for its own use only (ASSETS.md section 2) | [Lucide](https://lucide.dev) icons (ISC), 24pt grid, 2pt round stroke, generated by `scripts/generate_icons.py`; licence in `DesignSystem/Icons/LICENSE-lucide.txt` |
+| Butterfly logo, logomark, app icons, default avatar | Not licensed (ASSETS.md section 3) | A neutral brand-blue diamond (`ShowcaseMark`), an original app icon from the same mark, and a generic silhouette drawn in code |
+| Splash illustration | Licensed to Bluesky only (ASSETS.md section 1) | Not used |
+| Inter typeface | SIL OFL 1.1 | Bundled as `InterVariable.ttf` with `OFL.txt` |
+| Name "Bluesky" | Trademark | Used descriptively only; the app is named "Native showcase" |

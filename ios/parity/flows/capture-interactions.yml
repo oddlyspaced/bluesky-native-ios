@@ -1,0 +1,36 @@
+# Like and repost the first post, then capture home and the thread anchor with its stats row.
+# Changes server data, so it reseeds first. One flow for both builds.
+appId: io.nativestarter.showcase.bluesky
+---
+- runScript:
+    file: setupServer.js
+    env:
+      SERVER_PATH: "?users&follows&posts&feeds&thread"
+- runFlow:
+    file: launch.yml
+- tapOn:
+    id: "e2eSignInAlice"
+- extendedWaitUntil:
+    visible:
+      id: "feedItem-by-alice.test"
+    timeout: 60000
+- waitForAnimationToEnd
+- tapOn:
+    id: "likeBtn"
+    index: 0
+- tapOn:
+    id: "repostBtn"
+    index: 0
+- tapOn: "Repost"
+- waitForAnimationToEnd
+- takeScreenshot: home-liked-reposted
+- tapOn: "Thread root"
+- extendedWaitUntil:
+    visible: "Thread reply"
+    timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: "likeCount-expanded"
+    timeout: 20000
+- waitForAnimationToEnd
+- takeScreenshot: thread-liked-reposted

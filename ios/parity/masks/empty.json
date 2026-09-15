@@ -1,0 +1,160 @@
+{
+ "home-empty": [
+  {
+   "x": 0,
+   "y": 0,
+   "w": 1,
+   "h": 0.06865,
+   "reason": "status bar: clock, battery, signal"
+  },
+  {
+   "x": 0.04561,
+   "y": 0.08581,
+   "w": 0.05638,
+   "h": 0.02136,
+   "reason": "header icons and logo mark (licence substitution)"
+  },
+  {
+   "x": 0.4602,
+   "y": 0.07971,
+   "w": 0.0796,
+   "h": 0.0328,
+   "reason": "header icons and logo mark (licence substitution)"
+  },
+  {
+   "x": 0.89386,
+   "y": 0.08352,
+   "w": 0.05887,
+   "h": 0.02593,
+   "reason": "header icons and logo mark (licence substitution)"
+  },
+  {
+   "x": 0.8126,
+   "y": 0.19756,
+   "w": 0.06136,
+   "h": 0.02365,
+   "reason": "composer camera and image glyphs (Lucide substitute)"
+  },
+  {
+   "x": 0.90464,
+   "y": 0.19641,
+   "w": 0.05638,
+   "h": 0.02593,
+   "reason": "composer camera and image glyphs (Lucide substitute)"
+  },
+  {
+   "x": 0.0597,
+   "y": 0.26125,
+   "w": 0.08955,
+   "h": 0.04119,
+   "reason": "info glyph (Lucide substitute)"
+  },
+  {
+   "x": 0.83333,
+   "y": 0.84439,
+   "w": 0.07463,
+   "h": 0.03432,
+   "reason": "compose FAB glyph (Lucide substitute)"
+  },
+  {
+   "x": 0.07463,
+   "y": 0.92067,
+   "w": 0.08292,
+   "h": 0.03509,
+   "reason": "bottom bar home glyph (Lucide substitute)"
+  },
+  {
+   "x": 0.26617,
+   "y": 0.92067,
+   "w": 0.08292,
+   "h": 0.03509,
+   "reason": "bottom bar search glyph (Lucide substitute)"
+  },
+  {
+   "x": 0.45854,
+   "y": 0.92067,
+   "w": 0.08292,
+   "h": 0.03509,
+   "reason": "bottom bar chat glyph (Lucide substitute)"
+  },
+  {
+   "x": 0.65091,
+   "y": 0.93059,
+   "w": 0.08292,
+   "h": 0.02517,
+   "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+  },
+  {
+   "x": 0.70066,
+   "y": 0.44699,
+   "w": 0.03068,
+   "h": 0.02288,
+   "reason": "chevron glyph in the first end-of-feed button (Lucide substitute)"
+  },
+  {
+   "x": 0.74129,
+   "y": 0.58162,
+   "w": 0.03068,
+   "h": 0.02288,
+   "reason": "chevron glyph in the second end-of-feed button (Lucide substitute)"
+  }
+ ],
+ "profile-empty": [
+  {
+   "x": 0,
+   "y": 0,
+   "w": 1,
+   "h": 0.06865,
+   "reason": "status bar: clock, battery, signal"
+  },
+  {
+   "x": 0.80514,
+   "y": 0.19641,
+   "w": 0.04395,
+   "h": 0.01678,
+   "reason": "profile share and more glyphs (Lucide substitute)"
+  },
+  {
+   "x": 0.43698,
+   "y": 0.47674,
+   "w": 0.12355,
+   "h": 0.05683,
+   "reason": "empty-state edit glyph (Lucide substitute)"
+  },
+  {
+   "x": 0.83333,
+   "y": 0.84439,
+   "w": 0.07463,
+   "h": 0.03432,
+   "reason": "compose FAB glyph (Lucide substitute)"
+  },
+  {
+   "x": 0.07463,
+   "y": 0.92067,
+   "w": 0.08292,
+   "h": 0.03509,
+   "reason": "bottom bar home glyph (Lucide substitute)"
+  },
+  {
+   "x": 0.26617,
+   "y": 0.92067,
+   "w": 0.08292,
+   "h": 0.03509,
+   "reason": "bottom bar search glyph (Lucide substitute)"
+  },
+  {
+   "x": 0.45854,
+   "y": 0.92067,
+   "w": 0.08292,
+   "h": 0.03509,
+   "reason": "bottom bar chat glyph (Lucide substitute)"
+  },
+  {
+   "x": 0.65091,
+   "y": 0.93059,
+   "w": 0.08292,
+   "h": 0.02517,
+   "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+  }
+ ]
+}
