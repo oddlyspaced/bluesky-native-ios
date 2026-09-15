@@ -212,7 +212,7 @@ struct ThreadAnchorView: View {
             .padding(.bottom, Space.md)
 
             if !post.record.text.isEmpty {
-                PostText(post: post, size: FontSize.lg, truncates: false, testID: nil)
+                PostText(post: post, size: FontSize.lg, truncates: false, testID: nil, selectable: true)
                     .padding(.top, 1)
             }
 

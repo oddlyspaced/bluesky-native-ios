@@ -30,7 +30,7 @@ struct PostMeta: View {
                 .accessibilityLabel(post.indexedDate.map { NiceDate.long($0) } ?? "")
             Spacer(minLength: 0)
         }
-        .textStyle(size: FontSize.md, leading: Leading.tight, adjustment: RNLineBox.postMeta)
+        .textStyle(size: FontSize.md, leading: Leading.tight)
         .padding(.bottom, Space.xs)
     }
 
@@ -55,6 +55,8 @@ struct PostText: View {
     /// The thread anchor never truncates.
     var truncates = true
     var testID: String? = "postText"
+    /// RN passes `selectable` on the thread anchor only (`ThreadItemAnchor.tsx:405-407`).
+    var selectable = false
 
     @Environment(\.theme) private var theme
     @State private var expanded = false
@@ -63,7 +65,8 @@ struct PostText: View {
         let limited = truncates && !expanded && RichTextRules.countLines(post.record.text) >= RichTextRules.maxPostLines
         VStack(alignment: .leading, spacing: 0) {
             RichTextView(text: post.record.text, facets: post.record.facets, size: size,
-                         lineLimit: limited ? RichTextRules.maxPostLines : nil, testID: testID)
+                         lineLimit: limited ? RichTextRules.maxPostLines : nil, testID: testID,
+                         selectable: selectable)
             if limited {
                 Button {
                     withAnimation(.easeInOut) { expanded = true }

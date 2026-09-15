@@ -186,12 +186,11 @@ struct ProfileScreen: View {
             if let profile = model.profile {
                 VStack(alignment: .leading, spacing: Space.xs) {
                     Text(Names.displayNameOrHandle(displayName: profile.displayName, handle: profile.handle))
-                        .textStyle(size: FontSize._3xl, weight: FontWeight.bold, leading: Leading.tight,
-                                   adjustment: RNLineBox.profileDisplayName)
+                        .textStyle(size: FontSize._3xl, weight: FontWeight.bold, leading: Leading.tight)
                         .foregroundStyle(theme.text)
                         .accessibilityIdentifier("profileHeaderDisplayName")
                     Text(Names.sanitizeHandle(profile.handle, prefix: "@"))
-                        .textStyle(size: FontSize.md, leading: Leading.snug, adjustment: RNLineBox.profileHandle)
+                        .textStyle(size: FontSize.md, leading: Leading.snug)
                         .foregroundStyle(theme.textContrastMedium)
                         .lineLimit(1)
                 }
@@ -203,7 +202,7 @@ struct ProfileScreen: View {
                     if let description = profile.description, !description.isEmpty {
                         RichTextView(text: description, facets: nil, size: FontSize.md, lineLimit: 15,
                                      testID: "profileHeaderDescription",
-                                     lineBoxAdjustment: RNLineBox.profileDescription)
+                                     selectable: true)
                     }
                 }
             }
@@ -236,7 +235,7 @@ struct ProfileScreen: View {
         return (Text(CountFormat.format(count) + " ").font(fonts.font(FontSize.md, FontWeight.semiBold))
             .foregroundStyle(theme.text)
             + Text(label).font(fonts.font(FontSize.md)).foregroundStyle(theme.textContrastMedium))
-            .textStyle(size: FontSize.md, leading: Leading.snug, adjustment: RNLineBox.profileMetrics)
+            .textStyle(size: FontSize.md, leading: Leading.snug)
             .lineLimit(1)
     }
 }
