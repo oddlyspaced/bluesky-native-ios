@@ -16,6 +16,16 @@ struct ProfileScreen: View {
     private static let topID = "profileTop"
 
     var body: some View {
+        // `Layout.Screen testID="profileScreen"` (`Profile.tsx:63`, review finding N7), on its own
+        // container so the inner `profileView` id stays a separate element.
+        VStack(spacing: 0) {
+            screen
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("profileScreen")
+    }
+
+    private var screen: some View {
         Group {
             switch model.status {
             case .loading:
@@ -44,9 +54,6 @@ struct ProfileScreen: View {
         }
         .background(theme.bg)
         .toolbar(.hidden, for: .navigationBar)
-        // `Layout.Screen testID="profileScreen"` (`Profile.tsx:63`, review finding N7).
-        .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("profileScreen")
         .task {
             // The shell starts the profile load at sign-in. A failed load keeps its error screen
             // until Retry, as RN does; appearing again does not retry on its own.

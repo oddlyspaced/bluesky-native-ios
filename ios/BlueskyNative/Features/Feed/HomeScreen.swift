@@ -20,11 +20,17 @@ struct HomeScreen: View {
         // `Layout.Screen testID="HomeScreen"` (`Home.tsx:95`) holds the pager `homeScreen`
         // (`Home.tsx:308`), which holds `FeedPage testID="followingFeedPage"` (`Home.tsx:320`,
         // review finding N7).
-        feedPage
+        // Each id sits on its own one-child container. Stacked identifiers on one view collapse
+        // into the last one, which hid the inner ids.
+        VStack(spacing: 0) {
+            VStack(spacing: 0) {
+                feedPage
+            }
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("homeScreen")
-            .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("HomeScreen")
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("HomeScreen")
     }
 
     private var feedPage: some View {
