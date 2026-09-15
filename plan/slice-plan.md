@@ -42,6 +42,7 @@ These differences are not accepted yet. The gate "Parity report passes, or every
 | Long-press repost to quote | Needs the composer, which is out of scope. |
 | Chat unread badge | Chat is out of scope. |
 | Other profile tabs (Replies, Media, Videos, Likes, Feeds, Starter Packs) and other users' profiles | The slice covers the own profile, Posts tab only. |
+| Thread tree view (labs preference `lab_treeViewEnabled`) | The e2e test account uses the default linear view. The tree view is a separate thread layout behind a labs setting. The native thread logs the view it shows, `linear`. |
 | Licensing substitutions: open icon set, neutral logo mark, code-drawn default avatar, app name without "Bluesky" | Upstream `ASSETS.md` sections 2 and 3: upstream icons and marks are not licensed for redistribution. |
 
 ## Reviews
@@ -51,6 +52,7 @@ These differences are not accepted yet. The gate "Parity report passes, or every
 | 2026-09-15 | iOS | `reviews/2026-09-15-ios-CP00-03-parity-review-1.md` | 14 blockers |
 | 2026-09-15 | iOS | `reviews/2026-09-15-ios-CP00-03-architecture-review-1.md` | 2 blockers |
 | 2026-09-15 | iOS | `reviews/2026-09-15-ios-CP00-03-parity-review-2.md` | 2 blockers (N1 extra event; N21 no human sign-off) |
+| 2026-09-15 | iOS | `reviews/2026-09-15-ios-CP00-03-architecture-review-2.md` | 2 blockers (A46 credential write ordering; A59 storage and policy in a view) |
 
 ## Acceptance
 
