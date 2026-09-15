@@ -2,7 +2,7 @@ import Foundation
 import Observation
 import SwiftUI
 
-enum ShellTab: Hashable, CaseIterable {
+enum ShellTab: Hashable, CaseIterable, Sendable {
     case home, search, messages, notifications, profile
 
     var title: String {
@@ -38,65 +38,92 @@ enum ShellTab: Hashable, CaseIterable {
     }
 }
 
-/// Screens pushed inside a tab. Each push gets its own id, so the same thread can be
-/// pushed twice and each keeps its own model.
-enum Route: Hashable {
-    case thread(uri: String, feedDescriptor: String?, id: UUID)
-    case profile(did: String, id: UUID)
+// MARK: - Routes
 
+/// A screen that can be pushed inside a tab (review finding A58). Each feature declares its own
+/// route type and registers a factory for it in `ScreenRegistry`; the shell never switches over
+/// route types.
+protocol ScreenRoute: Hashable, Sendable {
     /// RN route name, for `router:navigate`.
-    var routeName: String {
-        switch self {
-        case .thread: "PostThread"
-        case .profile: "Profile"
-        }
-    }
+    var routeName: String { get }
 }
 
-/// Navigation state of one tab (review finding A16: per-tab routers).
+/// One push of a `ScreenRoute`. Equality is the push id, so the same thread pushed twice keeps
+/// two screens and two models.
+struct Route: Hashable, Sendable {
+    let id: UUID
+    let screen: any ScreenRoute
+
+    init(_ screen: some ScreenRoute, id: UUID = UUID()) {
+        self.id = id
+        self.screen = screen
+    }
+
+    var routeName: String { screen.routeName }
+
+    func screen<R: ScreenRoute>(as type: R.Type) -> R? {
+        screen as? R
+    }
+
+    static func == (lhs: Route, rhs: Route) -> Bool { lhs.id == rhs.id }
+    func hash(into hasher: inout Hasher) { hasher.combine(id) }
+}
+
+/// Navigation state of one tab: its stack and its soft-reset signal (review findings A16, A58).
 @MainActor
 @Observable
 final class TabRouter {
     let tab: ShellTab
     var path: [Route] = []
+    /// Changes when a tap on the selected tab at its root asks the root screen to soft-reset.
+    private(set) var softResetToken = 0
 
     init(tab: ShellTab) {
         self.tab = tab
+    }
+
+    func requestSoftReset() {
+        softResetToken += 1
     }
 }
 
 /// The shell's navigation: selected tab, per-tab stacks, soft reset and `router:navigate`.
 ///
-/// Port of the bottom-tab behaviour in `BottomBar.tsx:97-131`: a tap on another tab
-/// switches to it; a tap on the current tab pops it to the root, or soft-resets it when it
-/// is already at the root.
+/// Port of the bottom-tab behaviour in `BottomBar.tsx:97-131`: a tap on another tab switches to
+/// it; a tap on the current tab pops it to the root, or soft-resets it when it is already at the
+/// root.
 @MainActor
 @Observable
 final class AppRouter {
     private(set) var selected: ShellTab = .home
-    let home = TabRouter(tab: .home)
-    let profile = TabRouter(tab: .profile)
-    private(set) var visitedProfile = false
-    private(set) var homeSoftResetToken = 0
-    private(set) var profileSoftResetToken = 0
+    /// Like RN's lazy tabs, a tab mounts on its first visit and stays mounted.
+    private(set) var visited: Set<ShellTab> = [.home]
 
+    /// Tabs with a ported root screen. Other tabs show "Not part of this showcase".
+    @ObservationIgnored let stackTabs: [ShellTab]
+    @ObservationIgnored let routers: [ShellTab: TabRouter]
+    @ObservationIgnored let accountDid: String
+    @ObservationIgnored let shell: ShellState
     @ObservationIgnored private let analytics: any AnalyticsSink
-    @ObservationIgnored private let shell: ShellState
-    @ObservationIgnored private let accountDid: String
     @ObservationIgnored private var previousScreen: String?
 
-    init(analytics: any AnalyticsSink, shell: ShellState, accountDid: String) {
+    init(analytics: any AnalyticsSink, shell: ShellState, accountDid: String,
+         stackTabs: [ShellTab] = [.home, .profile]) {
         self.analytics = analytics
         self.shell = shell
         self.accountDid = accountDid
+        self.stackTabs = ShellTab.allCases.filter(stackTabs.contains)
+        routers = Dictionary(uniqueKeysWithValues: self.stackTabs.map { ($0, TabRouter(tab: $0)) })
     }
 
+    /// The selected tab's router, when that tab has a ported stack.
     var currentRouter: TabRouter? {
-        switch selected {
-        case .home: home
-        case .profile: profile
-        default: nil
-        }
+        routers[selected]
+    }
+
+    /// Every route on every stack.
+    var allRoutes: [Route] {
+        stackTabs.compactMap { routers[$0] }.flatMap(\.path)
     }
 
     /// The deepest focused RN route name (`getCurrentRouteName`).
@@ -104,48 +131,30 @@ final class AppRouter {
         currentRouter?.path.last?.routeName ?? selected.rootRouteName
     }
 
-    /// The thread's reply prompt sits above the bar and hides its top border
-    /// (`useHideBottomBarBorderForScreen`), derived from the route (review finding P11).
-    var isThreadOnTop: Bool {
-        if case .thread? = currentRouter?.path.last { return true }
-        return false
-    }
-
     func select(_ tab: ShellTab) {
         analytics.metric("nav:click", ["item": .string(tab.navItem), "surface": "bottomBar"])
         if tab == selected {
             guard let router = currentRouter else { return }
             if router.path.isEmpty {
-                switch tab {
-                case .home: homeSoftResetToken += 1
-                case .profile: profileSoftResetToken += 1
-                default: break
-                }
+                router.requestSoftReset()
             } else {
                 router.path.removeAll()
             }
             return
         }
-        if tab == .profile { visitedProfile = true }
+        visited.insert(tab)
         selected = tab
     }
 
-    func softResetHome() {
-        guard selected == .home, home.path.isEmpty else { return }
-        homeSoftResetToken += 1
+    /// Soft-resets `tab` when it is selected and at its root (Home logo and feed tab re-tap).
+    func softResetRoot(of tab: ShellTab) {
+        guard selected == tab, let router = currentRouter, router.path.isEmpty else { return }
+        router.requestSoftReset()
     }
 
-    func openThread(uri: String, feedDescriptor: String? = nil) {
-        currentRouter?.path.append(.thread(uri: uri, feedDescriptor: feedDescriptor, id: UUID()))
-    }
-
-    /// Profiles other than your own are out of the showcase.
-    func openProfile(did: String) {
-        guard did == accountDid else {
-            shell.notInShowcase = NotInShowcaseItem(title: "Profile")
-            return
-        }
-        currentRouter?.path.append(.profile(did: did, id: UUID()))
+    /// Pushes a screen on the selected tab's stack.
+    func push(_ screen: some ScreenRoute) {
+        currentRouter?.path.append(Route(screen))
     }
 
     /// Emits `router:navigate` when the focused screen changes (`src/Navigation.tsx:1059-1067`).
@@ -168,10 +177,83 @@ final class AppRouter {
     }
 }
 
+// MARK: - Screen registry
+
+/// Maps tab roots and route types to screens (review finding A58). Features register their own
+/// factories, so a new screen does not change the shell.
+@MainActor
+final class ScreenRegistry {
+    private var factories: [ObjectIdentifier: @MainActor (Route, AccountContainer) -> AnyView] = [:]
+    private var roots: [ShellTab: @MainActor (AccountContainer) -> AnyView] = [:]
+
+    func register<R: ScreenRoute, Content: View>(
+        _ type: R.Type, @ViewBuilder factory: @escaping @MainActor (R, Route, AccountContainer) -> Content
+    ) {
+        factories[ObjectIdentifier(type)] = { route, container in
+            guard let screen = route.screen(as: R.self) else { return AnyView(EmptyView()) }
+            return AnyView(factory(screen, route, container))
+        }
+    }
+
+    func registerRoot<Content: View>(_ tab: ShellTab, @ViewBuilder factory: @escaping @MainActor (AccountContainer) -> Content) {
+        roots[tab] = { AnyView(factory($0)) }
+    }
+
+    var rootTabs: [ShellTab] {
+        ShellTab.allCases.filter { roots[$0] != nil }
+    }
+
+    func canPresent(_ route: Route) -> Bool {
+        factories[ObjectIdentifier(type(of: route.screen))] != nil
+    }
+
+    func root(for tab: ShellTab, container: AccountContainer) -> AnyView {
+        roots[tab]?(container) ?? AnyView(NotInShowcaseView(title: tab.title))
+    }
+
+    func view(for route: Route, container: AccountContainer) -> AnyView {
+        factories[ObjectIdentifier(type(of: route.screen))]?(route, container)
+            ?? AnyView(NotInShowcaseView(title: route.routeName))
+    }
+}
+
+/// Models that live exactly as long as their route is on a stack (review findings A35, A58).
+/// A model is created on the first request for its route.
+@MainActor
+final class RouteModelStore {
+    private var models: [Route: AnyObject] = [:]
+
+    var count: Int { models.count }
+
+    func model<Model: AnyObject>(for route: Route, make: () -> Model) -> Model {
+        if let existing = models[route] as? Model { return existing }
+        let created = make()
+        models[route] = created
+        return created
+    }
+
+    func existing<Model: AnyObject>(for route: Route, as type: Model.Type) -> Model? {
+        models[route] as? Model
+    }
+
+    /// Drops models for routes no longer on any stack.
+    func prune(keeping live: some Sequence<Route>) {
+        let keep = Set(live)
+        models = models.filter { keep.contains($0.key) }
+    }
+}
+
+// MARK: - Account container
+
 /// Objects that live exactly as long as one signed-in session (review finding A9).
 ///
-/// `SignedInRoot` creates one container per account in `@State`, so re-renders never
-/// recreate models, and an account switch drops every model, shadow and queue.
+/// `SignedInRoot` creates one container per account in `@State`, so re-renders never recreate
+/// models, and an account switch drops every model, shadow and queue.
+///
+/// - Account level: API, analytics, shadows, preferences, unread polling and the own profile (the
+///   shell shows the own avatar, as RN's shell reads the profile query).
+/// - Tab root: `homeFeed`, created on first use.
+/// - Pushed screens: route-scoped models in `routeModels`, created by each feature's factory.
 @MainActor
 @Observable
 final class AccountContainer {
@@ -187,20 +269,23 @@ final class AccountContainer {
     let preferences: PreferencesModel
     let interactions: PostInteractions
     let unread: UnreadNotificationsModel
-    let homeFeed: FeedModel
     let profile: ProfileModel
     let router: AppRouter
     let links: LinkRouter
+    @ObservationIgnored let registry: ScreenRegistry
+    @ObservationIgnored let routeModels = RouteModelStore()
 
-    @ObservationIgnored private var threadModels: [Route: ThreadModel] = [:]
+    @ObservationIgnored private var homeFeedStorage: FeedModel?
 
     init(api: any BlueskyAPI, accountDid: String, accountHandle: String, analytics: any AnalyticsSink,
-         faults: DebugFaults, platform: PlatformServices = .live) {
+         faults: DebugFaults, platform: PlatformServices = .live, registry: ScreenRegistry? = nil) {
+        let registry = registry ?? .slice()
         self.api = api
         self.accountDid = accountDid
         self.accountHandle = accountHandle
         self.analytics = analytics
         self.faults = faults
+        self.registry = registry
         activity = platform.activity
         let preferences = PreferencesModel(api: api)
         self.preferences = preferences
@@ -213,27 +298,38 @@ final class AccountContainer {
         interactions = PostInteractions(api: api, shadows: shadows, analytics: analytics,
                                         ownFollowersCount: { profile.profile?.followersCount })
         unread = UnreadNotificationsModel(api: api)
-        homeFeed = FeedModel(source: .following, api: api, preferences: preferences, analytics: analytics,
-                             faults: faults, userDid: accountDid)
-        let router = AppRouter(analytics: analytics, shell: shell, accountDid: accountDid)
+        let router = AppRouter(analytics: analytics, shell: shell, accountDid: accountDid,
+                               stackTabs: registry.rootTabs)
         self.router = router
         links = LinkRouter(analytics: analytics, shell: shell, preferences: platform.preferences,
                            urlOpener: platform.urlOpener) { [weak router] did in router?.openProfile(did: did) }
     }
 
-    /// Screen factory for threads: one model per pushed route (review finding A35).
-    func threadModel(for route: Route) -> ThreadModel? {
-        guard case .thread(let uri, let feedDescriptor, _) = route else { return nil }
-        if let existing = threadModels[route] { return existing }
-        let model = ThreadModel(api: api, anchor: uri, feedDescriptor: feedDescriptor, preferences: preferences,
-                                analytics: analytics, faults: faults, userDid: accountDid)
-        threadModels[route] = model
-        return model
+    /// The Following feed, created when Home first asks for it.
+    var homeFeed: FeedModel {
+        if let homeFeedStorage { return homeFeedStorage }
+        let created = FeedModel(source: .following, api: api, preferences: preferences, analytics: analytics,
+                                faults: faults, userDid: accountDid)
+        homeFeedStorage = created
+        return created
     }
 
-    /// Drops thread models for routes no longer on any stack.
+    /// The Following feed, if Home created it.
+    var loadedHomeFeed: FeedModel? { homeFeedStorage }
+
+    /// Drops route-scoped models for routes no longer on any stack.
     func pruneRoutes() {
-        let live = Set(router.home.path + router.profile.path)
-        threadModels = threadModels.filter { live.contains($0.key) }
+        routeModels.prune(keeping: router.allRoutes)
+    }
+}
+
+extension ScreenRegistry {
+    /// The screens of this slice.
+    static func slice() -> ScreenRegistry {
+        let registry = ScreenRegistry()
+        registry.registerRoot(.home) { _ in HomeScreen() }
+        registry.registerProfileScreens()
+        registry.registerThreadScreens()
+        return registry
     }
 }

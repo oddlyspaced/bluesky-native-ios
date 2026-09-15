@@ -95,7 +95,7 @@ struct ProfileScreen: View {
                 .accessibilityIdentifier("postsFeed")
                 .ignoresSafeArea(edges: .top)
                 .refreshable { await model.refresh() }
-                .onChange(of: container.router.profileSoftResetToken) {
+                .onChange(of: container.router.routers[.profile]?.softResetToken) {
                     withAnimation { scroll.scrollTo(Self.topID, anchor: .top) }
                     Task { await model.posts.reload() }
                 }

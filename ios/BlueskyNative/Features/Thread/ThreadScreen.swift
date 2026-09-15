@@ -119,7 +119,7 @@ extension AccountContainer {
     /// A post already loaded by another screen, used as the thread placeholder
     /// (RN reads the query cache, `queryCache.ts:213-243`).
     func cachedPost(uri: String) -> PostView? {
-        for model in [homeFeed, profile.posts] {
+        for model in [loadedHomeFeed, profile.posts].compactMap({ $0 }) {
             for slice in model.slices {
                 if let item = slice.items.first(where: { $0.post.uri == uri }) { return item.post }
             }

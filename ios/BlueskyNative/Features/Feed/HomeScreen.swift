@@ -55,7 +55,7 @@ struct HomeScreen: View {
                     .opacity((1 - header.mode) * (1 - header.mode))
                     .allowsHitTesting(header.mode == 0)
             }
-            .onChange(of: container.router.homeSoftResetToken) {
+            .onChange(of: container.router.routers[.home]?.softResetToken) {
                 withAnimation { proxy.scrollTo(Self.topID, anchor: .top) }
                 header.show()
                 container.analytics.metric("feed:refresh", ["feedType": .string(feed.feedType),
@@ -110,7 +110,7 @@ struct HomeScreen: View {
                         testID: "homeScreenFeedTabs") { index in
                 if index == 0 {
                     // Re-selecting the current feed tab soft-resets it (`Home.tsx:209-211`).
-                    container.router.softResetHome()
+                    container.router.softResetRoot(of: .home)
                 } else {
                     // RN navigates to the Feeds screen from the last tab instead of paging.
                     container.shell.notInShowcase = NotInShowcaseItem(title: "Feeds")
@@ -128,7 +128,7 @@ struct HomeScreen: View {
         container.shell.notInShowcase = NotInShowcaseItem(title: "Debug")
         #else
         haptics.play(.light)
-        container.router.softResetHome()
+        container.router.softResetRoot(of: .home)
         #endif
     }
 }
