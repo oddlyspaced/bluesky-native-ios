@@ -121,6 +121,17 @@ private struct TabStack: View {
     let container: AccountContainer
 
     var body: some View {
+        // RN `Layout.Screen testID="HomeScreen"` (`Home.tsx:95`) wraps the whole Home screen. The id
+        // sits on the hosting stack, a separate container from the screen's own `homeScreen`, so
+        // both ids stay exposed (measured with `maestro hierarchy`, review finding F2).
+        if router.tab == .home {
+            stack.accessibilityElement(children: .contain).accessibilityIdentifier("HomeScreen")
+        } else {
+            stack
+        }
+    }
+
+    private var stack: some View {
         NavigationStack(path: $router.path) {
             container.registry.root(for: router.tab, container: container)
                 .navigationDestination(for: Route.self) { route in

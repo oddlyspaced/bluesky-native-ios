@@ -17,10 +17,29 @@ struct HomeScreen: View {
     private var feed: FeedModel { container.homeFeed }
 
     /// RN nests `HomeScreen` (`Home.tsx:95`) > `homeScreen` (`Home.tsx:308`) > `followingFeedPage`
-    /// (`Home.tsx:320`) > `followingFeedPage-feed`, each wrapping one child. SwiftUI exposes only the
-    /// outer identifier of such a one-child chain (measured with `maestro hierarchy`), so the port keeps
-    /// `homeScreen` and the feed ids; `HomeScreen` and `followingFeedPage` are not exposed (N7).
+    /// (`Home.tsx:320`) > `followingFeedPage-feed`. Identifiers on one resolved view collapse into the
+    /// outermost, so each id sits on its own container with a zero-size second child, which makes
+    /// SwiftUI keep the container as an accessibility element. `HomeScreen` is on the hosting stack
+    /// (`TabShell.swift`). Measured with `maestro hierarchy` (review finding F2).
     var body: some View {
+        ZStack {
+            feedPage
+            Color.clear.frame(width: 0, height: 0).accessibilityElement(children: .ignore)
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("homeScreen")
+    }
+
+    private var feedPage: some View {
+        ZStack {
+            feedList
+            Color.clear.frame(width: 0, height: 0).accessibilityElement(children: .ignore)
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("followingFeedPage")
+    }
+
+    private var feedList: some View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: 0) {
@@ -70,7 +89,6 @@ struct HomeScreen: View {
                 "reason": "focus",
             ])
         }
-        .accessibilityIdentifier("homeScreen")
     }
 
     private static let topID = "homeTop"
