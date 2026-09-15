@@ -34,14 +34,18 @@ final class UnreadNotificationsModel {
     }
 
     /// Runs the initial check and the 30 s poll until `stopPolling()` or cancellation.
-    func startPolling(isActive: @escaping @MainActor () -> Bool,
-                      interval: Duration = UnreadNotificationsModel.updateInterval) async {
-        await check(isPoll: false, isActive: isActive())
+    ///
+    /// The task is stored before the first check runs, so a `stopPolling()` during that check
+    /// also ends the loop (review finding A62).
+    func startPolling(activity: any AppActivity, interval: Duration = UnreadNotificationsModel.updateInterval,
+                      wait: @escaping @Sendable (Duration) async -> Void = { try? await Task.sleep(for: $0) }) async {
+        pollTask?.cancel()
         let task = Task { [weak self] in
+            await self?.check(isPoll: false, isActive: activity.isActive)
             while !Task.isCancelled {
-                try? await Task.sleep(for: interval)
+                await wait(interval)
                 guard let self, !Task.isCancelled else { return }
-                await self.check(isPoll: true, isActive: isActive())
+                await self.check(isPoll: true, isActive: activity.isActive)
             }
         }
         pollTask = task

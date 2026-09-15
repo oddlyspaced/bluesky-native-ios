@@ -70,10 +70,11 @@ struct PendingLink: Identifiable, Hashable {
     var id: String { uri + "|" + displayText }
 }
 
-/// Faults the Debug build can inject so that Maestro can capture error states.
+/// Faults the E2E build can inject so that Maestro can capture error states.
 ///
 /// RN has no equivalent control, so these states are captured on the native build only;
-/// PARITY.md records that. Release builds never compile the E2E controls that set them.
+/// PARITY.md records that. Only the `E2E` compilation condition (Debug) compiles the storage
+/// and `arm`; in Release `consume` is a constant false (review finding A52).
 @MainActor
 @Observable
 final class DebugFaults {
@@ -88,6 +89,7 @@ final class DebugFaults {
         case profile
     }
 
+    #if E2E
     @ObservationIgnored private var armed: Set<Fault> = []
 
     func arm(_ fault: Fault) {
@@ -98,6 +100,10 @@ final class DebugFaults {
     func consume(_ fault: Fault) -> Bool {
         armed.remove(fault) != nil
     }
+    #else
+    @inline(__always)
+    func consume(_ fault: Fault) -> Bool { false }
+    #endif
 }
 
 struct InjectedFault: LocalizedError {

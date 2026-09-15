@@ -37,22 +37,30 @@ final class AppEnvironment {
     let statusBar: StatusBarAppearance
     let analytics: any AnalyticsSink
     let faults: DebugFaults
+    let platform: PlatformServices
     /// Media time when the app process built its environment, for RN's `init.initMs`.
     let launchTime: CFTimeInterval
 
     init(session: SessionStore, statusBar: StatusBarAppearance = StatusBarAppearance(),
          analytics: any AnalyticsSink = NoopAnalytics(), faults: DebugFaults = DebugFaults(),
-         launchTime: CFTimeInterval = CACurrentMediaTime()) {
+         platform: PlatformServices = .live, launchTime: CFTimeInterval = CACurrentMediaTime()) {
         self.session = session
         self.statusBar = statusBar
         self.analytics = analytics
         self.faults = faults
+        self.platform = platform
         self.launchTime = launchTime
     }
 
     static func live() -> AppEnvironment {
-        AppEnvironment(session: .live(appViewProxy: AppConfig.appViewProxy),
-                       analytics: JSONLinesEventLog.documents())
+        #if E2E
+        // The parity event diff reads this log (review finding A60).
+        let analytics: any AnalyticsSink = JSONLinesEventLog.documents()
+        #else
+        // Release sends events nowhere: no local file with URIs, DIDs or visited links.
+        let analytics: any AnalyticsSink = NoopAnalytics()
+        #endif
+        return AppEnvironment(session: .live(appViewProxy: AppConfig.appViewProxy), analytics: analytics)
     }
 }
 
@@ -79,6 +87,7 @@ final class RootHostingController: UIHostingController<AnyView> {
                 .environment(environment.statusBar)
                 .environment(environment.faults)
                 .environment(\.analytics, environment.analytics)
+                .environment(\.platform, environment.platform)
         ))
         statusBar.onChange = { [weak self] in self?.setNeedsStatusBarAppearanceUpdate() }
     }

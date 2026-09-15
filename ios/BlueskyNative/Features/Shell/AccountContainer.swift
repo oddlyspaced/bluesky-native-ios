@@ -180,6 +180,7 @@ final class AccountContainer {
     let accountHandle: String
     let analytics: any AnalyticsSink
     let faults: DebugFaults
+    let activity: any AppActivity
     let shell = ShellState()
     let shadows = PostShadowStore()
     let ticker = MinuteTicker()
@@ -189,16 +190,18 @@ final class AccountContainer {
     let homeFeed: FeedModel
     let profile: ProfileModel
     let router: AppRouter
+    let links: LinkRouter
 
     @ObservationIgnored private var threadModels: [Route: ThreadModel] = [:]
 
     init(api: any BlueskyAPI, accountDid: String, accountHandle: String, analytics: any AnalyticsSink,
-         faults: DebugFaults) {
+         faults: DebugFaults, platform: PlatformServices = .live) {
         self.api = api
         self.accountDid = accountDid
         self.accountHandle = accountHandle
         self.analytics = analytics
         self.faults = faults
+        activity = platform.activity
         let preferences = PreferencesModel(api: api)
         self.preferences = preferences
         let profile = ProfileModel(
@@ -212,7 +215,10 @@ final class AccountContainer {
         unread = UnreadNotificationsModel(api: api)
         homeFeed = FeedModel(source: .following, api: api, preferences: preferences, analytics: analytics,
                              faults: faults, userDid: accountDid)
-        router = AppRouter(analytics: analytics, shell: shell, accountDid: accountDid)
+        let router = AppRouter(analytics: analytics, shell: shell, accountDid: accountDid)
+        self.router = router
+        links = LinkRouter(analytics: analytics, shell: shell, preferences: platform.preferences,
+                           urlOpener: platform.urlOpener) { [weak router] did in router?.openProfile(did: did) }
     }
 
     /// Screen factory for threads: one model per pushed route (review finding A35).

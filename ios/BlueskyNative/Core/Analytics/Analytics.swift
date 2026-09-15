@@ -51,34 +51,43 @@ struct NoopAnalytics: AnalyticsSink {
     func record(_ event: AnalyticsEvent) {}
 }
 
+#if E2E
 /// Appends events to `Documents/events.jsonl`, one JSON object per line.
 ///
-/// Writes run in order on a serial background queue, so the main actor never does file I/O.
-/// Maestro `clearState` deletes the Documents directory, so each capture run starts empty.
-final class JSONLinesEventLog: AnalyticsSink {
+/// E2E builds only (review finding A60): the log holds post URIs, DIDs and visited link URLs, so
+/// Release builds use `NoopAnalytics`. The parity event diff reads this file.
+///
+/// One serial queue owns the encoder and the file handle; `record` only enqueues, so the main
+/// actor never encodes or does file I/O. Maestro `clearState` deletes the Documents directory,
+/// so each capture run starts empty.
+final class JSONLinesEventLog: AnalyticsSink, @unchecked Sendable {
     static let fileName = "events.jsonl"
 
     let fileURL: URL
     private let queue = DispatchQueue(label: "io.nativestarter.showcase.bluesky.events", qos: .utility)
+    // Confined to `queue`.
+    private let encoder: JSONEncoder = {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
+        return encoder
+    }()
+    // Confined to `queue`.
+    private var handle: FileHandle?
 
     init(fileURL: URL) {
         self.fileURL = fileURL
     }
 
+    deinit {
+        try? handle?.close()
+    }
+
     static func documents() -> JSONLinesEventLog {
-        let documents = URL.documentsDirectory
-        return JSONLinesEventLog(fileURL: documents.appending(path: fileName))
+        JSONLinesEventLog(fileURL: URL.documentsDirectory.appending(path: fileName))
     }
 
     func record(_ event: AnalyticsEvent) {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
-        guard var line = try? encoder.encode(event) else { return }
-        line.append(0x0A)
-        let url = fileURL
-        queue.async {
-            Self.append(line, to: url)
-        }
+        queue.async { [self] in write(event) }
     }
 
     /// Blocks until queued writes finish. Tests only.
@@ -86,18 +95,22 @@ final class JSONLinesEventLog: AnalyticsSink {
         queue.sync {}
     }
 
-    private static func append(_ data: Data, to url: URL) {
-        let manager = FileManager.default
-        if !manager.fileExists(atPath: url.path) {
-            try? manager.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-            manager.createFile(atPath: url.path, contents: nil)
+    private func write(_ event: AnalyticsEvent) {
+        guard var line = try? encoder.encode(event) else { return }
+        line.append(0x0A)
+        if handle == nil {
+            let manager = FileManager.default
+            if !manager.fileExists(atPath: fileURL.path) {
+                try? manager.createDirectory(at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+                manager.createFile(atPath: fileURL.path, contents: nil)
+            }
+            handle = try? FileHandle(forWritingTo: fileURL)
+            _ = try? handle?.seekToEnd()
         }
-        guard let handle = try? FileHandle(forWritingTo: url) else { return }
-        defer { try? handle.close() }
-        _ = try? handle.seekToEnd()
-        try? handle.write(contentsOf: data)
+        try? handle?.write(contentsOf: line)
     }
 }
+#endif
 
 extension EnvironmentValues {
     @Entry var analytics: any AnalyticsSink = NoopAnalytics()

@@ -81,6 +81,7 @@ private struct SignedInRoot: View {
     let launchTime: CFTimeInterval
 
     @Environment(\.analytics) private var analytics
+    @Environment(\.platform) private var platform
     @Environment(DebugFaults.self) private var faults
     @State private var container: AccountContainer?
 
@@ -99,7 +100,7 @@ private struct SignedInRoot: View {
         .onAppear {
             guard container == nil else { return }
             let created = AccountContainer(api: api, accountDid: did, accountHandle: handle, analytics: analytics,
-                                           faults: faults)
+                                           faults: faults, platform: platform)
             container = created
             // The remounted navigator is ready again (`Navigation.tsx:955`).
             created.router.reportReady(initMs: RootView.elapsedMs(since: launchTime))

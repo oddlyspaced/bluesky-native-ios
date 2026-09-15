@@ -13,11 +13,10 @@ struct TabShell: View {
     @Environment(AccountContainer.self) private var container
     @Environment(StatusBarAppearance.self) private var statusBar
     @Environment(\.theme) private var theme
-    @Environment(\.openURL) private var openURL
-    @State private var safariURL: IdentifiedURL?
 
     var body: some View {
         @Bindable var shell = container.shell
+        @Bindable var links = container.links
         @Bindable var home = container.router.home
         @Bindable var profile = container.router.profile
         let router = container.router
@@ -73,36 +72,30 @@ struct TabShell: View {
                           onSelect: router.select)
             }
         }
-        .environment(\.facetHandler, FacetHandler { action in handleFacet(action) })
+        // Link policy lives in `LinkRouter`; the view only presents its decisions (A59).
+        .environment(\.facetHandler, FacetHandler { [links = container.links] action in links.handleFacet(action) })
         .sheet(item: $shell.notInShowcase) { item in
             NotInShowcaseView(title: item.title)
                 .presentationDetents([.medium])
         }
         .sheet(item: $shell.linkWarning) { link in
             LinkWarningSheet(link: link) {
-                shell.linkWarning = nil
-                openLink(link.uri)
+                container.links.confirmWarning(link)
             }
             .presentationDetents([.medium])
         }
         .sheet(item: $shell.linkConsent) { link in
             InAppBrowserConsentSheet { choice in
-                shell.linkConsent = nil
-                guard let choice else { return }
-                InAppBrowserPreference.set(choice)
-                open(link.uri, inApp: choice)
+                container.links.answerConsent(choice, for: link)
             }
             .presentationDetents([.medium])
         }
-        .sheet(item: $safariURL) { item in
+        .sheet(item: $links.safariURL) { item in
             SafariView(url: item.url).ignoresSafeArea()
         }
         .task {
             container.ticker.start()
-            // RN checks `AppState.currentState === 'active'`; UIKit's application state is the same signal.
-            async let unread: Void = container.unread.startPolling(isActive: {
-                UIApplication.shared.applicationState == .active
-            })
+            async let unread: Void = container.unread.startPolling(activity: container.activity)
             async let profileLoad: Void = container.profile.loadProfile()
             _ = await (unread, profileLoad)
         }
@@ -149,74 +142,6 @@ struct TabShell: View {
         let onProfileHeader = container.router.currentScreenName == "MyProfile"
             || container.router.currentScreenName == "Profile"
         statusBar.style = onProfileHeader ? .lightContent : theme.statusBarStyle
-    }
-
-    // MARK: - Facets
-
-    /// Tap behaviour of `RichText` facets inside the slice (`src/components/Link.tsx:146-248`).
-    private func handleFacet(_ action: FacetAction) {
-        switch action {
-        case .mention(let did):
-            container.router.openProfile(did: did)
-        case .tag:
-            container.shell.notInShowcase = NotInShowcaseItem(title: "Hashtag")
-        case .link(let uri, let displayText):
-            if RichTextRules.linkRequiresWarning(uri: uri, label: displayText) {
-                container.shell.linkWarning = PendingLink(uri: uri, displayText: displayText)
-            } else {
-                openLink(uri)
-            }
-        }
-    }
-
-    /// `useOpenLink` (`src/lib/hooks/useOpenLink.ts`): metric, proxy, then the browser choice.
-    private func openLink(_ uri: String) {
-        var url = uri
-        if !Self.isBskyAppUrl(uri) {
-            container.analytics.metric("link:clicked", ["domain": .string(RichTextRules.niceDomain(uri)),
-                                                        "url": .string(uri)])
-            // Feed and thread text always proxy links.
-            let encoded = uri.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? uri
-            url = "https://go.bsky.app/redirect?u=\(encoded)"
-        }
-        if url.hasPrefix("mailto:") {
-            open(url, inApp: false)
-        } else if let preference = InAppBrowserPreference.current {
-            open(url, inApp: preference)
-        } else {
-            container.shell.linkConsent = PendingLink(uri: url, displayText: url)
-        }
-    }
-
-    private func open(_ uri: String, inApp: Bool) {
-        guard let url = URL(string: uri) else { return }
-        if inApp, url.scheme == "https" || url.scheme == "http" {
-            safariURL = IdentifiedURL(url: url)
-        } else {
-            openURL(url)
-        }
-    }
-
-    private static func isBskyAppUrl(_ uri: String) -> Bool {
-        uri.firstMatch(of: /^https?:\/\/(www\.)?bsky\.app/) != nil
-    }
-}
-
-struct IdentifiedURL: Identifiable {
-    let url: URL
-    var id: String { url.absoluteString }
-}
-
-/// The RN in-app browser preference; unset until the consent dialog answers.
-enum InAppBrowserPreference {
-    private static let key = "useInAppBrowser"
-
-    static var current: Bool? {
-        UserDefaults.standard.object(forKey: key) as? Bool
-    }
-
-    static func set(_ value: Bool) {
-        UserDefaults.standard.set(value, forKey: key)
     }
 }
 
