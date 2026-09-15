@@ -1,179 +1,213 @@
-import Observation
 import SwiftUI
 
-/// Loads a profile and its Posts tab. Port of the own-profile path of `Profile.tsx`.
-@MainActor
-@Observable
-final class ProfileModel {
-    enum Status: Equatable {
-        case loading
-        case loaded
-        case failed(String)
-    }
-
-    private(set) var profile: ProfileViewDetailed?
-    private(set) var status: Status = .loading
-    let posts: FeedModel
-
-    private let api: any BlueskyAPI
-    let actor: String
-
-    init(api: any BlueskyAPI, actor: String) {
-        self.api = api
-        self.actor = actor
-        // The Posts tab uses posts_and_author_threads (Profile.tsx, lib/api/feed/author.ts).
-        posts = FeedModel(source: .author(api, actor: actor, filter: .postsAndAuthorThreads))
-    }
-
-    func loadProfile() async {
-        do {
-            profile = try await api.getProfile(actor: actor)
-            status = .loaded
-        } catch is CancellationError {
-            return
-        } catch {
-            if profile == nil { status = .failed(FeedModel.message(for: error)) }
-        }
-    }
-
-    func refresh() async {
-        async let profileLoad: Void = loadProfile()
-        async let postsLoad: Void = posts.refresh()
-        _ = await (profileLoad, postsLoad)
-    }
-
-    /// RN pluralises each metric label: "1 follower", "2 followers", "1 post".
-    static func metricLabel(_ count: Int, one: String, other: String) -> String {
-        count == 1 ? one : other
-    }
-
-    /// Tabs RN shows on your own profile, in order.
-    static let ownProfileTabs = ["Posts", "Replies", "Media", "Videos", "Likes", "Feeds", "Starter Packs", "Lists"]
-}
-
-/// Port of the profile screen header (`ProfileHeaderStandard.tsx`, `Shell.tsx`) and the Posts tab.
+/// Port of the own profile screen (`src/view/screens/Profile.tsx`, `Header/Shell.tsx`,
+/// `ProfileHeaderStandard.tsx`, `Metrics.tsx`) with the Posts tab.
 struct ProfileScreen: View {
     var model: ProfileModel
-    var context: AppContext
-    var openThread: (String) -> Void
+    /// True for the Profile tab root; false when pushed from a mention.
+    var isTabRoot: Bool
 
-    @Environment(ShellState.self) private var shell
+    @Environment(AccountContainer.self) private var container
+    @Environment(\.theme) private var theme
+    @Environment(\.haptics) private var haptics
+    @Environment(\.dismiss) private var dismiss
     @State private var selectedTab = 0
 
+    private static let topID = "profileTop"
+
     var body: some View {
+        Group {
+            switch model.status {
+            case .loading:
+                ProfileHeaderLoading()
+                    .frame(maxHeight: .infinity, alignment: .top)
+                    .ignoresSafeArea(edges: .top)
+            case .failed(let title, let message):
+                VStack(spacing: 0) {
+                    ScreenHeader {
+                        if !isTabRoot {
+                            HeaderIconButton(glyph: .back, label: "Go back") { dismiss() }
+                        }
+                    } center: {
+                        HeaderTitle(title: "Error")
+                    } trailing: {
+                        EmptyView()
+                    }
+                    ErrorScreenContent(title: title, message: message, testID: "profileErrorScreen") {
+                        Task { await model.retry() }
+                    }
+                    Spacer(minLength: 0)
+                }
+            case .loaded:
+                content
+            }
+        }
+        .background(theme.bg)
+        .toolbar(.hidden, for: .navigationBar)
+        .background(InteractivePopEnabler())
+        .task {
+            // The shell starts the profile load at sign-in. A failed load keeps its error screen
+            // until Retry, as RN does; appearing again does not retry on its own.
+            if model.status == .loading { await model.loadProfile() }
+            await model.posts.loadIfNeeded()
+        }
+    }
+
+    private var content: some View {
         GeometryReader { proxy in
             let topInset = proxy.safeAreaInsets.top
-            ScrollView {
-                LazyVStack(spacing: 0, pinnedViews: []) {
-                    header(topInset: topInset)
-                    PagerTabBar(items: ProfileModel.ownProfileTabs, selection: $selectedTab, stretches: false,
-                                testID: "profilePager")
-                        .background(Theme.background)
-                    if selectedTab == 0 {
-                        postsTab
-                    } else {
-                        NotInShowcaseView(title: ProfileModel.ownProfileTabs[selectedTab])
-                            .frame(height: 320)
+            ScrollViewReader { scroll in
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        header(topInset: topInset).id(Self.topID)
+                        PagerTabBar(items: ProfileModel.ownProfileTabs, selection: $selectedTab, stretches: false,
+                                    testID: "profilePager")
+                            .background(theme.bg)
+                            // RN draws the bar's hairline below it (`top: '100%'`) on top of the feed.
+                            .zIndex(1)
+                        if selectedTab == 0 {
+                            FeedRows(model: model.posts, eventContext: .feedItem(nil), footerMinHeight: 64) {
+                                EmptyView()
+                            } emptyState: {
+                                ProfileEmptyState {
+                                    container.shell.notInShowcase = NotInShowcaseItem(title: "Composer")
+                                }
+                            } endOfFeed: {
+                                Text("End of feed")
+                                    .textStyle(size: FontSize.sm, leading: Leading.snug)
+                                    .foregroundStyle(theme.textContrastMedium)
+                                    .multilineTextAlignment(.center)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, Space._5xl)
+                                    .overlay(alignment: .top) { HairlineDivider() }
+                            }
+                            .accessibilityElement(children: .contain)
+                            .accessibilityIdentifier("postsFeed-flatlist")
+                        } else {
+                            NotInShowcaseView(title: ProfileModel.ownProfileTabs[selectedTab])
+                                .frame(height: 320)
+                        }
                     }
                 }
+                .accessibilityIdentifier("postsFeed")
+                .ignoresSafeArea(edges: .top)
+                .refreshable { await model.refresh() }
+                .onChange(of: container.router.profileSoftResetToken) {
+                    withAnimation { scroll.scrollTo(Self.topID, anchor: .top) }
+                    Task { await model.posts.reload() }
+                }
             }
-            .ignoresSafeArea(edges: .top)
-            .refreshable { await model.refresh() }
         }
-        .background(Theme.background)
-        .toolbar(.hidden, for: .navigationBar)
-        .task { await model.posts.loadIfNeeded() }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("profileView")
     }
 
     private func header(topInset: CGFloat) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Banner: 150pt, contrast_25 when the profile has none, under the status bar.
             ZStack(alignment: .top) {
                 if let banner = model.profile?.banner {
-                    AsyncImage(url: banner) { $0.resizable().scaledToFill() } placeholder: { Theme.bgContrast25 }
+                    RemoteImage(url: banner, pointSize: 402) { theme.bgContrast25 }
                 } else {
-                    Theme.bgContrast25
+                    theme.bgContrast25
                 }
+                // `StatusBarShadow`: a 50% to 0% black gradient as tall as the top inset.
                 LinearGradient(colors: [Color.black.opacity(0.5), .clear], startPoint: .top, endPoint: .bottom)
                     .frame(height: topInset)
             }
-            .frame(height: 150)
+            .frame(height: Layout.bannerHeight)
             .frame(maxWidth: .infinity)
             .clipped()
+            .accessibilityElement()
+            .accessibilityLabel(model.profile?.banner == nil ? "Profile banner placeholder" : "View profile banner")
             .accessibilityIdentifier(model.profile?.banner == nil ? "userBannerFallback" : "userBannerImage")
 
             headerBody
         }
         .overlay(alignment: .topLeading) {
-            UserAvatar(url: model.profile?.avatar, size: 90, showsBorder: false)
-                .frame(width: 90, height: 90)
-                .padding(2)
-                .background(Theme.background, in: Circle())
-                .padding(.leading, 10)
-                .padding(.top, 104)
-                .accessibilityIdentifier("profileHeaderAviButton")
+            Button {
+                container.shell.notInShowcase = NotInShowcaseItem(title: "Avatar")
+            } label: {
+                UserAvatar(url: model.profile?.avatar, size: AvatarSize.profile, showsBorder: false)
+                    .frame(width: AvatarSize.profile, height: AvatarSize.profile)
+                    .padding(Space._2xs)
+                    .background(theme.bg, in: Circle())
+            }
+            .buttonStyle(.plain)
+            .padding(.leading, 10)
+            .padding(.top, Layout.profileAvatarTop)
+            .accessibilityLabel("View \(model.profile?.handle ?? "")'s avatar")
+            .accessibilityAddTraits(.isImage)
+            .accessibilityIdentifier("profileHeaderAviButton")
+        }
+        .overlay(alignment: .topLeading) {
+            if !isTabRoot {
+                Button { dismiss() } label: {
+                    Icon(.back, size: IconSize.lg, color: theme.palette.white)
+                        .frame(width: 31, height: 31)
+                        .background(Color.black.opacity(0.5), in: Circle())
+                }
+                .buttonStyle(.plain)
+                .padding(.leading, Space.md)
+                .padding(.top, topInset)
+                .accessibilityLabel("Back")
+                .accessibilityIdentifier("profileHeaderBackBtn")
+            }
         }
     }
 
+    /// `ProfileHeaderStandard.tsx:113-170`: px 16, pt 12, pb 8; buttons row gap 4, pb 8;
+    /// name and handle column gap 4, pt 2, pb 8; metrics and bio gap 12.
     private var headerBody: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 4) {
+            HStack(spacing: Space.xs) {
                 Spacer(minLength: 0)
-                Button { shell.notInShowcase = NotInShowcaseItem(title: "Edit Profile") } label: {
-                    Text("Edit Profile")
-                        .textStyle(size: FontSize.sm, weight: FontWeight.medium, leading: Leading.snug)
-                        .foregroundStyle(Theme.textContrastMedium)
-                        .padding(.vertical, 8)
-                        .padding(.horizontal, 14)
-                        .background(Theme.bgContrast50, in: Capsule())
+                DSButton(title: "Edit Profile", accessibilityLabel: "Edit profile", color: .secondary, size: .small) {
+                    haptics.play(.light)
+                    container.shell.notInShowcase = NotInShowcaseItem(title: "Edit Profile")
                 }
-                .buttonStyle(PressScaleStyle(scale: 1))
                 .accessibilityIdentifier("profileHeaderEditProfileButton")
-                roundButton(.share, id: "profileHeaderShareButton", label: "Share") {
-                    shell.notInShowcase = NotInShowcaseItem(title: "Share")
+                DSIconButton(glyph: .share, label: "Invite friends") {
+                    haptics.play(.light)
+                    container.analytics.metric("invite:dialog:open", ["logContext": "ProfileHeader"])
+                    container.shell.notInShowcase = NotInShowcaseItem(title: "Invite friends")
                 }
-                roundButton(.more, id: "profileHeaderDropdownBtn", label: "More options") {
-                    shell.notInShowcase = NotInShowcaseItem(title: "More options")
+                .accessibilityIdentifier("profileHeaderShareButton")
+                DSIconButton(glyph: .more, label: "More options") {
+                    container.shell.notInShowcase = NotInShowcaseItem(title: "More options")
                 }
+                .accessibilityIdentifier("profileHeaderDropdownBtn")
             }
-            .padding(.leading, 90)
-            .padding(.bottom, 8)
+            .padding(.leading, AvatarSize.profile)
+            .padding(.bottom, Space.sm)
 
             if let profile = model.profile {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(profile.displayName?.isEmpty == false ? profile.displayName! : profile.handle)
-                        .textStyle(size: FontSize._3xl, weight: FontWeight.bold, leading: Leading.tight)
-                        .foregroundStyle(Theme.text)
+                VStack(alignment: .leading, spacing: Space.xs) {
+                    Text(Names.displayNameOrHandle(displayName: profile.displayName, handle: profile.handle))
+                        .textStyle(size: FontSize._3xl, weight: FontWeight.bold, leading: Leading.tight,
+                                   adjustment: RNLineBox.profileDisplayName)
+                        .foregroundStyle(theme.text)
                         .accessibilityIdentifier("profileHeaderDisplayName")
-                    Text("@\(profile.handle)")
-                        .textStyle(size: FontSize.md, leading: Leading.snug)
-                        .foregroundStyle(Theme.textContrastMedium)
+                    Text(Names.sanitizeHandle(profile.handle, prefix: "@"))
+                        .textStyle(size: FontSize.md, leading: Leading.snug, adjustment: RNLineBox.profileHandle)
+                        .foregroundStyle(theme.textContrastMedium)
                         .lineLimit(1)
                 }
-                .padding(.top, 2)
-                .padding(.bottom, 8)
+                .padding(.top, Space._2xs)
+                .padding(.bottom, Space.sm)
 
-                VStack(alignment: .leading, spacing: 12) {
-                    // Measured: the RN metrics row is about 1.75pt taller than its text.
+                VStack(alignment: .leading, spacing: Space.md) {
                     metrics(profile)
-                        .padding(.bottom, 1.75)
                     if let description = profile.description, !description.isEmpty {
-                        Text(description)
-                            .textStyle(size: FontSize.md, leading: Leading.snug)
-                            .foregroundStyle(Theme.text)
-                            .lineLimit(15)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .accessibilityIdentifier("profileHeaderDescription")
+                        RichTextView(text: description, facets: nil, size: FontSize.md, lineLimit: 15,
+                                     testID: "profileHeaderDescription",
+                                     lineBoxAdjustment: RNLineBox.profileDescription)
                     }
                 }
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.top, 12)
-        // RN: pb 8. Measured 1pt less between the bio and the tab bar in the RN screenshot.
-        .padding(.bottom, 7)
+        .padding(.horizontal, Space.lg)
+        .padding(.top, Space.md)
+        .padding(.bottom, Space.sm)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
@@ -181,63 +215,75 @@ struct ProfileScreen: View {
         let followers = profile.followersCount ?? 0
         let follows = profile.followsCount ?? 0
         let posts = profile.postsCount ?? 0
-        return HStack(spacing: 8) {
-            metric(followers, ProfileModel.metricLabel(followers, one: "follower", other: "followers"))
+        return HStack(spacing: Space.sm) {
+            metric(followers, ProfileModel.followersLabel(followers))
+                .accessibilityLabel("\(followers) \(ProfileModel.followersLabel(followers))")
                 .accessibilityIdentifier("profileHeaderFollowersButton")
             metric(follows, "following")
+                .accessibilityLabel("\(follows) following")
                 .accessibilityIdentifier("profileHeaderFollowsButton")
-            metric(posts, ProfileModel.metricLabel(posts, one: "post", other: "posts"))
+            metric(posts, ProfileModel.postsLabel(posts))
         }
     }
+
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     private func metric(_ count: Int, _ label: String) -> some View {
-        (Text(CountFormat.format(count)).inter(FontSize.md, FontWeight.semiBold).foregroundStyle(Theme.text)
-         + Text(" \(label)").inter(FontSize.md).foregroundStyle(Theme.textContrastMedium))
-            .textStyle(size: FontSize.md, leading: Leading.snug)
+        let fonts = ScaledFonts(multiplier: FontScale.multiplier(for: dynamicTypeSize))
+        return (Text(CountFormat.format(count) + " ").font(fonts.font(FontSize.md, FontWeight.semiBold))
+            .foregroundStyle(theme.text)
+            + Text(label).font(fonts.font(FontSize.md)).foregroundStyle(theme.textContrastMedium))
+            .textStyle(size: FontSize.md, leading: Leading.snug, adjustment: RNLineBox.profileMetrics)
             .lineLimit(1)
     }
+}
 
-    private func roundButton(_ glyph: IconGlyph, id: String, label: String,
-                             action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Icon(glyph, size: 16, color: Theme.textContrastMedium)
-                .frame(width: 33, height: 33)
-                .background(Theme.bgContrast50, in: Circle())
+/// `ProfileHeaderLoading` (`src/screens/Profile/Header/index.tsx:34-54`).
+struct ProfileHeaderLoading: View {
+    @Environment(\.theme) private var theme
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            theme.bgContrast50.frame(height: Layout.bannerHeight)
+            HStack {
+                Spacer()
+                Capsule().fill(theme.bgContrast50).frame(width: 140, height: 34)
+            }
+            .padding(.horizontal, Space.lg)
+            .padding(.top, Space.md)
         }
-        .buttonStyle(PressScaleStyle(scale: 1))
-        .accessibilityLabel(label)
-        .accessibilityIdentifier(id)
+        .overlay(alignment: .topLeading) {
+            Circle().fill(theme.bgContrast50)
+                .frame(width: AvatarSize.profile, height: AvatarSize.profile)
+                .padding(Space._2xs)
+                .background(theme.bg, in: Circle())
+                .padding(.leading, 10)
+                .padding(.top, Layout.profileAvatarTop)
+        }
+        .accessibilityLabel("Loading")
     }
+}
 
-    @ViewBuilder
-    private var postsTab: some View {
-        let feed = model.posts
-        switch feed.status {
-        case .idle, .loading:
-            FeedLoadingPlaceholder()
-        case .failed(let message):
-            FeedErrorRow(message: message) { Task { await feed.refresh() } }
-        case .loaded:
-            ForEach(FeedRow.rows(for: feed.slices, firstRowHidesBorder: true)) { row in
-                switch row.kind {
-                case .post(let item, let reason):
-                    PostFeedItemView(row: row, item: item, reason: reason,
-                                     interactions: context.interactions, onOpen: openThread)
-                case .viewFullThread(let rootUri):
-                    ViewFullThreadRow { openThread(rootUri) }
-                }
-            }
-            if feed.hasMore {
-                Color.clear.frame(height: 1)
-                    .onAppear { Task { await feed.loadMore() } }
-            } else {
-                Text(feed.isEmpty ? "No posts yet" : "End of feed")
-                    .inter(FontSize.sm)
-                    .foregroundStyle(Theme.textContrastMedium)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 40)
-                    .overlay(alignment: .top) { HairlineDivider() }
-            }
+/// `EmptyState` (`src/view/com/util/EmptyState.tsx`) for the own Posts tab: "No posts yet"
+/// and a "Write a post" button (`Profile.tsx:436-454`).
+struct ProfileEmptyState: View {
+    var onWrite: () -> Void
+    @Environment(\.theme) private var theme
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Icon(.compose, size: 40, color: theme.textContrastLow)
+                .frame(width: 64, height: 64)
+                .padding(.top, Space._5xl)
+            Text("No posts yet")
+                .textStyle(size: FontSize.md, weight: FontWeight.medium, leading: Leading.snug)
+                .foregroundStyle(theme.textContrastHigh)
+                .multilineTextAlignment(.center)
+                .padding(.top, Space.xs)
+            DSButton(title: "Write a post", color: .primary, size: .small, action: onWrite)
+                .padding(.top, Space.md)
+                .padding(.bottom, Space._5xl)
         }
+        .frame(maxWidth: .infinity)
     }
 }
