@@ -13,6 +13,8 @@ final class ProfileModel {
     }
 
     private(set) var profile: ProfileViewDetailed?
+    /// Facets detected in the bio, with mentions resolved (`Profile.tsx:614-647`, review finding F4).
+    private(set) var descriptionFacets: [Facet]?
     private(set) var status: Status = .loading
     let posts: FeedModel
     let actor: String
@@ -33,7 +35,16 @@ final class ProfileModel {
     func loadProfile() async {
         do {
             if faults?.consume(.profile) == true { throw InjectedFault() }
-            profile = try await api.getProfile(actor: actor)
+            let loaded = try await api.getProfile(actor: actor)
+            // RN shows the header placeholder until the bio's facets resolve
+            // (`Profile.tsx:209-210`), and resolves again only when the text changes.
+            let description = loaded.description ?? ""
+            if profile == nil || description != (profile?.description ?? "") {
+                let api = self.api
+                descriptionFacets = description.isEmpty ? nil : await RichTextDetection.detectAndResolve(
+                    description, resolveHandle: { try await api.resolveHandle($0) })
+            }
+            profile = loaded
             status = .loaded
         } catch where RequestFailure.isCancellation(error) {
             return

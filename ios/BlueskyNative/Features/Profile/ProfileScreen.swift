@@ -201,7 +201,7 @@ struct ProfileScreen: View {
                 VStack(alignment: .leading, spacing: Space.md) {
                     metrics(profile)
                     if let description = profile.description, !description.isEmpty {
-                        RichTextView(text: description, facets: nil, size: FontSize.md, lineLimit: 15,
+                        RichTextView(text: description, facets: model.descriptionFacets, size: FontSize.md, lineLimit: 15,
                                      testID: "profileHeaderDescription",
                                      lineBoxAdjustment: RNLineBox.profileDescription)
                     }

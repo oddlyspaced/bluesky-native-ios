@@ -82,6 +82,10 @@ struct TabShell: View {
         .sheet(item: $links.safariURL) { item in
             SafariView(url: item.url).ignoresSafeArea()
         }
+        .sheet(item: $shell.shareURL) { item in
+            ShareSheet(url: item.url)
+                .presentationDetents([.medium, .large])
+        }
         .task {
             container.ticker.start()
             async let unread: Void = container.unread.startPolling(activity: container.activity)
@@ -136,6 +140,17 @@ private struct SafariView: UIViewControllerRepresentable {
     func updateUIViewController(_ controller: SFSafariViewController, context: Context) {}
 }
 
+/// The system share sheet for one URL (RN `shareUrl`, `src/lib/sharing.ts`).
+private struct ShareSheet: UIViewControllerRepresentable {
+    var url: URL
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: [url], applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ controller: UIActivityViewController, context: Context) {}
+}
+
 /// Port of `LinkWarning.tsx`.
 struct LinkWarningSheet: View {
     var link: PendingLink
@@ -165,8 +180,8 @@ struct LinkWarningSheet: View {
                     .textStyle(size: FontSize.md, leading: Leading.snug)
                     .foregroundStyle(theme.text)
             }
-            DSButton(title: "Visit site", color: misleading ? .secondaryInverted : .primary, size: .large,
-                     fullWidth: true, action: onVisit)
+            DSButton(title: link.share ? "Share link" : "Visit site", color: misleading ? .secondaryInverted : .primary,
+                     size: .large, fullWidth: true, action: onVisit)
             DSButton(title: "Go back", color: .secondary, size: .large, fullWidth: true) { dismiss() }
         }
         .padding(Space.xl)

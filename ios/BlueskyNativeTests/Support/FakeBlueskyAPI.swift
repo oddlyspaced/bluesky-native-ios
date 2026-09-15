@@ -115,6 +115,18 @@ actor FakeBlueskyAPI: SessionBoundAPI {
         return preferences
     }
 
+    /// Handles `resolveHandle` knows; any other handle fails as the server does.
+    var handles: [String: String] = [:]
+    func setHandles(_ value: [String: String]) { handles = value }
+
+    func resolveHandle(_ handle: String) async throws -> String {
+        try record("resolveHandle(\(handle))")
+        guard let did = handles[handle] else {
+            throw XRPCError.http(status: 400, error: "InvalidRequest", message: "Unable to resolve handle")
+        }
+        return did
+    }
+
     func listNotifications(limit: Int) async throws -> [NotificationView] {
         try record("listNotifications")
         return notifications

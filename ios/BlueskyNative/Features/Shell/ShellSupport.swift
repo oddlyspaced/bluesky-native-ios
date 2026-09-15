@@ -53,6 +53,8 @@ final class ShellState {
     var linkWarning: PendingLink?
     /// A link waiting for the RN in-app browser consent dialog.
     var linkConsent: PendingLink?
+    /// A URL for the system share sheet (RN `shareUrl`).
+    var shareURL: IdentifiedURL?
 
     func showToast(_ text: String, kind: ToastMessage.Kind = .default) {
         toast = ToastMessage(text: text, kind: kind)
@@ -67,7 +69,10 @@ struct NotInShowcaseItem: Identifiable, Hashable {
 struct PendingLink: Identifiable, Hashable {
     var uri: String
     var displayText: String
-    var id: String { uri + "|" + displayText }
+    /// True when the warning was opened by a long press: its button shares instead of opening
+    /// (`LinkWarning.tsx:65-66,112`).
+    var share = false
+    var id: String { uri + "|" + displayText + (share ? "|share" : "") }
 }
 
 /// Faults the E2E build can inject so that Maestro can capture error states.

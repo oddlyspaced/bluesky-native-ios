@@ -47,13 +47,31 @@ final class LinkRouter {
             } else {
                 openLink(uri)
             }
+        case .shareLink(let uri, let displayText):
+            // `handleLongPress` (`Link.tsx:258-274`): a mismatched link opens the warning in share
+            // mode; any other link goes straight to the share sheet. No metric, no proxy.
+            if RichTextRules.linkRequiresWarning(uri: uri, label: displayText) {
+                shell.linkWarning = PendingLink(uri: uri, displayText: displayText, share: true)
+            } else {
+                share(uri)
+            }
         }
     }
 
-    /// "Visit site" in the link warning dialog.
+    /// "Visit site", or "Share link" for a long press, in the link warning dialog.
     func confirmWarning(_ link: PendingLink) {
         shell.linkWarning = nil
-        openLink(link.uri)
+        if link.share {
+            share(link.uri)
+        } else {
+            openLink(link.uri)
+        }
+    }
+
+    /// `shareUrl` (`src/lib/sharing.ts`): the system share sheet with the URL.
+    private func share(_ uri: String) {
+        guard let url = URL(string: uri) else { return }
+        shell.shareURL = IdentifiedURL(url: url)
     }
 
     /// The in-app browser consent answer; nil is Cancel.

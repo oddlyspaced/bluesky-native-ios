@@ -5,6 +5,8 @@ enum FacetAction: Hashable, Sendable {
     case mention(did: String)
     /// `uri` is the facet's target; `displayText` is the shortened text shown in the post.
     case link(uri: String, displayText: String)
+    /// Long press on a link (`Link.tsx:258-281`, `shareOnLongPress`, review finding F13).
+    case shareLink(uri: String, displayText: String)
     case tag(String)
 }
 
@@ -173,7 +175,18 @@ struct RichTextView: View {
                 }
                 return .discarded
             })
+            .modifier(LinkShareMenu(links: shareableLinks, handler: facetHandler))
             .accessibilityIdentifier(testID ?? "")
+    }
+
+    /// Links a long press can share: RN renders valid link facets as `InlineLinkText` with
+    /// `shareOnLongPress` (`RichText.tsx:160-180`). SwiftUI `Text` has no per-run long press, so the
+    /// text gets one context menu with a "Share link" item per link (review finding F13).
+    var shareableLinks: [PendingLink] {
+        RichTextSegmenter.segments(text: text, facets: facets).compactMap { segment in
+            guard let uri = segment.linkURI, RichTextRules.isValidLinkURI(uri) else { return nil }
+            return PendingLink(uri: uri, displayText: RichTextRules.toShortUrl(segment.text))
+        }
     }
 
     private var attributed: AttributedString {
@@ -222,6 +235,26 @@ struct RichTextView: View {
         case "link": return items["u"].map { .link(uri: $0, displayText: items["d"] ?? $0) }
         case "tag": return items["t"].map { .tag($0) }
         default: return nil
+        }
+    }
+}
+
+/// The long-press menu of `RichTextView`. Text without links gets no menu.
+private struct LinkShareMenu: ViewModifier {
+    var links: [PendingLink]
+    var handler: FacetHandler
+
+    func body(content: Content) -> some View {
+        if links.isEmpty {
+            content
+        } else {
+            content.contextMenu {
+                ForEach(links) { link in
+                    Button(links.count == 1 ? "Share link" : "Share \(link.displayText)") {
+                        handler.handle(.shareLink(uri: link.uri, displayText: link.displayText))
+                    }
+                }
+            }
         }
     }
 }

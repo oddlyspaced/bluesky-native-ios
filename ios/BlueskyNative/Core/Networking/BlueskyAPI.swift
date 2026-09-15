@@ -14,6 +14,8 @@ protocol BlueskyAPI: Sendable {
     /// `app.bsky.unspecced.getPostThreadOtherV2`.
     func getPostThreadOtherV2(anchor: String) async throws -> PostThreadOtherV2Response
     func getProfile(actor: String) async throws -> ProfileViewDetailed
+    /// `com.atproto.identity.resolveHandle` through the AppView proxy. Returns the DID.
+    func resolveHandle(_ handle: String) async throws -> String
     func getPreferences() async throws -> ActorPreferences
     func listNotifications(limit: Int) async throws -> [NotificationView]
 
@@ -170,6 +172,16 @@ actor AuthenticatedBlueskyAPI: SessionBoundAPI {
         try await authorized { client, token in
             try await client.query("app.bsky.actor.getProfile", Self.items(["actor": actor]), accessToken: token)
         }
+    }
+
+    /// RN resolves bio mentions with the AppView client (`Profile.tsx:614-647`, `ClientHandleResolver`).
+    func resolveHandle(_ handle: String) async throws -> String {
+        struct Output: Decodable, Sendable { var did: String }
+        let output: Output = try await authorized { client, token in
+            try await client.query("com.atproto.identity.resolveHandle", Self.items(["handle": handle]),
+                                   accessToken: token)
+        }
+        return output.did
     }
 
     func getPreferences() async throws -> ActorPreferences {

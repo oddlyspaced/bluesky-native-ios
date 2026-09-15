@@ -87,6 +87,35 @@ struct LinkRouterTests {
         links.handleFacet(.tag("swift"))
         #expect(shell.notInShowcase?.title == "Hashtag")
     }
+
+    /// Review finding F13 (`Link.tsx:258-281`): a long press shares the facet URI without a metric
+    /// or proxy; a mismatched link first opens the warning in share mode, whose button shares.
+    @Test func longPressSharesLinks() {
+        let links = router()
+        links.handleFacet(.shareLink(uri: "https://example.com/a", displayText: "example.com/a"))
+        #expect(shell.shareURL?.url.absoluteString == "https://example.com/a")
+        #expect(analytics.events(named: "link:clicked").isEmpty)
+        #expect(shell.linkWarning == nil)
+
+        shell.shareURL = nil
+        links.handleFacet(.shareLink(uri: "https://evil.example", displayText: "bsky.app"))
+        #expect(shell.linkWarning == PendingLink(uri: "https://evil.example", displayText: "bsky.app", share: true))
+        #expect(shell.shareURL == nil)
+        links.confirmWarning(shell.linkWarning!)
+        #expect(shell.linkWarning == nil)
+        #expect(shell.shareURL?.url.absoluteString == "https://evil.example")
+        #expect(links.safariURL == nil)
+        #expect(shell.linkConsent == nil)
+    }
+
+    @Test func richTextOffersShareOnlyForValidLinks() {
+        let view = RichTextView(text: "see example.com and @bob", facets: [
+            Facet(index: .init(byteStart: 4, byteEnd: 15), features: [.link(uri: "https://example.com")]),
+            Facet(index: .init(byteStart: 20, byteEnd: 24), features: [.mention(did: "did:plc:bob")]),
+        ])
+        #expect(view.shareableLinks == [PendingLink(uri: "https://example.com", displayText: "example.com")])
+        #expect(RichTextView(text: "plain", facets: nil).shareableLinks.isEmpty)
+    }
 }
 
 @MainActor
