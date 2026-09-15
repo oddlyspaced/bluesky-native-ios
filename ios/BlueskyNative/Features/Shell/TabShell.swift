@@ -1,112 +1,122 @@
-import Observation
+import SafariServices
 import SwiftUI
 
-enum ShellTab: Hashable {
-    case home, search, messages, notifications, profile
-
-    var title: String {
-        switch self {
-        case .home: "Home"
-        case .search: "Search"
-        case .messages: "Chat"
-        case .notifications: "Notifications"
-        case .profile: "Profile"
-        }
-    }
-}
-
-/// Screens pushed inside a tab.
-enum Route: Hashable {
-    case thread(uri: String)
-}
-
-/// Shell-level UI state that screens can change.
-@MainActor
-@Observable
-final class ShellState {
-    /// The thread screen hides the bar's top border behind its reply prompt.
-    var hidesBottomBarBorder = false
-    /// Title of a feature that is not ported, shown in a sheet.
-    var notInShowcase: NotInShowcaseItem?
-}
-
-struct NotInShowcaseItem: Identifiable, Hashable {
-    var title: String
-    var id: String { title }
-}
-
 /// Port of the RN bottom-tab shell (`src/view/shell`), with Home and Profile ported.
+///
+/// Tabs are a `ZStack` of per-tab `NavigationStack`s under the custom `BottomBar`, not a
+/// `TabView` with its bar hidden. Reason (review finding A16): `TabView` on iOS 26 reserves
+/// the system tab bar's safe area and draws its own background under the hidden bar, which
+/// moved the feed and the bar by several pixels against the RN captures. Per-tab routers and
+/// a screen factory (`AccountContainer.threadModel(for:)`) give the structure the review
+/// asked for. Like RN's lazy tabs, a tab mounts on first visit and stays mounted.
 struct TabShell: View {
-    let context: AppContext
-
+    @Environment(AccountContainer.self) private var container
     @Environment(StatusBarAppearance.self) private var statusBar
-    @Environment(PostShadowStore.self) private var shadows
-    @State private var selected: ShellTab = .home
-    @State private var homePath: [Route] = []
-    @State private var profilePath: [Route] = []
-    @State private var visitedProfile = false
-    @State private var shell = ShellState()
-    @State private var unread: UnreadNotificationsModel
-    @State private var homeFeed: FeedModel
-    @State private var profile: ProfileModel
-
-    init(context: AppContext) {
-        self.context = context
-        _unread = State(initialValue: UnreadNotificationsModel(api: context.api))
-        _homeFeed = State(initialValue: FeedModel(source: .following(context.api)))
-        _profile = State(initialValue: ProfileModel(api: context.api, actor: context.accountDid))
-    }
+    @Environment(\.theme) private var theme
+    @Environment(\.openURL) private var openURL
+    @State private var safariURL: IdentifiedURL?
 
     var body: some View {
+        @Bindable var shell = container.shell
+        @Bindable var home = container.router.home
+        @Bindable var profile = container.router.profile
+        let router = container.router
         ZStack {
             tab(.home) {
-                NavigationStack(path: $homePath) {
-                    HomeScreen(feed: homeFeed, context: context, avatarURL: profile.profile?.avatar,
-                               openThread: { homePath.append(.thread(uri: $0)) })
+                NavigationStack(path: $home.path) {
+                    HomeScreen()
                         .navigationDestination(for: Route.self, destination: destination)
                 }
             }
-            if visitedProfile {
+            if router.visitedProfile {
                 tab(.profile) {
-                    NavigationStack(path: $profilePath) {
-                        ProfileScreen(model: profile, context: context,
-                                      openThread: { profilePath.append(.thread(uri: $0)) })
+                    NavigationStack(path: $profile.path) {
+                        ProfileScreen(model: container.profile, isTabRoot: true)
                             .navigationDestination(for: Route.self, destination: destination)
                     }
                 }
             }
-            switch selected {
+            switch router.selected {
             case .search, .messages, .notifications:
-                NotInShowcaseView(title: selected.title)
+                NotInShowcaseView(title: router.selected.title)
             case .home, .profile:
                 EmptyView()
             }
-            if (selected == .home && homePath.isEmpty) || (selected == .profile && profilePath.isEmpty) {
+            if router.currentRouter?.path.isEmpty == true {
                 // Positioned against the bottom bar, not the scroll view, which extends under it.
-                ComposeFAB { shell.notInShowcase = NotInShowcaseItem(title: "Composer") }
+                ComposeFAB { container.shell.notInShowcase = NotInShowcaseItem(title: "Composer") }
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+            }
+            if let toast = shell.toast {
+                ToastView(message: toast)
+                    .frame(maxHeight: .infinity, alignment: .bottom)
+                    .padding(.bottom, Space.lg)
+                    .transition(.opacity)
+                    .task(id: toast.id) {
+                        try? await Task.sleep(for: .seconds(3))
+                        if shell.toast?.id == toast.id { shell.toast = nil }
+                    }
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            BottomBar(selected: selected, unreadText: unread.displayText,
-                      avatarURL: profile.profile?.avatar, hidesBorder: shell.hidesBottomBarBorder,
-                      onSelect: select)
+            VStack(spacing: 0) {
+                if router.isThreadOnTop {
+                    ThreadComposePrompt(avatarURL: container.profile.profile?.avatar) {
+                        container.shell.notInShowcase = NotInShowcaseItem(title: "Reply")
+                    }
+                }
+                BottomBar(selected: router.selected, unreadText: container.unread.displayText,
+                          avatarURL: container.profile.profile?.avatar, hidesBorder: router.isThreadOnTop,
+                          onSelect: router.select)
+            }
         }
-        .environment(shell)
+        .environment(\.facetHandler, FacetHandler { action in handleFacet(action) })
         .sheet(item: $shell.notInShowcase) { item in
             NotInShowcaseView(title: item.title)
                 .presentationDetents([.medium])
         }
-        .task {
-            await unread.load()
-            await profile.loadProfile()
+        .sheet(item: $shell.linkWarning) { link in
+            LinkWarningSheet(link: link) {
+                shell.linkWarning = nil
+                openLink(link.uri)
+            }
+            .presentationDetents([.medium])
         }
-        .onChange(of: selected) { updateStatusBar() }
-        .onChange(of: profilePath) { updateStatusBar() }
+        .sheet(item: $shell.linkConsent) { link in
+            InAppBrowserConsentSheet { choice in
+                shell.linkConsent = nil
+                guard let choice else { return }
+                InAppBrowserPreference.set(choice)
+                open(link.uri, inApp: choice)
+            }
+            .presentationDetents([.medium])
+        }
+        .sheet(item: $safariURL) { item in
+            SafariView(url: item.url).ignoresSafeArea()
+        }
+        .task {
+            container.ticker.start()
+            // RN checks `AppState.currentState === 'active'`; UIKit's application state is the same signal.
+            async let unread: Void = container.unread.startPolling(isActive: {
+                UIApplication.shared.applicationState == .active
+            })
+            async let profileLoad: Void = container.profile.loadProfile()
+            _ = await (unread, profileLoad)
+        }
+        .onDisappear {
+            container.ticker.stop()
+            container.unread.stopPolling()
+        }
+        .onChange(of: router.currentScreenName, initial: true) {
+            router.reportNavigation()
+            container.pruneRoutes()
+            updateStatusBar()
+        }
+        .onChange(of: theme.name) { updateStatusBar() }
     }
 
     private func tab(_ tab: ShellTab, @ViewBuilder content: () -> some View) -> some View {
-        let active = selected == tab
+        let active = container.router.selected == tab
         return content()
             .opacity(active ? 1 : 0)
             .allowsHitTesting(active)
@@ -116,54 +126,160 @@ struct TabShell: View {
     @ViewBuilder
     private func destination(_ route: Route) -> some View {
         switch route {
-        case .thread(let uri):
-            ThreadScreen(model: ThreadModel(api: context.api, uri: uri), context: context)
-        }
-    }
-
-    private func select(_ tab: ShellTab) {
-        if tab == selected {
-            // Re-tapping the active tab returns to its root, as in RN.
-            switch tab {
-            case .home: homePath.removeAll()
-            case .profile: profilePath.removeAll()
-            default: break
+        case .thread:
+            if let model = container.threadModel(for: route) {
+                ThreadScreen(model: model)
             }
-            return
+        case .profile:
+            ProfileScreen(model: container.profile, isTabRoot: false)
         }
-        if tab == .profile { visitedProfile = true }
-        selected = tab
     }
 
     private func updateStatusBar() {
         // The profile banner runs under the status bar with a dark gradient.
-        statusBar.style = selected == .profile && profilePath.isEmpty ? .lightContent : .darkContent
+        let onProfileHeader = container.router.currentScreenName == "MyProfile"
+            || container.router.currentScreenName == "Profile"
+        statusBar.style = onProfileHeader ? .lightContent : theme.statusBarStyle
+    }
+
+    // MARK: - Facets
+
+    /// Tap behaviour of `RichText` facets inside the slice (`src/components/Link.tsx:146-248`).
+    private func handleFacet(_ action: FacetAction) {
+        switch action {
+        case .mention(let did):
+            container.router.openProfile(did: did)
+        case .tag:
+            container.shell.notInShowcase = NotInShowcaseItem(title: "Hashtag")
+        case .link(let uri, let displayText):
+            if RichTextRules.linkRequiresWarning(uri: uri, label: displayText) {
+                container.shell.linkWarning = PendingLink(uri: uri, displayText: displayText)
+            } else {
+                openLink(uri)
+            }
+        }
+    }
+
+    /// `useOpenLink` (`src/lib/hooks/useOpenLink.ts`): metric, proxy, then the browser choice.
+    private func openLink(_ uri: String) {
+        var url = uri
+        if !Self.isBskyAppUrl(uri) {
+            container.analytics.metric("link:clicked", ["domain": .string(RichTextRules.niceDomain(uri)),
+                                                        "url": .string(uri)])
+            // Feed and thread text always proxy links.
+            let encoded = uri.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? uri
+            url = "https://go.bsky.app/redirect?u=\(encoded)"
+        }
+        if url.hasPrefix("mailto:") {
+            open(url, inApp: false)
+        } else if let preference = InAppBrowserPreference.current {
+            open(url, inApp: preference)
+        } else {
+            container.shell.linkConsent = PendingLink(uri: url, displayText: url)
+        }
+    }
+
+    private func open(_ uri: String, inApp: Bool) {
+        guard let url = URL(string: uri) else { return }
+        if inApp, url.scheme == "https" || url.scheme == "http" {
+            safariURL = IdentifiedURL(url: url)
+        } else {
+            openURL(url)
+        }
+    }
+
+    private static func isBskyAppUrl(_ uri: String) -> Bool {
+        uri.firstMatch(of: /^https?:\/\/(www\.)?bsky\.app/) != nil
     }
 }
 
-/// Port of `countUnread` (`src/state/queries/notifications/unread.tsx`).
-@MainActor
-@Observable
-final class UnreadNotificationsModel {
-    private(set) var count = 0
-    private let api: any BlueskyAPI
+struct IdentifiedURL: Identifiable {
+    let url: URL
+    var id: String { url.absoluteString }
+}
 
-    init(api: any BlueskyAPI) {
-        self.api = api
+/// The RN in-app browser preference; unset until the consent dialog answers.
+enum InAppBrowserPreference {
+    private static let key = "useInAppBrowser"
+
+    static var current: Bool? {
+        UserDefaults.standard.object(forKey: key) as? Bool
     }
 
-    /// "" for zero, "30+" from 30, otherwise the number.
-    var displayText: String {
-        count >= 30 ? "30+" : count == 0 ? "" : String(count)
+    static func set(_ value: Bool) {
+        UserDefaults.standard.set(value, forKey: key)
+    }
+}
+
+private struct SafariView: UIViewControllerRepresentable {
+    var url: URL
+
+    func makeUIViewController(context: Context) -> SFSafariViewController {
+        SFSafariViewController(url: url)
     }
 
-    func load() async {
-        guard let notifications = try? await api.listNotifications(limit: 40) else { return }
-        count = Self.countUnread(notifications)
-    }
+    func updateUIViewController(_ controller: SFSafariViewController, context: Context) {}
+}
 
-    /// Grouping does not change the count: RN adds grouped notifications back in.
-    nonisolated static func countUnread(_ notifications: [NotificationView]) -> Int {
-        notifications.filter { !$0.isRead }.count
+/// Port of `LinkWarning.tsx`.
+struct LinkWarningSheet: View {
+    var link: PendingLink
+    var onVisit: () -> Void
+
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.theme) private var theme
+
+    var body: some View {
+        let misleading = link.displayText.contains(".")
+        VStack(alignment: .leading, spacing: Space.md) {
+            Text(misleading ? "Potentially misleading link" : "Leaving Bluesky")
+                .textStyle(size: FontSize._2xl, weight: FontWeight.bold, leading: Leading.snug)
+                .foregroundStyle(theme.text)
+            Text("This link is taking you to the following website:")
+                .textStyle(size: FontSize.md, leading: Leading.snug)
+                .foregroundStyle(theme.text)
+            Text(link.uri)
+                .textStyle(size: FontSize.md, leading: Leading.snug)
+                .foregroundStyle(theme.textContrastMedium)
+                .padding(.horizontal, Space.md)
+                .padding(.vertical, 10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .overlay(RoundedRectangle(cornerRadius: Radius.sm).stroke(theme.borderContrastLow))
+            if misleading {
+                Text("Make sure this is where you intend to go!")
+                    .textStyle(size: FontSize.md, leading: Leading.snug)
+                    .foregroundStyle(theme.text)
+            }
+            DSButton(title: "Visit site", color: misleading ? .secondaryInverted : .primary, size: .large,
+                     fullWidth: true, action: onVisit)
+            DSButton(title: "Go back", color: .secondary, size: .large, fullWidth: true) { dismiss() }
+        }
+        .padding(Space.xl)
+        .frame(maxHeight: .infinity, alignment: .top)
+        .background(theme.bg)
+    }
+}
+
+/// Port of `InAppBrowserConsent.tsx`. `onChoose(nil)` means Cancel.
+struct InAppBrowserConsentSheet: View {
+    var onChoose: (Bool?) -> Void
+
+    @Environment(\.theme) private var theme
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Space.md) {
+            Text("How should we open this link?")
+                .textStyle(size: FontSize._2xl, weight: FontWeight.bold, leading: Leading.snug)
+                .foregroundStyle(theme.text)
+            Text("Your choice will be remembered for future links. You can change it at any time in settings.")
+                .textStyle(size: FontSize.md, leading: Leading.snug)
+                .foregroundStyle(theme.text)
+            DSButton(title: "Use in-app browser", color: .primary, size: .large, fullWidth: true) { onChoose(true) }
+            DSButton(title: "Use my default browser", color: .secondary, size: .large, fullWidth: true) { onChoose(false) }
+            DSButton(title: "Cancel", color: .secondary, size: .large, fullWidth: true) { onChoose(nil) }
+        }
+        .padding(Space.xl)
+        .frame(maxHeight: .infinity, alignment: .top)
+        .background(theme.bg)
     }
 }

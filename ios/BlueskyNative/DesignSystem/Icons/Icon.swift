@@ -59,13 +59,15 @@ struct Icon: View {
 /// draws a plain brand-blue diamond in the same 30x27 slot instead.
 struct ShowcaseMark: View {
     var width: CGFloat
-    var color: Color = Palette.primary500
+    var color: Color?
+
+    @Environment(\.theme) private var theme
 
     var body: some View {
         let height = width * 57 / 64
         let side = height / 2.squareRoot() * 0.92
         RoundedRectangle(cornerRadius: side * 0.18)
-            .fill(color)
+            .fill(color ?? theme.palette.primary500)
             .frame(width: side, height: side)
             .rotationEffect(.degrees(45))
             .frame(width: width, height: height)

@@ -1,4 +1,5 @@
 import Observation
+import QuartzCore
 import SwiftUI
 import UIKit
 
@@ -34,23 +35,24 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 final class AppEnvironment {
     let session: SessionStore
     let statusBar: StatusBarAppearance
+    let analytics: any AnalyticsSink
+    let faults: DebugFaults
+    /// Media time when the app process built its environment, for RN's `init.initMs`.
+    let launchTime: CFTimeInterval
 
-    init(session: SessionStore, statusBar: StatusBarAppearance = StatusBarAppearance()) {
+    init(session: SessionStore, statusBar: StatusBarAppearance = StatusBarAppearance(),
+         analytics: any AnalyticsSink = NoopAnalytics(), faults: DebugFaults = DebugFaults(),
+         launchTime: CFTimeInterval = CACurrentMediaTime()) {
         self.session = session
         self.statusBar = statusBar
+        self.analytics = analytics
+        self.faults = faults
+        self.launchTime = launchTime
     }
 
     static func live() -> AppEnvironment {
-        // The keychain survives app deletion on iOS. RN keeps its session in app storage,
-        // which a reinstall (or Maestro `clearState`) wipes, so clear stale tokens once
-        // per install to keep the same signed-out first launch.
-        let defaults = UserDefaults.standard
-        let installKey = "hasLaunchedSinceInstall"
-        if !defaults.bool(forKey: installKey) {
-            try? KeychainCredentialStore().clear()
-            defaults.set(true, forKey: installKey)
-        }
-        return AppEnvironment(session: .live(appViewProxy: AppConfig.appViewProxy))
+        AppEnvironment(session: .live(appViewProxy: AppConfig.appViewProxy),
+                       analytics: JSONLinesEventLog.documents())
     }
 }
 
@@ -71,9 +73,12 @@ final class RootHostingController: UIHostingController<AnyView> {
     init(environment: AppEnvironment) {
         statusBar = environment.statusBar
         super.init(rootView: AnyView(
-            RootView()
+            RootView(launchTime: environment.launchTime)
+                .modifier(SystemThemeModifier())
                 .environment(environment.session)
                 .environment(environment.statusBar)
+                .environment(environment.faults)
+                .environment(\.analytics, environment.analytics)
         ))
         statusBar.onChange = { [weak self] in self?.setNeedsStatusBarAppearanceUpdate() }
     }

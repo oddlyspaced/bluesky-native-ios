@@ -43,6 +43,19 @@ ICONS = [
     ("quote", "quote", "CloseQuote_Stroke2_Corner1_Rounded, repost menu"),
     ("chevronRight", "chevron-right", "ChevronRight_Stroke2_Corner0_Rounded, end of feed buttons"),
     ("cornerDownRight", "corner-down-right", "ArrowCornerDownRight, replied-to row"),
+    ("pin", "pin", "PinIcon, pinned post reason"),
+    ("trash", "trash-2", "Trash_Stroke2_Corner0_Rounded, post not found tombstone"),
+    ("personX", "user-x", "PersonX_Stroke2_Corner0_Rounded, blocked post tombstone"),
+    ("eyeSlash", "eye-off", "EyeSlash_Stroke2_Corner0_Rounded, show more replies"),
+    ("circlePlus", "circle-plus", "CirclePlus_Stroke2_Corner0_Rounded, read more replies"),
+    ("arrowTopCircle", "circle-arrow-up", "ArrowTopCircle_Stroke2_Corner0_Rounded, continue thread"),
+    ("warning", "triangle-alert", "Warning_Stroke2_Corner0_Rounded, error messages"),
+    ("rotateCounterClockwise", "rotate-ccw", "ArrowRotateCounterClockwise, retry buttons"),
+    ("rotateClockwise", "rotate-cw", "ArrowRotateClockwise, error message retry"),
+    ("lock", "lock", "Lock_Stroke2_Corner0_Rounded, signed-in-only author"),
+    ("group", "users", "Group3_Stroke2_Corner0_Rounded, who can reply (some people)"),
+    ("circleBan", "ban", "CircleBanSign_Stroke2_Corner0_Rounded, replies disabled"),
+    ("magnifyingGlass", "search", "MagnifyingGlass2_Stroke2_Corner0_Rounded, following empty state"),
 ]
 
 NUM = r"[-+]?(?:\d*\.\d+|\d+\.?)(?:[eE][-+]?\d+)?"

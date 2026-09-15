@@ -6,9 +6,38 @@ enum XRPCError: Error, Equatable, Sendable {
     case http(status: Int, error: String?, message: String?)
     /// The response was not HTTP or its body could not be decoded.
     case invalidResponse(String)
+    /// The request URL could not be built from the service URL and NSID.
+    case invalidRequest(String)
+    /// The API was invalidated by sign-out or an account switch.
+    case sessionInvalidated
 
     var isExpiredToken: Bool {
         if case .http(_, let error, _) = self { return error == "ExpiredToken" }
+        return false
+    }
+
+    /// A refresh failure that ends the session. RN's `PasswordSession.refresh` calls
+    /// `onDeleted` only for the lexicon's schema errors (`refreshSession.defs.js:24-26`);
+    /// any other failure keeps the session ("network-error").
+    var isTerminalAuthFailure: Bool {
+        guard case .http(_, let error, _) = self else { return false }
+        return error == "ExpiredToken" || error == "InvalidToken" || error == "AccountTakedown"
+    }
+
+    /// The first response that makes RN's session retry after a refresh: HTTP 401, or
+    /// HTTP 400 with `ExpiredToken` (`password-session.js:115-159`).
+    var needsTokenRefresh: Bool {
+        guard case .http(let status, let error, _) = self else { return false }
+        return status == 401 || (status == 400 && error == "ExpiredToken")
+    }
+}
+
+/// Distinguishes cancellation from real failures (review finding A6).
+enum RequestFailure {
+    /// `CancellationError` or `URLError(.cancelled)`: the caller went away. Not an error to show.
+    static func isCancellation(_ error: any Error) -> Bool {
+        if error is CancellationError { return true }
+        if let urlError = error as? URLError, urlError.code == .cancelled { return true }
         return false
     }
 }
@@ -19,7 +48,18 @@ protocol HTTPTransport: Sendable {
 }
 
 struct URLSessionTransport: HTTPTransport {
-    var session: URLSession = .shared
+    var session: URLSession
+
+    /// A session with no URL cache and no cookie storage, so authenticated responses
+    /// are never written to disk (review finding A26).
+    static func ephemeral() -> URLSessionTransport {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.urlCache = nil
+        configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
+        configuration.httpCookieStorage = nil
+        configuration.httpShouldSetCookies = false
+        return URLSessionTransport(session: URLSession(configuration: configuration))
+    }
 
     func send(_ request: URLRequest) async throws -> (Data, HTTPURLResponse) {
         let (data, response) = try await session.data(for: request)
@@ -49,11 +89,16 @@ struct XRPCClient: Sendable {
     }()
 
     func request(nsid: String, method: String, query: [URLQueryItem] = [], body: Data? = nil,
-                 accessToken: String?) -> URLRequest {
-        var components = URLComponents(url: serviceURL.appending(path: "xrpc/\(nsid)"),
-                                       resolvingAgainstBaseURL: false)!
+                 accessToken: String?) throws -> URLRequest {
+        guard var components = URLComponents(url: serviceURL.appending(path: "xrpc/\(nsid)"),
+                                             resolvingAgainstBaseURL: false) else {
+            throw XRPCError.invalidRequest("Invalid service URL for \(nsid)")
+        }
         if !query.isEmpty { components.queryItems = query }
-        var request = URLRequest(url: components.url!)
+        guard let url = components.url else {
+            throw XRPCError.invalidRequest("Invalid query for \(nsid)")
+        }
+        var request = URLRequest(url: url)
         request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         if let body {
@@ -76,21 +121,21 @@ struct XRPCClient: Sendable {
 
     func query<Response: Decodable>(_ nsid: String, _ parameters: [URLQueryItem] = [],
                                     accessToken: String?) async throws -> Response {
-        let request = request(nsid: nsid, method: "GET", query: parameters, accessToken: accessToken)
+        let request = try request(nsid: nsid, method: "GET", query: parameters, accessToken: accessToken)
         return try await perform(request)
     }
 
     func procedure<Response: Decodable>(_ nsid: String, body: some Encodable,
                                         accessToken: String?) async throws -> Response {
         let data = try Self.encoder.encode(body)
-        let request = request(nsid: nsid, method: "POST", body: data, accessToken: accessToken)
+        let request = try request(nsid: nsid, method: "POST", body: data, accessToken: accessToken)
         return try await perform(request)
     }
 
     /// A procedure whose output is empty or ignored.
-    func procedure(_ nsid: String, body: some Encodable, accessToken: String?) async throws {
-        let data = try Self.encoder.encode(body)
-        let request = request(nsid: nsid, method: "POST", body: data, accessToken: accessToken)
+    func procedure(_ nsid: String, body: (some Encodable)?, accessToken: String?) async throws {
+        let data = try body.map { try Self.encoder.encode($0) }
+        let request = try request(nsid: nsid, method: "POST", body: data, accessToken: accessToken)
         _ = try await send(request)
     }
 

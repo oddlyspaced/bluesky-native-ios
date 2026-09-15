@@ -1,10 +1,9 @@
 import Foundation
 
 enum AppConfig {
-    /// PDS used by the debug sign-in controls (the local dev network).
-    static let e2eService = URL(string: "http://localhost:3000")!
-
     #if E2E
+    /// PDS used by the debug sign-in controls (the local dev network). Debug builds only.
+    static let e2eService = URL(string: "http://localhost:3000")!
     /// `E2E_APPVIEW_DID` from RN `dev-env/constants.ts`, as set by `TestCtrls.e2e.tsx`.
     static let appViewProxy: String? = "did:plc:bw7ad3erl7btq6qwf66yqiov#bsky_appview"
     #else

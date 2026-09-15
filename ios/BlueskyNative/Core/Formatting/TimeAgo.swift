@@ -51,15 +51,12 @@ enum TimeAgo {
         case .day: return "\(diff.value)d"
         case .month:
             if diff.value < 12 { return "\(diff.value)mo" }
-            let formatter = DateFormatter()
-            formatter.locale = locale
-            formatter.timeZone = timeZone
-            formatter.setLocalizedDateFormatFromTemplate("yMd")
-            return formatter.string(from: diff.earlier)
+            return DateFormatterCache.shared.string(from: diff.earlier, locale: locale, timeZone: timeZone,
+                                                    pattern: .template("yMd"))
         }
     }
 
-    static func short(from earlier: Date, to later: Date = Date(), locale: Locale = AppLocale.formatting,
+    static func short(from earlier: Date, to later: Date, locale: Locale = AppLocale.formatting,
                       timeZone: TimeZone = .current) -> String {
         formatShort(dateDiff(earlier: earlier, later: later), locale: locale, timeZone: timeZone)
     }

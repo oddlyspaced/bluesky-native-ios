@@ -47,6 +47,32 @@ enum IconGlyph: String, CaseIterable, Sendable {
     case chevronRight
     /// Lucide `corner-down-right`. Stands in for RN ArrowCornerDownRight, replied-to row.
     case cornerDownRight
+    /// Lucide `pin`. Stands in for RN PinIcon, pinned post reason.
+    case pin
+    /// Lucide `trash-2`. Stands in for RN Trash_Stroke2_Corner0_Rounded, post not found tombstone.
+    case trash
+    /// Lucide `user-x`. Stands in for RN PersonX_Stroke2_Corner0_Rounded, blocked post tombstone.
+    case personX
+    /// Lucide `eye-off`. Stands in for RN EyeSlash_Stroke2_Corner0_Rounded, show more replies.
+    case eyeSlash
+    /// Lucide `circle-plus`. Stands in for RN CirclePlus_Stroke2_Corner0_Rounded, read more replies.
+    case circlePlus
+    /// Lucide `circle-arrow-up`. Stands in for RN ArrowTopCircle_Stroke2_Corner0_Rounded, continue thread.
+    case arrowTopCircle
+    /// Lucide `triangle-alert`. Stands in for RN Warning_Stroke2_Corner0_Rounded, error messages.
+    case warning
+    /// Lucide `rotate-ccw`. Stands in for RN ArrowRotateCounterClockwise, retry buttons.
+    case rotateCounterClockwise
+    /// Lucide `rotate-cw`. Stands in for RN ArrowRotateClockwise, error message retry.
+    case rotateClockwise
+    /// Lucide `lock`. Stands in for RN Lock_Stroke2_Corner0_Rounded, signed-in-only author.
+    case lock
+    /// Lucide `users`. Stands in for RN Group3_Stroke2_Corner0_Rounded, who can reply (some people).
+    case group
+    /// Lucide `ban`. Stands in for RN CircleBanSign_Stroke2_Corner0_Rounded, replies disabled.
+    case circleBan
+    /// Lucide `search`. Stands in for RN MagnifyingGlass2_Stroke2_Corner0_Rounded, following empty state.
+    case magnifyingGlass
 
     /// Path data for each SVG element, on a 24x24 grid, stroked at 2pt.
     var pathData: [String] {
@@ -73,6 +99,19 @@ enum IconGlyph: String, CaseIterable, Sendable {
         case .quote: ["M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z", "M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"]
         case .chevronRight: ["m9 18 6-6-6-6"]
         case .cornerDownRight: ["m15 10 5 5-5 5", "M4 4v7a4 4 0 0 0 4 4h12"]
+        case .pin: ["M12 17v5", "M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"]
+        case .trash: ["M10 11v6", "M14 11v6", "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6", "M3 6h18", "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"]
+        case .personX: ["M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", "M5 7a4 4 0 1 0 8 0a4 4 0 1 0 -8 0Z", "M17 8L22 13", "M22 8L17 13"]
+        case .eyeSlash: ["M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49", "M14.084 14.158a3 3 0 0 1-4.242-4.242", "M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143", "m2 2 20 20"]
+        case .circlePlus: ["M2 12a10 10 0 1 0 20 0a10 10 0 1 0 -20 0Z", "M8 12h8", "M12 8v8"]
+        case .arrowTopCircle: ["M2 12a10 10 0 1 0 20 0a10 10 0 1 0 -20 0Z", "m16 12-4-4-4 4", "M12 16V8"]
+        case .warning: ["m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3", "M12 9v4", "M12 17h.01"]
+        case .rotateCounterClockwise: ["M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", "M3 3v5h5"]
+        case .rotateClockwise: ["M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8", "M21 3v5h-5"]
+        case .lock: ["M5 11H19A2 2 0 0 1 21 13V20A2 2 0 0 1 19 22H5A2 2 0 0 1 3 20V13A2 2 0 0 1 5 11Z", "M7 11V7a5 5 0 0 1 10 0v4"]
+        case .group: ["M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", "M16 3.128a4 4 0 0 1 0 7.744", "M22 21v-2a4 4 0 0 0-3-3.87", "M5 7a4 4 0 1 0 8 0a4 4 0 1 0 -8 0Z"]
+        case .circleBan: ["M2 12a10 10 0 1 0 20 0a10 10 0 1 0 -20 0Z", "M4.929 4.929 19.07 19.071"]
+        case .magnifyingGlass: ["m21 21-4.34-4.34", "M3 11a8 8 0 1 0 16 0a8 8 0 1 0 -16 0Z"]
         }
     }
 }
