@@ -16,24 +16,11 @@ struct HomeScreen: View {
 
     private var feed: FeedModel { container.homeFeed }
 
+    /// RN nests `HomeScreen` (`Home.tsx:95`) > `homeScreen` (`Home.tsx:308`) > `followingFeedPage`
+    /// (`Home.tsx:320`) > `followingFeedPage-feed`, each wrapping one child. SwiftUI exposes only the
+    /// outer identifier of such a one-child chain (measured with `maestro hierarchy`), so the port keeps
+    /// `homeScreen` and the feed ids; `HomeScreen` and `followingFeedPage` are not exposed (N7).
     var body: some View {
-        // `Layout.Screen testID="HomeScreen"` (`Home.tsx:95`) holds the pager `homeScreen`
-        // (`Home.tsx:308`), which holds `FeedPage testID="followingFeedPage"` (`Home.tsx:320`,
-        // review finding N7).
-        // Each id sits on its own one-child container. Stacked identifiers on one view collapse
-        // into the last one, which hid the inner ids.
-        VStack(spacing: 0) {
-            VStack(spacing: 0) {
-                feedPage
-            }
-            .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("homeScreen")
-        }
-        .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("HomeScreen")
-    }
-
-    private var feedPage: some View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: 0) {
@@ -53,6 +40,7 @@ struct HomeScreen: View {
                 .accessibilityIdentifier("followingFeedPage-feed-flatlist")
             }
             .accessibilityIdentifier("followingFeedPage-feed")
+            .accessibilityElement(children: .contain)
             .refreshable { await feed.pullToRefresh() }
             .safeAreaInset(edge: .top, spacing: 0) {
                 headerView
@@ -82,8 +70,7 @@ struct HomeScreen: View {
                 "reason": "focus",
             ])
         }
-        .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("followingFeedPage")
+        .accessibilityIdentifier("homeScreen")
     }
 
     private static let topID = "homeTop"

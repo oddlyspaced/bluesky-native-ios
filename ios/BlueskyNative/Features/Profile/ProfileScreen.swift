@@ -15,17 +15,11 @@ struct ProfileScreen: View {
 
     private static let topID = "profileTop"
 
+    /// RN wraps `profileView` (`Profile.tsx:393`) in `Layout.Screen testID="profileScreen"`
+    /// (`Profile.tsx:63`). SwiftUI exposes only the outer identifier of a one-child chain (measured
+    /// with `maestro hierarchy`: `profileScreen` hid `profileView`), so the port keeps `profileView`,
+    /// which the capture flows use, and does not expose `profileScreen` (review finding N7).
     var body: some View {
-        // `Layout.Screen testID="profileScreen"` (`Profile.tsx:63`, review finding N7), on its own
-        // container so the inner `profileView` id stays a separate element.
-        VStack(spacing: 0) {
-            screen
-        }
-        .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("profileScreen")
-    }
-
-    private var screen: some View {
         Group {
             switch model.status {
             case .loading:
