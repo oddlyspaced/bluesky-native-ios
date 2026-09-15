@@ -114,7 +114,8 @@ struct DSButton: View {
                 // Both sizes use leading_snug: the RN large pill measures 44pt (12 + 20 + 12).
                 Text(title)
                     .textStyle(size: size == .small ? FontSize.sm : FontSize.md, weight: FontWeight.medium,
-                               leading: Leading.snug)
+                               leading: Leading.snug,
+                               adjustment: size == .large ? RNLineBox.buttonLabel : .none)
                     .lineLimit(1)
                 if let icon, iconPosition == .trailing { iconView(icon) }
             }
@@ -207,22 +208,12 @@ struct PagerTabBar: View {
         .overlay(alignment: .bottom) {
             HairlineDivider().offset(y: pixelLength)
         }
-        // The label box is RN's TextKit box, `ceil((L + 0.001) * scale) / scale`, so the underline
-        // and the outer hairline (`top: '100%'`) sit that ceil below a plain `L` box, as in RN.
-        // RN measured the bar 43pt tall, so the bar gives the ceil back after the overlay is placed.
-        .padding(.bottom, -labelCeil)
+        // RN keeps the bar 43pt tall while its underline and outer hairline (`top: '100%'`) sit
+        // 1px (3x) lower than a 20pt label box gives. The label box carries that pixel
+        // (`RNLineBox.tabLabel`), and the bar gives it back after the overlay is placed.
+        .padding(.bottom, -RNLineBox.snap(RNLineBox.tabLabel.extraBottom, pixelLength: pixelLength))
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier(testID)
-    }
-
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-
-    private var labelCeil: CGFloat {
-        let lineHeight = 20 * FontScale.multiplier(for: dynamicTypeSize)
-        let metrics = RNTextMetrics(fontLineHeight: 0, ascender: 0, descender: 0, lineHeight: lineHeight,
-                                    renderer: .paragraph)
-        let scale = pixelLength > 0 ? 1 / pixelLength : 0
-        return metrics.boxHeight(lines: 1, scale: scale) - lineHeight
     }
 
     private var row: some View {
@@ -246,7 +237,7 @@ struct PagerTabBar: View {
 
     private func tabLabel(_ title: String, selected: Bool) -> some View {
         Text(title)
-            .textStyle(size: FontSize.md, weight: FontWeight.semiBold, leading: 20)
+            .textStyle(size: FontSize.md, weight: FontWeight.semiBold, leading: 20, adjustment: RNLineBox.tabLabel)
             .foregroundStyle(theme.text)
             .lineLimit(1)
             .fixedSize(horizontal: true, vertical: false)

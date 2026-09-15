@@ -186,11 +186,12 @@ struct ProfileScreen: View {
             if let profile = model.profile {
                 VStack(alignment: .leading, spacing: Space.xs) {
                     Text(Names.displayNameOrHandle(displayName: profile.displayName, handle: profile.handle))
-                        .textStyle(size: FontSize._3xl, weight: FontWeight.bold, leading: Leading.tight)
+                        .textStyle(size: FontSize._3xl, weight: FontWeight.bold, leading: Leading.tight,
+                                   adjustment: RNLineBox.profileDisplayName)
                         .foregroundStyle(theme.text)
                         .accessibilityIdentifier("profileHeaderDisplayName")
                     Text(Names.sanitizeHandle(profile.handle, prefix: "@"))
-                        .textStyle(size: FontSize.md, leading: Leading.snug)
+                        .textStyle(size: FontSize.md, leading: Leading.snug, adjustment: RNLineBox.profileHandle)
                         .foregroundStyle(theme.textContrastMedium)
                         .lineLimit(1)
                 }
@@ -202,7 +203,7 @@ struct ProfileScreen: View {
                     if let description = profile.description, !description.isEmpty {
                         RichTextView(text: description, facets: nil, size: FontSize.md, lineLimit: 15,
                                      testID: "profileHeaderDescription",
-                                     selectable: true)
+                                     lineBoxAdjustment: RNLineBox.profileDescription)
                     }
                 }
             }
@@ -235,7 +236,7 @@ struct ProfileScreen: View {
         return (Text(CountFormat.format(count) + " ").font(fonts.font(FontSize.md, FontWeight.semiBold))
             .foregroundStyle(theme.text)
             + Text(label).font(fonts.font(FontSize.md)).foregroundStyle(theme.textContrastMedium))
-            .textStyle(size: FontSize.md, leading: Leading.snug)
+            .textStyle(size: FontSize.md, leading: Leading.snug, adjustment: RNLineBox.profileMetrics)
             .lineLimit(1)
     }
 }

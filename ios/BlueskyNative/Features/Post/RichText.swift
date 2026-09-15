@@ -150,8 +150,7 @@ struct RichTextView: View {
     var lineLimit: Int?
     var enableTags = true
     var testID: String?
-    /// RN `selectable` on iOS renders a `UITextView`, whose line box differs (`RNTextRenderer`).
-    var selectable = false
+    var lineBoxAdjustment: RNLineBox.Adjustment = RNLineBox.richText
 
     @Environment(\.theme) private var theme
     @Environment(\.facetHandler) private var facetHandler
@@ -161,8 +160,7 @@ struct RichTextView: View {
     var body: some View {
         let emojiOnly = (facets?.isEmpty ?? true) && RichTextRules.isOnlyEmoji(text)
         Text(attributed)
-            .textStyle(size: emojiOnly ? size * 1.85 : size, leading: Leading.snug,
-                       renderer: selectable ? .textView : .paragraph)
+            .textStyle(size: emojiOnly ? size * 1.85 : size, leading: Leading.snug, adjustment: lineBoxAdjustment)
             .foregroundStyle(theme.text)
             .tint(theme.textLink)
             .lineLimit(emojiOnly ? nil : lineLimit)

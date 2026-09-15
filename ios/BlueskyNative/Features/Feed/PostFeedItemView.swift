@@ -17,10 +17,13 @@ struct PostFeedItemView: View {
 
     private static let topRowHeight: CGFloat = 8
     private static let reasonHeight: CGFloat = 17 + Space._2xs
+    /// A thread parent row has no bottom padding. Measured: RN parent rows are 1px (3x) shorter
+    /// than a plain row minus 8pt (248px against 249px), from Yoga's pixel rounding.
+    private static let threadParentBottom: CGFloat = -1.0 / 3
 
     private var bottomPadding: CGFloat {
         if row.isThreadLastChild || (!row.isThreadChild && !row.isThreadParent) { return Space.sm }
-        return 0
+        return row.isThreadParent ? RNLineBox.snap(Self.threadParentBottom, pixelLength: pixelLength) : 0
     }
 
     var body: some View {

@@ -101,21 +101,7 @@ struct FormattingTests {
         #expect(FontScale.multiplier(for: .xxxLarge) == 1.353)
         #expect(FontScale.multiplier(for: .accessibility5, cap: 1.5) == 1.5)
         #expect(FontScale.multiplier(for: .small, cap: 1.5) == 0.882)
-    }
-
-    /// Review finding A57: a line height below the font's natural height still gives n x L.
-    @Test func wrappedBoxIsLinesTimesLineHeight() {
-        let tight = RNTextMetrics(fontLineHeight: 18.1494, ascender: 14.5313, descender: -3.6182, lineHeight: 17,
-                                  renderer: .paragraph)
-        #expect(abs(tight.boxHeight(lines: 1, scale: 3) - 52.0 / 3) < 0.0001)
-        #expect(abs(tight.boxHeight(lines: 4, scale: 3) - 205.0 / 3) < 0.0001)
-        #expect(abs(tight.firstBaseline - 13.3818) < 0.001)
-        let snug = RNTextMetrics(fontLineHeight: 18.1494, ascender: 14.5313, descender: -3.6182, lineHeight: 20,
-                                 renderer: .paragraph)
-        let selectable = RNTextMetrics(fontLineHeight: 18.1494, ascender: 14.5313, descender: -3.6182, lineHeight: 20,
-                                       renderer: .textView)
-        #expect(abs((selectable.firstBaseline - snug.firstBaseline) - (20 - 18.1494) / 2) < 0.001)
-        #expect(abs(snug.boxHeight(lines: 3, scale: 2) - 60.5) < 0.0001)
+        #expect(RNLineBox.verticalInset(natural: 18.15, lineHeight: 17, pixelLength: 1.0 / 3) == -1.0 / 3 * 2)
     }
 }
 
