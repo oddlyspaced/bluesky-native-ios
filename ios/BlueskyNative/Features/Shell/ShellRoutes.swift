@@ -29,6 +29,19 @@ extension AppRouter {
 }
 
 extension AccountContainer {
+    /// Pushes a thread. The route's model is created first and reports the screen's render events,
+    /// so they precede `router:navigate` as in RN, where the container's `onStateChange` effect runs
+    /// after the pushed screen's effects (`BaseNavigationContainer.tsx:322-399`).
+    func openThread(uri: String, feedDescriptor: String? = nil) {
+        guard let tabRouter = router.currentRouter else { return }
+        let route = Route(ThreadRoute(uri: uri, feedDescriptor: feedDescriptor))
+        if let model = threadModel(for: route) {
+            model.setPlaceholder(cachedPost(uri: uri))
+            model.reportRenderEvents()
+        }
+        tabRouter.path.append(route)
+    }
+
     /// The route-scoped model of a pushed thread, created on first use.
     func threadModel(for route: Route) -> ThreadModel? {
         guard let thread = route.screen(as: ThreadRoute.self) else { return nil }

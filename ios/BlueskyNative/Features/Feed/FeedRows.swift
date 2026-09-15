@@ -94,7 +94,7 @@ struct ViewFullThreadRow: View {
 
     var body: some View {
         Button {
-            container.router.openThread(uri: rootUri)
+            container.openThread(uri: rootUri)
         } label: {
             HStack(alignment: .top, spacing: 10) {
                 Canvas { context, _ in

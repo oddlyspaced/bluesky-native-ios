@@ -10,6 +10,10 @@ struct RootView: View {
     @Environment(\.analytics) private var analytics
     @Environment(\.theme) private var theme
     @State private var lastActive: CFTimeInterval?
+    /// RN registers its AppState listener after launch, when the app is already active, so the
+    /// launch activation sends no `state:foreground` (`PassiveAnalytics.tsx:19-21`); only a return
+    /// from inactive or background does (review finding N24).
+    @State private var hasResignedActive = false
     @State private var reportedReady = false
 
     var body: some View {
@@ -55,6 +59,10 @@ struct RootView: View {
 
     /// `PassiveAnalytics.tsx:19-21`: `state:foreground` on `active`.
     private func reportActive() {
+        guard hasResignedActive else {
+            lastActive = CACurrentMediaTime()
+            return
+        }
         analytics.metric("state:foreground")
         lastActive = CACurrentMediaTime()
     }
@@ -62,6 +70,7 @@ struct RootView: View {
     /// RN fires `state:background` on every change away from `active` without resetting the
     /// start time, so iOS reports it for both inactive and background.
     private func reportInactive() {
+        hasResignedActive = true
         guard let lastActive else { return }
         analytics.metric("state:background",
                          ["secondsActive": .int(Int((CACurrentMediaTime() - lastActive).rounded()))])

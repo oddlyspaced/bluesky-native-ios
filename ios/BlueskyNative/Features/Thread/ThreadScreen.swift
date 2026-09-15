@@ -98,9 +98,9 @@ struct ThreadScreen: View {
         case .blocked:
             ThreadTombstone(kind: .blocked)
         case .readMore(let uri, _, let count):
-            ThreadReadMoreRow(count: count) { container.router.openThread(uri: uri) }
+            ThreadReadMoreRow(count: count) { container.openThread(uri: uri) }
         case .readMoreUp(let uri):
-            ThreadReadMoreUpRow { container.router.openThread(uri: uri) }
+            ThreadReadMoreUpRow { container.openThread(uri: uri) }
         case .showOtherReplies:
             ShowOtherRepliesRow { Task { await model.showOtherReplies() } }
         case .anchorSkeleton:
@@ -465,7 +465,7 @@ struct ThreadPostView: View {
             if topBorder { HairlineDivider() }
         }
         .contentShape(Rectangle())
-        .onTapGesture { container.router.openThread(uri: post.uri, feedDescriptor: context.feedDescriptor) }
+        .onTapGesture { container.openThread(uri: post.uri, feedDescriptor: context.feedDescriptor) }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("postThreadItem-by-\(post.author.handle)")
     }

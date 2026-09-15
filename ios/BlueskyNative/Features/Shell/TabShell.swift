@@ -93,7 +93,10 @@ struct TabShell: View {
             container.unread.stopPolling()
         }
         .onChange(of: router.currentScreenName, initial: true) {
-            router.reportNavigation()
+            // RN's `onStateChange` runs in the container's effect, after the focused screen's own
+            // effects (`BaseNavigationContainer.tsx:322-399`), so the event waits one main-actor
+            // turn, after screen handlers such as Home's `home:feedDisplayed` focus event.
+            Task { @MainActor in router.reportNavigation() }
             container.pruneRoutes()
             updateStatusBar()
         }

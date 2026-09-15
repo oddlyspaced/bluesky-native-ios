@@ -346,12 +346,17 @@ final class ThreadModel {
         await loadIfNeeded()
     }
 
-    private func load() async {
-        // RN reads loaded preferences while it renders, before the anchor's view effect runs.
+    /// Events of the thread screen's first render, in RN's order: `thread:preferences:load` is
+    /// sent during render when preferences are loaded (`useThreadPreferences.ts:50-70`), then the
+    /// anchor `post:view` effect runs on the placeholder anchor from the query cache, before the
+    /// network answers (`PostThread/index.tsx:95-112`, review finding N23). Both are idempotent.
+    func reportRenderEvents() {
         if let loaded = preferences.preferences { reportPreferences(loaded) }
-        // The anchor `post:view` fires on the placeholder anchor from the query cache, before
-        // the network answers (`PostThread/index.tsx:95-112`, review finding N23).
         if let placeholder { reportAnchorView(placeholder) }
+    }
+
+    private func load() async {
+        reportRenderEvents()
         let prefs: ActorPreferences
         do {
             prefs = try await preferences.load()

@@ -208,16 +208,6 @@
     "reason": "anchor logo slot: RN shows its trademark mark only in screenshots"
    },
    {
-    "kind": "rect",
-    "box": [
-     36,
-     644,
-     830,
-     702
-    ],
-    "reason": "date line (capture time); the who-can-reply glyph and label move with its width"
-   },
-   {
     "kind": "glyphs",
     "box": [
      20,
@@ -582,14 +572,14 @@
     "reason": "anchor logo slot: RN shows its trademark mark only in screenshots"
    },
    {
-    "kind": "rect",
+    "kind": "datetime",
     "box": [
      36,
      644,
      830,
      702
     ],
-    "reason": "date line (capture time); the who-can-reply glyph and label move with its width"
+    "slot": 150
    },
    {
     "kind": "glyphs",
@@ -870,16 +860,6 @@
      530
     ],
     "reason": "anchor logo slot: RN shows its trademark mark only in screenshots"
-   },
-   {
-    "kind": "rect",
-    "box": [
-     36,
-     720,
-     1180,
-     872
-    ],
-    "reason": "date line (capture time); the who-can-reply glyph and label wrap with its width"
    },
    {
     "kind": "glyphs",
@@ -1431,16 +1411,6 @@
      498
     ],
     "reason": "anchor logo slot: RN shows its trademark mark only in screenshots"
-   },
-   {
-    "kind": "rect",
-    "box": [
-     36,
-     644,
-     830,
-     702
-    ],
-    "reason": "date line (capture time); the who-can-reply glyph and label move with its width"
    },
    {
     "kind": "glyphs",

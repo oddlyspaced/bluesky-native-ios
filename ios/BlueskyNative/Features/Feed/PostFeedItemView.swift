@@ -81,7 +81,7 @@ struct PostFeedItemView: View {
 
     private func openThread() {
         container.analytics.metric("post:clickthroughItem", context.props(for: item.post))
-        container.router.openThread(uri: item.post.uri, feedDescriptor: context.feedDescriptor)
+        container.openThread(uri: item.post.uri, feedDescriptor: context.feedDescriptor)
     }
 
     private func openAuthor() {

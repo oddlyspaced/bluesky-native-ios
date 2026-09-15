@@ -1,0 +1,26 @@
+# Home with the upstream `mergefeed` seed (review finding N13): bob and carla (followed by alice)
+# with 20 posts each, self replies and replies to other users, so the first screen shows
+# "Replied to" rows and thread lines that the standard seed does not have.
+#
+# Variables: LABEL (capture.mjs --label), RESEED ("false" skips the seed step for the second app).
+appId: io.nativestarter.showcase.bluesky
+---
+- evalScript: "${output.reseed = (typeof RESEED === 'undefined' || RESEED !== 'false')}"
+- runFlow:
+    when:
+      true: ${output.reseed}
+    commands:
+      - runScript:
+          file: setupServer.js
+          env:
+            SERVER_PATH: "?mergefeed"
+- runFlow:
+    file: launch.yml
+- tapOn:
+    id: "e2eSignInAlice"
+- extendedWaitUntil:
+    visible:
+      id: "feedItem-by-carla.test"
+    timeout: 60000
+- waitForAnimationToEnd
+- takeScreenshot: home-mergefeed

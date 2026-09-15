@@ -1,19 +1,28 @@
-# Read-only capture of the three slice screens: home, thread, profile. One flow for both builds.
-# Run from this directory with check-parity/scripts/capture.mjs (--label rn|native), or through
-# ../run-capture.sh for the dark, largest-text and empty states.
+# Capture of the three slice screens: home, thread, profile. One flow for both builds.
+# Run it through ../run-capture.sh or ../run-pair.sh, which call check-parity/scripts/capture.mjs.
 #
-# Variables: LABEL (rn|native, required), SEED and SUFFIX (optional).
-# Maestro 2.4.0 lets a flow-header `env:` block override `-e` values, so the defaults are
-# computed with evalScript instead of a header block.
+# Variables (all passed with capture.mjs --env; none has a flow-header default):
+#   LABEL   rn | native (capture.mjs --label)
+#   SEED    seed query; default the standard seed "?users&follows&posts&feeds&thread"
+#   SUFFIX  screenshot name suffix, for example -dark
+#   RESEED  "false" skips the seed step, so the second app of a pair sees the same posts and
+#           timestamps as the first (the anchor date line then needs no mask)
+# Maestro 2.4.0 lets a flow-header `env:` block override `-e` values, so defaults are computed
+# with evalScript.
 appId: io.nativestarter.showcase.bluesky
 ---
 - evalScript: "${output.seed = (typeof SEED === 'undefined' ? '?users&follows&posts&feeds&thread' : SEED)}"
 - evalScript: "${output.suffix = (typeof SUFFIX === 'undefined' ? '' : SUFFIX)}"
+- evalScript: "${output.reseed = (typeof RESEED === 'undefined' || RESEED !== 'false')}"
 - evalScript: "${output.full = (output.seed === '?users&follows&posts&feeds&thread')}"
-- runScript:
-    file: setupServer.js
-    env:
-      SERVER_PATH: ${output.seed}
+- runFlow:
+    when:
+      true: ${output.reseed}
+    commands:
+      - runScript:
+          file: setupServer.js
+          env:
+            SERVER_PATH: ${output.seed}
 - runFlow:
     file: launch.yml
 - tapOn:
@@ -38,7 +47,8 @@ appId: io.nativestarter.showcase.bluesky
 - waitForAnimationToEnd
 - takeScreenshot: home${output.suffix}
 
-# Thread (standard seed only).
+# Thread (standard seed only), then back with the edge swipe of the native stack (review
+# finding N16). Maestro `back` does nothing on iOS, so the swipe is the only way back here.
 - runFlow:
     when:
       true: ${output.full}
@@ -49,7 +59,16 @@ appId: io.nativestarter.showcase.bluesky
           timeout: 20000
       - waitForAnimationToEnd
       - takeScreenshot: thread${output.suffix}
-      - back
+      - swipe:
+          start: "1%, 45%"
+          end: "90%, 45%"
+          duration: 400
+      - extendedWaitUntil:
+          notVisible: "Thread reply"
+          timeout: 10000
+      - assertVisible:
+          id: "feedItem-by-alice.test"
+      - waitForAnimationToEnd
 
 # Profile.
 - tapOn:
