@@ -2,18 +2,16 @@ import Foundation
 import Testing
 @testable import NativeShowcase
 
-/// Records requests and replies with queued responses. An optional hook runs per request.
+/// Records requests and replies with queued responses.
 final class RecordingTransport: HTTPTransport, @unchecked Sendable {
     private let lock = NSLock()
     private var responses: [(Int, Data)]
     private var recorded: [URLRequest] = []
-    private let delay: Duration?
 
     var requests: [URLRequest] { lock.withLock { recorded } }
 
-    init(_ responses: [(Int, String)], delay: Duration? = nil) {
+    init(_ responses: [(Int, String)]) {
         self.responses = responses.map { ($0.0, Data($0.1.utf8)) }
-        self.delay = delay
     }
 
     func send(_ request: URLRequest) async throws -> (Data, HTTPURLResponse) {
@@ -21,29 +19,33 @@ final class RecordingTransport: HTTPTransport, @unchecked Sendable {
             recorded.append(request)
             return responses.isEmpty ? (500, Data()) : responses.removeFirst()
         }
-        if let delay { try await Task.sleep(for: delay) }
         let response = HTTPURLResponse(url: request.url!, statusCode: status, httpVersion: nil, headerFields: nil)!
         return (body, response)
     }
 }
 
-/// Routes responses by path and access token, for concurrency tests.
+/// Routes responses by path and access token. Requests whose path ends with `gatedSuffix`
+/// wait at `gate`, so tests order concurrent calls without sleeps (review finding A51).
 final class RoutingTransport: HTTPTransport, @unchecked Sendable {
     private let lock = NSLock()
     private var recorded: [URLRequest] = []
     private let route: @Sendable (URLRequest) -> (Int, String)
-    private let delay: Duration
+    private let gatedSuffix: String?
+    let gate: Gate
 
     var requests: [URLRequest] { lock.withLock { recorded } }
 
-    init(delay: Duration = .milliseconds(20), route: @escaping @Sendable (URLRequest) -> (Int, String)) {
-        self.delay = delay
+    init(gatedSuffix: String? = nil, gate: Gate = Gate(), route: @escaping @Sendable (URLRequest) -> (Int, String)) {
+        self.gatedSuffix = gatedSuffix
+        self.gate = gate
         self.route = route
     }
 
     func send(_ request: URLRequest) async throws -> (Data, HTTPURLResponse) {
         lock.withLock { recorded.append(request) }
-        try await Task.sleep(for: delay)
+        if let gatedSuffix, request.url!.path.hasSuffix(gatedSuffix) {
+            await gate.pass()
+        }
         let (status, body) = route(request)
         let response = HTTPURLResponse(url: request.url!, statusCode: status, httpVersion: nil, headerFields: nil)!
         return (Data(body.utf8), response)
@@ -60,22 +62,39 @@ final class Box<T>: @unchecked Sendable {
     }
 }
 
+/// In-memory credential store. `saveGate` and `clearGate` hold writes open for ordering tests.
 actor MemoryCredentialStore: CredentialStore {
     var saved: StoredSession?
     var saves = 0
     var failLoad: CredentialStoreError?
+    /// Every write in the order it finished: "save:<did>" or "clear".
+    var log: [String] = []
+    nonisolated let saveGate: Gate
+    nonisolated let clearGate: Gate
+
+    init(saveGate: Gate = Gate(open: true), clearGate: Gate = Gate(open: true)) {
+        self.saveGate = saveGate
+        self.clearGate = clearGate
+    }
 
     func load() throws -> StoredSession? {
         if let failLoad { throw failLoad }
         return saved
     }
 
-    func save(_ session: StoredSession) throws {
+    func save(_ session: StoredSession) async throws {
         saves += 1
+        await saveGate.pass()
         saved = session
+        log.append("save:\(session.did)")
     }
 
-    func clear() throws { saved = nil }
+    func clear() async throws {
+        await clearGate.pass()
+        saved = nil
+        log.append("clear")
+    }
+
     func setSaved(_ session: StoredSession?) { saved = session }
     func setFailLoad(_ error: CredentialStoreError?) { failLoad = error }
 }
@@ -179,7 +198,8 @@ struct NetworkingTests {
     @Test func concurrentExpiredCallsShareOneRefresh() async throws {
         let profile = String(decoding: try Fixtures.data("getProfile"), as: UTF8.self)
         let json = sessionJSON
-        let transport = RoutingTransport { request in
+        // The refresh waits at the gate until all three calls have failed with the old token.
+        let transport = RoutingTransport(gatedSuffix: "refreshSession") { request in
             if request.url!.path.hasSuffix("refreshSession") { return (200, json) }
             if request.value(forHTTPHeaderField: "Authorization") == "Bearer a1" {
                 return (400, #"{"error":"ExpiredToken"}"#)
@@ -194,6 +214,9 @@ struct NetworkingTests {
         async let one = api.getProfile(actor: "a")
         async let two = api.getProfile(actor: "b")
         async let three = api.getProfile(actor: "c")
+        await transport.gate.waitForArrivals(1)
+        while transport.requests.filter({ $0.url!.path.hasSuffix("getProfile") }).count < 3 { await Task.yield() }
+        transport.gate.open()
         _ = try await (one, two, three)
         let refreshCalls = transport.requests.filter { $0.url!.path.hasSuffix("refreshSession") }
         #expect(refreshCalls.count == 1)
@@ -231,10 +254,13 @@ struct NetworkingTests {
         #expect(!failed.value)
     }
 
-    @Test func invalidatedAPIReportsNoTokens() async throws {
+    /// A refresh on the wire when the API is invalidated reports nothing, and `invalidate()`
+    /// waits for it, so the revoke that follows uses the rotated refresh token (A1, A47).
+    @Test func invalidationWaitsForRefreshAndRevokesWithNewestToken() async throws {
         let json = sessionJSON
-        let transport = RoutingTransport(delay: .milliseconds(50)) { request in
+        let transport = RoutingTransport(gatedSuffix: "refreshSession") { request in
             if request.url!.path.hasSuffix("refreshSession") { return (200, json) }
+            if request.url!.path.hasSuffix("deleteSession") { return (200, "{}") }
             return (400, #"{"error":"ExpiredToken"}"#)
         }
         let updated = Box(false)
@@ -243,10 +269,16 @@ struct NetworkingTests {
             client: XRPCClient(serviceURL: service, appViewProxy: proxy, transport: transport),
             callbacks: SessionCallbacks(onTokensRefreshed: { _ in updated.value = true }, onAuthFailure: {}))
         let call = Task { try await api.getProfile(actor: "a") }
-        try await Task.sleep(for: .milliseconds(70))
-        await api.invalidate()
-        _ = await call.result
+        await transport.gate.waitForArrivals(1)
+        let invalidation = Task { await api.invalidate() }
+        while !(await api.isInvalidated) { await Task.yield() }
+        transport.gate.open()
+        await invalidation.value
+        try await api.deleteSession()
+        await #expect(throws: XRPCError.sessionInvalidated) { _ = try await call.value }
         #expect(!updated.value)
+        let revoke = try #require(transport.requests.last { $0.url!.path.hasSuffix("deleteSession") })
+        #expect(revoke.value(forHTTPHeaderField: "Authorization") == "Bearer r2")
     }
 
     @Test func httpErrorsSurfaceXRPCBody() async {
@@ -272,19 +304,25 @@ struct SessionStoreTests {
 
     private func makeStore(_ credentials: MemoryCredentialStore, marker: FakeLaunchMarker = FakeLaunchMarker(),
                            apis: Box<[FakeBlueskyAPI]> = Box([]),
-                           callbacks: Box<SessionCallbacks?> = Box(nil)) -> SessionStore {
+                           callbacks: Box<[SessionCallbacks]> = Box([]),
+                           signInGate: Gate = Gate(open: true)) -> SessionStore {
         SessionStore(
             credentials: credentials, launchMarker: marker,
             makeAPI: { saved, cb in
                 let api = FakeBlueskyAPI(accountDid: saved.did)
                 apis.value.append(api)
-                callbacks.value = cb
+                callbacks.value.append(cb)
                 return api
             },
             signIn: { service, identifier, _ in
-                StoredSession(service: service, did: "did:plc:\(identifier)", handle: identifier,
-                              accessJwt: "a", refreshJwt: "r")
+                await signInGate.pass()
+                return StoredSession(service: service, did: "did:plc:\(identifier)", handle: identifier,
+                                     accessJwt: "a", refreshJwt: "r")
             })
+    }
+
+    private func refreshed(_ handle: String, token: String = "late") -> StoredSession {
+        StoredSession(service: service, did: "did:plc:\(handle)", handle: handle, accessJwt: token, refreshJwt: token)
     }
 
     @Test func signsInSavesRestoresAndSignsOut() async {
@@ -305,11 +343,12 @@ struct SessionStoreTests {
         let signingOut = makeStore(credentials, apis: apis)
         await signingOut.restore()
         signingOut.signOut()
-        await signingOut.pendingWork?.value
+        await signingOut.waitForPendingWork()
         #expect(signingOut.state == .signedOut)
         #expect(await credentials.saved == nil)
         let api = apis.value.first
         #expect(api != nil)
+        // The revoke waits for invalidation, so both are done once pending work is.
         #expect(await api?.invalidated == true)
         #expect(await api?.calls == ["deleteSession"])
     }
@@ -353,51 +392,135 @@ struct SessionStoreTests {
 
     @Test func staleRefreshAfterSignOutIsDropped() async {
         let credentials = MemoryCredentialStore()
-        let callbacks = Box<SessionCallbacks?>(nil)
+        let callbacks = Box<[SessionCallbacks]>([])
         let store = makeStore(credentials, callbacks: callbacks)
         await store.restore()
         await store.signIn(service: service, identifier: "alice.test", password: "x")
-        let staleCallbacks = callbacks.value
+        let staleCallbacks = callbacks.value.last
         store.signOut()
-        await store.pendingWork?.value
+        await store.waitForPendingWork()
         let savesBefore = await credentials.saves
-        staleCallbacks?.onTokensRefreshed(StoredSession(service: service, did: "did:plc:alice.test", handle: "alice.test",
-                                                        accessJwt: "late", refreshJwt: "late"))
-        try? await Task.sleep(for: .milliseconds(50))
+        staleCallbacks?.onTokensRefreshed(refreshed("alice.test"))
+        await store.waitForPendingWork()
         #expect(await credentials.saved == nil)
         #expect(await credentials.saves == savesBefore)
         #expect(store.state == .signedOut)
     }
 
-    @Test func staleRefreshFromAnotherAccountIsDropped() async {
-        let credentials = MemoryCredentialStore()
-        let callbacks = Box<SessionCallbacks?>(nil)
+    /// Review finding A46 (a): alice's refresh is reported while bob's save is suspended.
+    /// The chain runs it after bob's save and its generation check drops it.
+    @Test func refreshFromPreviousAccountCannotLandAfterNewAccountSave() async {
+        let saveGate = Gate(open: true)
+        let credentials = MemoryCredentialStore(saveGate: saveGate)
+        let callbacks = Box<[SessionCallbacks]>([])
         let store = makeStore(credentials, callbacks: callbacks)
         await store.restore()
         await store.signIn(service: service, identifier: "alice.test", password: "x")
-        let aliceCallbacks = callbacks.value
+        let alice = callbacks.value.last
+
+        saveGate.close()
+        let arrivals = saveGate.arrivalCount
+        let bobSignIn = Task { await store.signIn(service: service, identifier: "bob.test", password: "x") }
+        await saveGate.waitForArrivals(arrivals + 1)
+        alice?.onTokensRefreshed(refreshed("alice.test"))
+        saveGate.open()
+        await bobSignIn.value
+        await store.waitForPendingWork()
+
+        #expect(await credentials.saved?.did == "did:plc:bob.test")
+        #expect(await credentials.log == ["save:did:plc:alice.test", "save:did:plc:bob.test"])
+        #expect(store.state == .signedIn(did: "did:plc:bob.test", handle: "bob.test"))
+    }
+
+    /// Review finding A46 (b): a quick sign-in after sign-out. The sign-out's clear is held open;
+    /// the new save must land after it, so the new session survives.
+    @Test func signOutClearCannotEraseQuickSignIn() async {
+        let clearGate = Gate(open: true)
+        let credentials = MemoryCredentialStore(clearGate: clearGate)
+        let store = makeStore(credentials)
+        await store.restore()
+        await store.signIn(service: service, identifier: "alice.test", password: "x")
+
+        clearGate.close()
+        let arrivals = clearGate.arrivalCount
+        store.signOut()
+        await clearGate.waitForArrivals(arrivals + 1)
+        let enqueued = store.credentialWritesEnqueued
+        let bobSignIn = Task { await store.signIn(service: service, identifier: "bob.test", password: "x") }
+        // Bob's save is enqueued behind the held clear before the clear is released.
+        while store.credentialWritesEnqueued == enqueued { await Task.yield() }
+        clearGate.open()
+        await bobSignIn.value
+        await store.waitForPendingWork()
+
+        #expect(await credentials.log == ["save:did:plc:alice.test", "clear", "save:did:plc:bob.test"])
+        #expect(await credentials.saved?.did == "did:plc:bob.test")
+        #expect(store.state == .signedIn(did: "did:plc:bob.test", handle: "bob.test"))
+    }
+
+    /// Review finding A49: a sign-out while `createSession` is in flight wins.
+    @Test func signOutDuringSignInWins() async {
+        let signInGate = Gate()
+        let credentials = MemoryCredentialStore()
+        let store = makeStore(credentials, signInGate: signInGate)
+        await store.restore()
+        let signIn = Task { await store.signIn(service: service, identifier: "alice.test", password: "x") }
+        await signInGate.waitForArrivals(1)
+        store.signOut()
+        signInGate.open()
+        await signIn.value
+        await store.waitForPendingWork()
+        #expect(store.state == .signedOut)
+        #expect(await credentials.saved == nil)
+        #expect(await credentials.log == ["clear"])
+    }
+
+    /// Review finding A48: token updates save in the order the API reported them.
+    @Test func refreshesSaveInReportedOrder() async {
+        let saveGate = Gate(open: true)
+        let credentials = MemoryCredentialStore(saveGate: saveGate)
+        let callbacks = Box<[SessionCallbacks]>([])
+        let store = makeStore(credentials, callbacks: callbacks)
+        await store.restore()
+        await store.signIn(service: service, identifier: "alice.test", password: "x")
+        saveGate.close()
+        let arrivals = saveGate.arrivalCount
+        callbacks.value.last?.onTokensRefreshed(refreshed("alice.test", token: "t1"))
+        callbacks.value.last?.onTokensRefreshed(refreshed("alice.test", token: "t2"))
+        await saveGate.waitForArrivals(arrivals + 1)
+        saveGate.open()
+        await store.waitForPendingWork()
+        #expect(await credentials.saved?.refreshJwt == "t2")
+    }
+
+    @Test func staleRefreshFromAnotherAccountIsDropped() async {
+        let credentials = MemoryCredentialStore()
+        let callbacks = Box<[SessionCallbacks]>([])
+        let store = makeStore(credentials, callbacks: callbacks)
+        await store.restore()
+        await store.signIn(service: service, identifier: "alice.test", password: "x")
+        let aliceCallbacks = callbacks.value.last
         await store.signIn(service: service, identifier: "bob.test", password: "x")
-        aliceCallbacks?.onTokensRefreshed(StoredSession(service: service, did: "did:plc:alice.test",
-                                                        handle: "alice.test", accessJwt: "x", refreshJwt: "x"))
-        try? await Task.sleep(for: .milliseconds(50))
+        aliceCallbacks?.onTokensRefreshed(refreshed("alice.test", token: "x"))
+        await store.waitForPendingWork()
         #expect(await credentials.saved?.did == "did:plc:bob.test")
     }
 
     @Test func authFailureSignsOut() async {
         let credentials = MemoryCredentialStore()
-        let callbacks = Box<SessionCallbacks?>(nil)
+        let callbacks = Box<[SessionCallbacks]>([])
         let store = makeStore(credentials, callbacks: callbacks)
         await store.restore()
         await store.signIn(service: service, identifier: "alice.test", password: "x")
-        callbacks.value?.onAuthFailure()
-        try? await Task.sleep(for: .milliseconds(50))
-        await store.pendingWork?.value
+        callbacks.value.last?.onAuthFailure()
+        await store.waitForPendingWork()
         #expect(store.state == .signedOut)
         #expect(await credentials.saved == nil)
     }
 
     @Test func failedSignInStaysSignedOut() async {
-        let store = SessionStore(credentials: MemoryCredentialStore(), launchMarker: FakeLaunchMarker(),
+        let credentials = MemoryCredentialStore()
+        let store = SessionStore(credentials: credentials, launchMarker: FakeLaunchMarker(),
                                  makeAPI: { saved, _ in FakeBlueskyAPI(accountDid: saved.did) },
                                  signIn: { _, _, _ in
                                      throw XRPCError.http(status: 401, error: "AuthenticationRequired",
@@ -406,7 +529,8 @@ struct SessionStoreTests {
         await store.restore()
         await store.signIn(service: service, identifier: "alice.test", password: "wrong")
         #expect(store.state == .signedOut)
-        #expect(store.lastError != nil)
+        #expect(store.api == nil)
+        #expect(await credentials.saves == 0)
     }
 }
 

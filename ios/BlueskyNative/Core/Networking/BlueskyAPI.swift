@@ -101,11 +101,22 @@ actor AuthenticatedBlueskyAPI: SessionBoundAPI {
         self.callbacks = callbacks
     }
 
-    func invalidate() {
+    /// Stops refreshes and callbacks, then waits for a refresh already sent to the server.
+    ///
+    /// The server may already have rotated the refresh token, so the result is kept (without a
+    /// callback) and `deleteSession` revokes the newest token (review finding A47).
+    func invalidate() async {
         invalidated = true
-        refreshTask?.cancel()
-        refreshTask = nil
+        guard let running = refreshTask else { return }
+        // Only one refresh runs at a time and none starts after invalidation, so its result is
+        // the newest session.
+        if let updated = try? await running.value {
+            session = updated
+        }
     }
+
+    /// True after `invalidate()` or a terminal auth failure.
+    var isInvalidated: Bool { invalidated }
 
     func deleteSession() async throws {
         // deleteSession authenticates with the refresh token.
@@ -281,7 +292,11 @@ actor AuthenticatedBlueskyAPI: SessionBoundAPI {
         do {
             let updated = try await task.value
             if refreshTask == task { refreshTask = nil }
-            guard !invalidated else { throw XRPCError.sessionInvalidated }
+            guard !invalidated else {
+                // Keep the rotated tokens for `deleteSession`, but report nothing (A1, A47).
+                session = updated
+                throw XRPCError.sessionInvalidated
+            }
             if session.accessJwt == failedToken {
                 session = updated
                 callbacks.onTokensRefreshed(updated)
