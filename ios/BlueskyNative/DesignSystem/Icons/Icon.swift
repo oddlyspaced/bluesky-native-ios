@@ -14,11 +14,39 @@ enum IconPathCache {
 /// A glyph scaled from its 24x24 grid into the proposed rect.
 struct IconShape: Shape {
     var glyph: IconGlyph
+    /// The ink fit to apply; nil uses `glyph.inkFit`. Tests pass `(1, 0, 0)` for the raw Lucide glyph.
+    var fit: (scale: CGFloat, dx: CGFloat, dy: CGFloat)?
 
     func path(in rect: CGRect) -> Path {
-        let transform = CGAffineTransform(translationX: rect.minX, y: rect.minY)
+        let fit = self.fit ?? glyph.inkFit
+        let inGrid = CGAffineTransform(translationX: 12 + fit.dx, y: 12 + fit.dy)
+            .scaledBy(x: fit.scale, y: fit.scale)
+            .translatedBy(x: -12, y: -12)
+        let toRect = CGAffineTransform(translationX: rect.minX, y: rect.minY)
             .scaledBy(x: rect.width / 24, y: rect.height / 24)
-        return (IconPathCache.paths[glyph] ?? Path()).applying(transform)
+        return (IconPathCache.paths[glyph] ?? Path()).applying(inGrid.concatenating(toRect))
+    }
+}
+
+extension IconGlyph {
+    /// Fits a Lucide glyph's ink to the RN glyph it replaces, in the same layout box (review
+    /// finding F6). Scale about the grid centre, offset in grid units; the stroke is not scaled.
+    /// Measured on 3x captures (`ios/PARITY.md`, "Glyph ink fit"):
+    /// - hashtag (24pt header): native ink 54x60 px, 9 px right of RN's 54x54
+    /// - repost: 60x40 px against RN 50x56 (22pt anchor); 50x32 against 42x46 (18pt feed)
+    /// - sliders (20pt thread options): 50x50 px against RN 40x40
+    /// - info (36pt fallback marker): 100x100 px against RN 88x88 (RN uses a 1.5 stroke on r 9)
+    /// - reply (22pt anchor): 60x58 px against RN 56x55; heart (18pt): 50x48 against 46x45
+    var inkFit: (scale: CGFloat, dx: CGFloat, dy: CGFloat) {
+        switch self {
+        case .hashtag: (0.89, -3, 0)
+        case .repost: (0.88, 0, 0)
+        case .sliders: (0.85, 0, 0)
+        case .info: (0.88, 0, 0)
+        case .reply: (0.92, 0, 0)
+        case .heart: (0.92, 0, 0)
+        default: (1, 0, 0)
+        }
     }
 }
 

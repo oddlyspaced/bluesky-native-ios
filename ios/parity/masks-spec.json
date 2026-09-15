@@ -182,11 +182,21 @@
     "kind": "rect",
     "box": [
      785,
-     2440,
+     2462,
      885,
      2506
     ],
-    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+    "reason": "bottom bar bell glyph below the unread badge (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2414,
+     838,
+     2462
+    ],
+    "reason": "bottom bar bell glyph left of the unread badge (Lucide substitute)"
    }
   ],
   "thread": [
@@ -280,11 +290,21 @@
     "kind": "rect",
     "box": [
      785,
-     2440,
+     2462,
      885,
      2506
     ],
-    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+    "reason": "bottom bar bell glyph below the unread badge (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2414,
+     838,
+     2462
+    ],
+    "reason": "bottom bar bell glyph left of the unread badge (Lucide substitute)"
    }
   ],
   "profile": [
@@ -367,11 +387,21 @@
     "kind": "rect",
     "box": [
      785,
-     2440,
+     2462,
      885,
      2506
     ],
-    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+    "reason": "bottom bar bell glyph below the unread badge (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2414,
+     838,
+     2462
+    ],
+    "reason": "bottom bar bell glyph left of the unread badge (Lucide substitute)"
    }
   ]
  },
@@ -558,11 +588,21 @@
     "kind": "rect",
     "box": [
      785,
-     2440,
+     2462,
      885,
      2506
     ],
-    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+    "reason": "bottom bar bell glyph below the unread badge (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2414,
+     838,
+     2462
+    ],
+    "reason": "bottom bar bell glyph left of the unread badge (Lucide substitute)"
    }
   ],
   "thread-liked-reposted": [
@@ -666,11 +706,21 @@
     "kind": "rect",
     "box": [
      785,
-     2440,
+     2462,
      885,
      2506
     ],
-    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+    "reason": "bottom bar bell glyph below the unread badge (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2414,
+     838,
+     2462
+    ],
+    "reason": "bottom bar bell glyph left of the unread badge (Lucide substitute)"
    }
   ]
  },
@@ -859,11 +909,21 @@
     "kind": "rect",
     "box": [
      785,
-     2440,
+     2462,
      885,
      2506
     ],
-    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+    "reason": "bottom bar bell glyph below the unread badge (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2414,
+     838,
+     2462
+    ],
+    "reason": "bottom bar bell glyph left of the unread badge (Lucide substitute)"
    }
   ],
   "thread-xxxl": [
@@ -957,11 +1017,21 @@
     "kind": "rect",
     "box": [
      785,
-     2440,
+     2462,
      885,
      2506
     ],
-    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+    "reason": "bottom bar bell glyph below the unread badge (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2414,
+     838,
+     2462
+    ],
+    "reason": "bottom bar bell glyph left of the unread badge (Lucide substitute)"
    }
   ],
   "profile-xxxl": [
@@ -1044,11 +1114,21 @@
     "kind": "rect",
     "box": [
      785,
-     2440,
+     2462,
      885,
      2506
     ],
-    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+    "reason": "bottom bar bell glyph below the unread badge (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2414,
+     838,
+     2462
+    ],
+    "reason": "bottom bar bell glyph left of the unread badge (Lucide substitute)"
    }
   ]
  },
@@ -1137,11 +1217,21 @@
     "kind": "rect",
     "box": [
      785,
-     2440,
+     2462,
      885,
      2506
     ],
-    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+    "reason": "bottom bar bell glyph below the unread badge (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2414,
+     838,
+     2462
+    ],
+    "reason": "bottom bar bell glyph left of the unread badge (Lucide substitute)"
    },
    {
     "kind": "rect",
@@ -1236,11 +1326,21 @@
     "kind": "rect",
     "box": [
      785,
-     2440,
+     2462,
      885,
      2506
     ],
-    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+    "reason": "bottom bar bell glyph below the unread badge (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2414,
+     838,
+     2462
+    ],
+    "reason": "bottom bar bell glyph left of the unread badge (Lucide substitute)"
    }
   ]
  },
@@ -1427,11 +1527,21 @@
     "kind": "rect",
     "box": [
      785,
-     2440,
+     2462,
      885,
      2506
     ],
-    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+    "reason": "bottom bar bell glyph below the unread badge (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2414,
+     838,
+     2462
+    ],
+    "reason": "bottom bar bell glyph left of the unread badge (Lucide substitute)"
    }
   ],
   "thread-dark": [
@@ -1525,11 +1635,21 @@
     "kind": "rect",
     "box": [
      785,
-     2440,
+     2462,
      885,
      2506
     ],
-    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+    "reason": "bottom bar bell glyph below the unread badge (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2414,
+     838,
+     2462
+    ],
+    "reason": "bottom bar bell glyph left of the unread badge (Lucide substitute)"
    }
   ],
   "profile-dark": [
@@ -1612,11 +1732,21 @@
     "kind": "rect",
     "box": [
      785,
-     2440,
+     2462,
      885,
      2506
     ],
-    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+    "reason": "bottom bar bell glyph below the unread badge (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2414,
+     838,
+     2462
+    ],
+    "reason": "bottom bar bell glyph left of the unread badge (Lucide substitute)"
    }
   ]
  },
@@ -1802,11 +1932,21 @@
     "kind": "rect",
     "box": [
      785,
-     2440,
+     2462,
      885,
      2506
     ],
-    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+    "reason": "bottom bar bell glyph below the unread badge (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2414,
+     838,
+     2462
+    ],
+    "reason": "bottom bar bell glyph left of the unread badge (Lucide substitute)"
    }
   ]
  }
