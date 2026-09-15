@@ -3,124 +3,171 @@ import SwiftUI
 /// Port of `src/view/com/posts/PostFeedItem.tsx`.
 ///
 /// Layout (pt): padding left 10, right 15; an 8pt top row (reason, thread line);
-/// avatar column 8 + 42 + 10; content from x = 70; bottom padding 8 unless the row
+/// avatar column 8 + 42 + 10; body row margin top 1; bottom padding 8 unless the row
 /// continues a thread; hairline top border unless hidden or a thread child.
 struct PostFeedItemView: View {
     var row: FeedRow
     var item: FeedSlice.Item
     var reason: FeedViewPost.Reason?
-    var interactions: PostInteractions
-    var onOpen: (String) -> Void
+    var context: PostEventContext
 
-    @Environment(PostShadowStore.self) private var shadows
+    @Environment(AccountContainer.self) private var container
+    @Environment(\.theme) private var theme
+    @Environment(\.pixelLength) private var pixelLength
+
+    private static let topRowHeight: CGFloat = 8
+    private static let reasonHeight: CGFloat = 17 + Space._2xs
+    /// A thread parent row has no bottom padding. Measured: RN parent rows are 1px (3x) shorter
+    /// than a plain row minus 8pt (248px against 249px), from Yoga's pixel rounding.
+    private static let threadParentBottom: CGFloat = -1.0 / 3
+
+    private var bottomPadding: CGFloat {
+        if row.isThreadLastChild || (!row.isThreadChild && !row.isThreadParent) { return Space.sm }
+        return row.isThreadParent ? RNLineBox.snap(Self.threadParentBottom, pixelLength: pixelLength) : 0
+    }
 
     var body: some View {
-        let post = shadows.apply(to: item.post)
+        let post = container.shadows.apply(to: item.post)
         VStack(alignment: .leading, spacing: 0) {
             topRow
             HStack(alignment: .top, spacing: 0) {
-                UserAvatar(url: post.author.avatar, size: 42)
-                    .padding(.leading, 8)
-                    .padding(.trailing, 10)
+                Button(action: openAuthor) {
+                    UserAvatar(url: post.author.avatar, size: AvatarSize.post)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("\(Names.postMetaName(displayName: post.author.displayName, handle: post.author.handle))'s avatar")
+                .padding(.leading, Space.sm)
+                .padding(.trailing, 10)
                 VStack(alignment: .leading, spacing: 0) {
                     PostMeta(post: post)
-                    if row.showReplyTo, post.record.reply != nil {
+                    if row.showReplyTo, item.parentAuthor != nil || item.isParentBlocked || item.isParentNotFound {
                         repliedTo
                     }
                     if !post.record.text.isEmpty {
-                        PostText(text: post.record.text)
-                            .padding(.bottom, 2)
+                        PostText(post: post)
+                            .padding(.bottom, Space._2xs)
                     }
-                    PostControls(post: post, big: false, interactions: interactions)
+                    PostControls(post: post, serverPost: item.post, big: false, context: context,
+                                 viaRepost: row.viaRepost)
                 }
             }
             .padding(.top, 1)
         }
         .padding(.leading, 10)
         .padding(.trailing, 15)
-        .padding(.bottom, row.isThreadLastChild || (!row.isThreadChild && !row.isThreadParent) ? 8 : 0)
+        .padding(.bottom, bottomPadding)
         .background(alignment: .topLeading) {
             if row.isThreadParent {
                 // Line from 4pt under the avatar to the bottom of the row.
-                Theme.borderContrastLow
+                theme.feedReplyLine
                     .frame(width: 2)
-                    .padding(.top, topRowHeight + 1 + 42 + 4)
-                    .padding(.leading, 10 + 8 + 20)
+                    .padding(.top, topRowHeight + 1 + AvatarSize.post + Space.xs)
+                    .padding(.leading, 10 + Space.sm + (AvatarSize.post - 2) / 2)
             }
         }
         .overlay(alignment: .top) {
             if !row.hideTopBorder && !row.isThreadChild { HairlineDivider() }
         }
-        .background(Theme.background)
+        .background(theme.bg)
         .contentShape(Rectangle())
-        .onTapGesture { onOpen(item.post.uri) }
+        .onTapGesture(perform: openThread)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("feedItem-by-\(post.author.handle)")
     }
 
     private var topRowHeight: CGFloat {
-        if case .repost = reason { return 8 + 17 + 2 }
-        return 8
+        switch reason {
+        case .repost, .pin: Self.topRowHeight + Self.reasonHeight
+        default: Self.topRowHeight
+        }
     }
 
-    /// The 8pt spacer above the avatar, which also carries the repost reason and the
-    /// incoming thread line for child rows.
+    private func openThread() {
+        container.analytics.metric("post:clickthroughItem", context.props(for: item.post))
+        container.router.openThread(uri: item.post.uri, feedDescriptor: context.feedDescriptor)
+    }
+
+    private func openAuthor() {
+        container.analytics.metric("post:clickthroughAuthor", context.props(for: item.post))
+        container.router.openProfile(did: item.post.author.did)
+    }
+
+    /// The 8pt spacer above the avatar, which also carries the reason and the incoming
+    /// thread line for child rows (`PostFeedItem.tsx:357-385`).
     private var topRow: some View {
         HStack(alignment: .top, spacing: 10) {
             ZStack(alignment: .top) {
                 if row.isThreadChild {
-                    Theme.borderContrastLow
+                    theme.feedReplyLine
                         .frame(width: 2)
-                        .padding(.bottom, 4)
+                        .padding(.bottom, Space.xs)
                 }
             }
-            .frame(width: 42, height: topRowHeight)
+            .frame(width: AvatarSize.post, height: topRowHeight)
             VStack(alignment: .leading, spacing: 0) {
-                Color.clear.frame(height: 8)
-                if case .repost(let by) = reason {
-                    HStack(spacing: 3) {
-                        Icon(.repost, size: 13, color: Theme.textContrastMedium)
-                        Text("Reposted by \(by.displayName ?? by.handle)")
-                            .textStyle(size: FontSize.sm, weight: FontWeight.medium, leading: 17)
-                            .foregroundStyle(Theme.textContrastMedium)
-                            .lineLimit(1)
-                    }
-                    .padding(.leading, -16)
-                    .padding(.bottom, 2)
-                }
+                Color.clear.frame(height: Self.topRowHeight)
+                reasonView
             }
         }
-        .padding(.leading, 8)
+        .padding(.leading, Space.sm)
     }
 
-    private var repliedTo: some View {
-        HStack(spacing: 4) {
-            Icon(.cornerDownRight, size: IconSize.xs, color: Theme.textContrastMedium)
-                .offset(y: -1)
-            Text(item.parentAuthor.map { "Replied to \($0.displayName ?? $0.handle)" } ?? "Replied to a post")
-                .textStyle(size: FontSize.sm, leading: 17)
-                .foregroundStyle(Theme.textContrastMedium)
+    /// Port of `PostFeedReason.tsx`.
+    @ViewBuilder
+    private var reasonView: some View {
+        switch reason {
+        case .repost(let by, _, _, _):
+            let text = by.did == container.accountDid
+                ? "Reposted by you"
+                : "Reposted by \(Names.reasonName(displayName: by.displayName, handle: by.handle))"
+            Button { container.router.openProfile(did: by.did) } label: {
+                reasonLabel(glyph: .repost, text: text)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(text)
+        case .pin:
+            reasonLabel(glyph: .pin, text: "Pinned")
+        default:
+            EmptyView()
+        }
+    }
+
+    private func reasonLabel(glyph: IconGlyph, text: String) -> some View {
+        HStack(spacing: 3) {
+            Icon(glyph, size: 13, color: theme.textContrastMedium)
+            Text(text)
+                .textStyle(size: FontSize.sm, weight: FontWeight.medium, leading: Leading.snug)
+                .foregroundStyle(theme.textContrastMedium)
                 .lineLimit(1)
         }
-        .padding(.bottom, 4)
+        .padding(.leading, -16)
+        .padding(.bottom, Space._2xs)
     }
-}
 
-/// Port of `ViewFullThread`: a link row between the root and the last replies.
-struct ViewFullThreadRow: View {
-    var onOpen: () -> Void
-
-    var body: some View {
-        HStack(spacing: 10) {
-            Theme.borderContrastLow.frame(width: 2, height: 40).frame(width: 42)
-            Text("View full thread")
-                .textStyle(size: FontSize.md, leading: Leading.snug)
-                .foregroundStyle(Palette.primary500)
-            Spacer()
+    /// Port of `PostRepliedTo.tsx`.
+    private var repliedTo: some View {
+        HStack(spacing: Space.xs) {
+            Icon(.cornerDownRight, size: IconSize.xs, color: theme.textContrastMedium)
+                .offset(y: -1)
+            repliedToText
+                .textStyle(size: FontSize.sm, leading: Leading.snug)
+                .foregroundStyle(theme.textContrastMedium)
+                .lineLimit(1)
         }
-        .padding(.leading, 18)
-        .contentShape(Rectangle())
-        .onTapGesture(perform: onOpen)
-        .accessibilityAddTraits(.isLink)
+        .padding(.bottom, Space.xs)
+    }
+
+    private var repliedToText: some View {
+        Group {
+            if item.isParentBlocked {
+                Text("Replied to a blocked post")
+            } else if item.isParentNotFound {
+                Text("Replied to a post")
+            } else if let parent = item.parentAuthor, parent.did == container.accountDid {
+                Text("Replied to you")
+            } else if let parent = item.parentAuthor {
+                Text("Replied to ") + Text(Names.displayNameOrHandle(displayName: parent.displayName, handle: parent.handle))
+            }
+        }
     }
 }

@@ -1,147 +1,209 @@
 import SwiftUI
 
-/// Port of the Home screen with the Following feed (`src/view/screens/Home.tsx`).
+/// Port of the Home screen with the Following feed (`src/view/screens/Home.tsx`,
+/// `HomeHeaderLayoutMobile.tsx`, `FeedPage.tsx`).
 struct HomeScreen: View {
-    var feed: FeedModel
-    var context: AppContext
-    var avatarURL: URL?
-    var openThread: (String) -> Void
-
-    @Environment(ShellState.self) private var shell
+    @Environment(AccountContainer.self) private var container
+    @Environment(\.theme) private var theme
+    @Environment(\.haptics) private var haptics
     @State private var selectedTab = 0
-    @State private var windowHeight: CGFloat = 874
+    @State private var windowHeight: CGFloat = 0
+    @State private var headerHeight: CGFloat = 0
+    @State private var header = MinimalShellHeader()
+
+    /// `useHeaderOffset` at font scale 1: 52 + 23 + 20 - 4.
+    private static let headerOffset: CGFloat = 91
+
+    private var feed: FeedModel { container.homeFeed }
 
     var body: some View {
-        ScrollView {
-            LazyVStack(spacing: 0) {
-                ComposerPrompt(avatarURL: avatarURL) {
-                    shell.notInShowcase = NotInShowcaseItem(title: "Composer")
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVStack(spacing: 0) {
+                    Color.clear.frame(height: 0).id(Self.topID)
+                        .onGeometryChange(for: CGFloat.self) { $0.frame(in: .scrollView).minY } action: { minY in
+                            header.scrolled(to: -minY, headerHeight: headerHeight)
+                        }
+                    FeedRows(model: feed, eventContext: .feedItem(feed.feedDescriptor),
+                             footerMinHeight: max(Self.headerOffset, 32) * 2) {
+                        ComposerPrompt(avatarURL: container.profile.profile?.avatar)
+                    } emptyState: {
+                        FollowingEmptyState()
+                    } endOfFeed: {
+                        FollowingEndOfFeed(minHeight: windowHeight * Layout.endOfFeedHeightFraction)
+                    }
                 }
-                content
+                .accessibilityIdentifier("followingFeedPage-feed-flatlist")
+            }
+            .accessibilityIdentifier("followingFeedPage-feed")
+            // `FeedPage testID="followingFeedPage"` (`Home.tsx:320`) wraps the feed list.
+            .accessibilityElement(children: .contain)
+            .refreshable { await feed.pullToRefresh() }
+            .safeAreaInset(edge: .top, spacing: 0) {
+                headerView
+                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { headerHeight = $0 }
+                    .offset(y: -header.mode * headerHeight)
+                    .opacity((1 - header.mode) * (1 - header.mode))
+                    .allowsHitTesting(header.mode == 0)
+            }
+            .onChange(of: container.router.homeSoftResetToken) {
+                withAnimation { proxy.scrollTo(Self.topID, anchor: .top) }
+                header.show()
+                container.analytics.metric("feed:refresh", ["feedType": .string(feed.feedType),
+                                                            "feedUrl": .string(feed.feedDescriptor),
+                                                            "reason": "soft-reset"])
+                Task { await feed.reload() }
             }
         }
-        .refreshable { await feed.refresh() }
-        .safeAreaInset(edge: .top, spacing: 0) { header }
-        .background(Theme.background)
+        .background(theme.bg)
         .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { windowHeight = $0 }
         .toolbar(.hidden, for: .navigationBar)
         .task { await feed.loadIfNeeded() }
-    }
-
-    @ViewBuilder
-    private var content: some View {
-        switch feed.status {
-        case .idle, .loading:
-            FeedLoadingPlaceholder()
-        case .failed(let message):
-            FeedErrorRow(message: message) { Task { await feed.refresh() } }
-        case .loaded:
-            ForEach(FeedRow.rows(for: feed.slices, firstRowHidesBorder: false)) { row in
-                switch row.kind {
-                case .post(let item, let reason):
-                    PostFeedItemView(row: row, item: item, reason: reason,
-                                     interactions: context.interactions, onOpen: openThread)
-                case .viewFullThread(let rootUri):
-                    ViewFullThreadRow { openThread(rootUri) }
-                }
-            }
-            if feed.hasMore {
-                Color.clear.frame(height: 1)
-                    .onAppear { Task { await feed.loadMore() } }
-            }
-            if feed.showsFallbackMarker {
-                DiscoverFallbackHeader()
-            }
-            if !feed.hasMore && !feed.isEmpty {
-                FollowingEndOfFeed(minHeight: windowHeight * 0.75) {
-                    shell.notInShowcase = NotInShowcaseItem(title: $0)
-                }
-            }
+        .onChange(of: container.router.currentScreenName, initial: true) { _, screen in
+            // `useFocusEffect` in `Home.tsx:175-186`: every time Home becomes the focused screen.
+            guard screen == ShellTab.home.rootRouteName else { return }
+            container.analytics.metric("home:feedDisplayed", [
+                "index": 0, "feedType": .string(feed.feedType), "feedUrl": .string(feed.feedDescriptor),
+                "reason": "focus",
+            ])
         }
+        .accessibilityIdentifier("homeScreen")
     }
 
-    private var header: some View {
+    private static let topID = "homeTop"
+
+    private var headerView: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 8) {
+            HStack(spacing: Space.sm) {
                 HeaderIconButton(glyph: .menu, label: "Open drawer menu") {
-                    shell.notInShowcase = NotInShowcaseItem(title: "Menu")
+                    container.analytics.metric("nav:click", ["item": "menu", "surface": "topBar"])
+                    container.shell.notInShowcase = NotInShowcaseItem(title: "Menu")
                 }
                 .padding(.leading, -3)
-                ShowcaseMark(width: 30)
-                    .frame(maxWidth: .infinity)
+                Button(action: onLogoPress) {
+                    ShowcaseMark(width: 30)
+                }
+                .buttonStyle(PressScaleStyle(scale: 0.9))
+                .frame(maxWidth: .infinity)
                 HeaderIconButton(glyph: .hashtag, label: "View your feeds and explore more") {
-                    shell.notInShowcase = NotInShowcaseItem(title: "Feeds")
+                    container.analytics.metric("nav:click", ["item": "feeds", "surface": "topBar"])
+                    container.shell.notInShowcase = NotInShowcaseItem(title: "Feeds")
                 }
                 .padding(.trailing, -3)
                 .accessibilityIdentifier("viewHeaderHomeFeedPrefsBtn")
             }
-            .padding(.horizontal, 16)
-            .frame(minHeight: 44)
-            .padding(.bottom, 4)
+            .padding(.horizontal, Layout.gutter)
+            .frame(minHeight: Layout.headerMinHeight - Space.xs)
+            .padding(.bottom, Space.xs)
 
             PagerTabBar(items: ["Following", "Feeds ✨"], selection: $selectedTab, stretches: true,
                         testID: "homeScreenFeedTabs") { index in
-                // RN navigates to the Feeds screen from the last tab instead of paging.
-                if index == 1 { shell.notInShowcase = NotInShowcaseItem(title: "Feeds") }
+                if index == 0 {
+                    // Re-selecting the current feed tab soft-resets it (`Home.tsx:209-211`).
+                    container.router.softResetHome()
+                } else {
+                    // RN navigates to the Feeds screen from the last tab instead of paging.
+                    container.shell.notInShowcase = NotInShowcaseItem(title: "Feeds")
+                }
             }
         }
-        .background(Theme.background.ignoresSafeArea(edges: .top))
+        .background(theme.bg.ignoresSafeArea(edges: .top))
         .zIndex(1)
+    }
+
+    /// `HomeHeaderLayoutMobile.tsx:66-77`: in dev builds the logo opens the Debug screen;
+    /// otherwise it plays a light haptic and soft-resets the feed.
+    private func onLogoPress() {
+        #if DEBUG
+        container.shell.notInShowcase = NotInShowcaseItem(title: "Debug")
+        #else
+        haptics.play(.light)
+        container.router.softResetHome()
+        #endif
+    }
+}
+
+/// Port of RN's minimal-shell header mode (`MainScrollProvider.tsx`): 0 is visible, 1 hidden.
+///
+/// SwiftUI on iOS 17 has no drag begin and end callbacks for `ScrollView`, so the port follows
+/// the scroll delta continuously (`mode += dy / headerHeight`, clamped) and always shows the
+/// header within one header height of the top. RN also snaps when a drag ends; PARITY.md
+/// records this difference.
+@MainActor
+@Observable
+final class MinimalShellHeader {
+    private(set) var mode: CGFloat = 0
+    @ObservationIgnored private var lastOffset: CGFloat = 0
+
+    func scrolled(to rawOffset: CGFloat, headerHeight: CGFloat) {
+        let offset = max(0, rawOffset)
+        defer { lastOffset = offset }
+        guard headerHeight > 0 else { return }
+        if offset < headerHeight {
+            if mode != 0 { withAnimation(.spring(duration: 0.3)) { mode = 0 } }
+            return
+        }
+        let next = min(1, max(0, mode + (offset - lastOffset) / headerHeight))
+        if next != mode { mode = next }
+    }
+
+    func show() {
+        withAnimation(.spring(duration: 0.3)) { mode = 0 }
     }
 }
 
 /// Port of `src/view/com/feeds/ComposerPrompt.tsx`.
 struct ComposerPrompt: View {
     var avatarURL: URL?
-    var onCompose: () -> Void
+
+    @Environment(AccountContainer.self) private var container
+    @Environment(\.theme) private var theme
 
     var body: some View {
-        Button(action: onCompose) {
-            HStack(alignment: .top, spacing: 12) {
-                UserAvatar(url: avatarURL, size: 42)
-                HStack {
-                    Text("What's up?")
-                        .textStyle(size: FontSize.md, leading: 20)
-                        .foregroundStyle(Theme.textContrastMedium)
-                    Spacer()
-                    HStack(spacing: 12) {
-                        Icon(.camera, size: IconSize.lg, color: Palette.contrast300)
-                            .accessibilityLabel("Open camera")
-                        Icon(.image, size: IconSize.lg, color: Palette.contrast300)
-                            .accessibilityLabel("Add image")
-                    }
+        HStack(alignment: .top, spacing: Space.md) {
+            UserAvatar(url: avatarURL, size: AvatarSize.post)
+            HStack {
+                Text("What's up?")
+                    .textStyle(size: FontSize.md, leading: 20)
+                    .foregroundStyle(theme.textContrastMedium)
+                Spacer()
+                HStack(spacing: Space.md) {
+                    iconButton(.camera, label: "Open camera", hint: "Opens device camera",
+                               event: "composerPrompt:camera:press", title: "Camera")
+                    iconButton(.image, label: "Add image", hint: "Opens image picker",
+                               event: "composerPrompt:gallery:press", title: "Image picker")
                 }
-                .frame(height: 40)
             }
-            .padding(.leading, 18)
-            .padding(.trailing, 15)
-            .padding(.vertical, 10)
-            .contentShape(Rectangle())
+            .frame(height: 40)
+        }
+        .padding(.leading, 18)
+        .padding(.trailing, 15)
+        .padding(.vertical, 10)
+        .contentShape(Rectangle())
+        .onTapGesture(perform: compose)
+        .accessibilityElement(children: .contain)
+        .accessibilityAction(named: "Compose new post", compose)
+        .accessibilityLabel("Compose new post")
+        .accessibilityHint("Opens the post composer")
+    }
+
+    private func compose() {
+        container.analytics.metric("composerPrompt:press")
+        container.shell.notInShowcase = NotInShowcaseItem(title: "Composer")
+    }
+
+    private func iconButton(_ glyph: IconGlyph, label: String, hint: String, event: String,
+                            title: String) -> some View {
+        Button {
+            container.analytics.metric(event)
+            container.shell.notInShowcase = NotInShowcaseItem(title: title)
+        } label: {
+            Icon(glyph, size: IconSize.lg, color: theme.palette.contrast300)
+                .contentShape(Rectangle())
         }
         .buttonStyle(PressScaleStyle(scale: 1))
-        .accessibilityLabel("Compose new post")
-    }
-}
-
-/// Port of `DiscoverFallbackHeader.tsx`.
-struct DiscoverFallbackHeader: View {
-    var body: some View {
-        HStack(spacing: 0) {
-            Icon(.info, size: 36, color: Theme.textContrastMedium)
-                .padding(.leading, 12)
-                .frame(width: 68, alignment: .leading)
-            (Text("We ran out of posts from your follows. Here's the latest from ")
-                .foregroundStyle(Theme.text)
-             + Text("Discover").inter(FontSize.md, FontWeight.semiBold).foregroundStyle(Palette.primary500)
-             + Text(".").foregroundStyle(Theme.text))
-                .inter(FontSize.md)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .padding(12)
-        .padding(.top, 1)
-        .background(Theme.bgContrast25)
-        .overlay(alignment: .top) { Theme.borderContrastLow.frame(height: 1) }
+        .accessibilityLabel(label)
+        .accessibilityHint(hint)
     }
 }
 
@@ -149,84 +211,73 @@ struct DiscoverFallbackHeader: View {
 struct FollowingEndOfFeed: View {
     /// RN uses 75% of the window height as the minimum height.
     var minHeight: CGFloat
-    var onAction: (String) -> Void
+
+    @Environment(AccountContainer.self) private var container
+    @Environment(\.theme) private var theme
 
     var body: some View {
         VStack(spacing: 0) {
-            message("You've reached the end of your feed! Find some more accounts to follow.")
-            actionButton("Find accounts to follow").padding(.top, 20)
-            message("You can also discover new Custom Feeds to follow.").padding(.top, 20)
-            actionButton("Discover new custom feeds").padding(.top, 12)
+            FollowingMessage(text: "You've reached the end of your feed! Find some more accounts to follow.")
+            DSButton(title: "Find accounts to follow", color: .secondaryInverted, size: .large,
+                     icon: .chevronRight, iconPosition: .trailing) {
+                container.shell.notInShowcase = NotInShowcaseItem(title: "Find accounts to follow")
+            }
+            .padding(.top, Space.xl)
+            FollowingMessage(text: "You can also discover new Custom Feeds to follow.").padding(.top, Space.xl)
+            DSButton(title: "Discover new custom feeds", color: .secondaryInverted, size: .large,
+                     icon: .chevronRight, iconPosition: .trailing) {
+                container.shell.notInShowcase = NotInShowcaseItem(title: "Discover new custom feeds")
+            }
+            .padding(.top, Space.md)
         }
         .frame(maxWidth: 460)
         .padding(.top, 41)
         .padding(.bottom, 80)
         .padding(.horizontal, 30)
         .frame(maxWidth: .infinity, minHeight: minHeight, alignment: .top)
-        .overlay(alignment: .top) { Theme.borderContrastLow.frame(height: 1) }
-    }
-
-    private func message(_ text: String) -> some View {
-        Text(text)
-            .inter(17, FontWeight.semiBold)
-            .foregroundStyle(Theme.text)
-            .multilineTextAlignment(.center)
-            .fixedSize(horizontal: false, vertical: true)
-    }
-
-    private func actionButton(_ title: String) -> some View {
-        Button { onAction(title) } label: {
-            HStack(spacing: 6) {
-                Text(title)
-                    .textStyle(size: FontSize.md, weight: FontWeight.medium, leading: Leading.tight)
-                Icon(.chevronRight, size: 18, color: .white)
-            }
-            .foregroundStyle(.white)
-            .padding(.vertical, 12)
-            .padding(.horizontal, 24)
-            .background(Palette.contrast900, in: Capsule())
-        }
-        .buttonStyle(PressScaleStyle(scale: 1))
+        .overlay(alignment: .top) { theme.borderContrastLow.frame(height: 1) }
     }
 }
 
-/// Loading skeleton, after `PostFeedLoadingPlaceholder`.
-struct FeedLoadingPlaceholder: View {
+/// Port of `FollowingEmptyState.tsx`.
+struct FollowingEmptyState: View {
+    @Environment(AccountContainer.self) private var container
+    @Environment(\.theme) private var theme
+
     var body: some View {
         VStack(spacing: 0) {
-            ForEach(0..<5, id: \.self) { _ in
-                HStack(alignment: .top, spacing: 10) {
-                    Circle().fill(Theme.bgContrast25).frame(width: 42, height: 42)
-                    VStack(alignment: .leading, spacing: 8) {
-                        Capsule().fill(Theme.bgContrast25).frame(width: 160, height: 12)
-                        Capsule().fill(Theme.bgContrast25).frame(maxWidth: .infinity).frame(height: 12)
-                        Capsule().fill(Theme.bgContrast25).frame(width: 200, height: 12)
-                    }
-                }
-                .padding(.leading, 18)
-                .padding(.trailing, 15)
-                .padding(.vertical, 12)
-                .overlay(alignment: .top) { HairlineDivider() }
+            Icon(.magnifyingGlass, size: 62, color: theme.textContrastMedium)
+                .padding(.bottom, Space.lg)
+            FollowingMessage(text: "Your following feed is empty! Follow more users to see what's happening.")
+            DSButton(title: "Find accounts to follow", color: .secondaryInverted, size: .large,
+                     icon: .chevronRight, iconPosition: .trailing) {
+                container.shell.notInShowcase = NotInShowcaseItem(title: "Find accounts to follow")
             }
+            .padding(.top, Space.xl)
+            FollowingMessage(text: "You can also discover new Custom Feeds to follow.").padding(.top, Space.xl)
+            DSButton(title: "Discover new custom feeds", color: .secondaryInverted, size: .large,
+                     icon: .chevronRight, iconPosition: .trailing) {
+                container.shell.notInShowcase = NotInShowcaseItem(title: "Discover new custom feeds")
+            }
+            .padding(.top, Space.md)
         }
-        .accessibilityLabel("Loading")
+        .frame(maxWidth: 460)
+        .padding(.vertical, Space._5xl)
+        .padding(.horizontal, 30)
+        .frame(maxWidth: .infinity)
     }
 }
 
-struct FeedErrorRow: View {
-    var message: String
-    var retry: () -> Void
+private struct FollowingMessage: View {
+    var text: String
+    @Environment(\.theme) private var theme
 
     var body: some View {
-        Button(action: retry) {
-            Text(message)
-                .textStyle(size: FontSize.md, leading: Leading.snug)
-                .foregroundStyle(Theme.textContrastMedium)
-                .multilineTextAlignment(.center)
-                .padding(20)
-                .frame(maxWidth: .infinity)
-        }
-        .buttonStyle(.plain)
-        .overlay(alignment: .top) { HairlineDivider() }
+        // Legacy `Text type="xl-medium"`: 17pt semi-bold with the measured legacy-text tracking.
+        Text(text)
+            .textStyle(size: 17, weight: FontWeight.semiBold, legacyText: true)
+            .foregroundStyle(theme.text)
+            .multilineTextAlignment(.center)
+            .fixedSize(horizontal: false, vertical: true)
     }
 }
