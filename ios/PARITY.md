@@ -1,113 +1,113 @@
 # Parity report (iOS): RN app vs native SwiftUI port
 
-- Date: 2026-09-15.
+- Date: 2026-09-15 and 2026-09-16 (review round 2 fixes).
 - Device: iPhone 17 Pro simulator, iOS 26.4 (`7F73AB4A-2709-4033-89D2-35CE10E650F4`), 1206x2622 px at 3x.
 - RN build: the upstream e2e app `xyz.blueskyweb.app` (`bluesky-social-app` at `2bfb94d`, Metro in e2e mode).
-- Native build: Debug `NativeShowcase` (`io.nativestarter.showcase.bluesky`).
-- Server: the upstream dev network (PDS `http://localhost:3000`, AppView DID `did:plc:bw7ad3erl7btq6qwf66yqiov`), reseeded before every capture.
-- **Acceptance: awaiting owner acceptance.** No difference in this report is accepted yet.
+- Native build: Debug `NativeShowcase` at commit `7461701` for every capture below. Later commits change
+  no captured pixel: the repost-menu haptic, error copy for errors the captures do not show, and removed
+  unused code.
+- Server: the upstream dev network (PDS `http://localhost:3000`, AppView DID `did:plc:bw7ad3erl7btq6qwf66yqiov`).
+- **Acceptance: awaiting owner acceptance.** No difference in this report is accepted. No acceptor is named.
 
 ## Verdict
 
-**Every captured screen is at or below the 0.02 threshold with masks. No screen passes raw.**
-`diff.mjs` classifies 2 screens as `pass` (at most 0.01) and 11 as `drift` (above 0.01, at most
-0.02). Each drift needs a written sign-off by a person who did not write the port
+**With masks, no screen fails: 3 pass and 12 drift. Raw, 9 of 15 screens fail.**
+Each drift needs a written sign-off by a person who did not write the port
 (`check-parity/references/thresholds.md`); none is signed.
 
-Final run: 2026-09-15 13:10 to 13:14, one Debug build, all native states captured in one run.
-Masked ratio = differing pixels after masks / 3,162,132. Status is from `diff.mjs` with the default
-threshold 0.02 and fuzz 5%.
+Masked ratio = differing pixels after masks / 3,162,132, threshold 0.02, fuzz 5% (`diff.mjs` defaults).
 
-| State | Screen | Raw ratio (px) | Masked ratio (px) | Masked area | Status |
-|---|---|---|---|---|---|
-| base | home | 0.0288 (91,024) | 0.0136 (43,048) | 12.67% | drift |
-| base | thread | 0.0199 (62,869) | 0.0074 (23,312) | 11.52% | pass |
-| base | profile | 0.0174 (55,056) | 0.0109 (34,344) | 8.91% | drift |
-| dark | home-dark | 0.0285 (90,151) | 0.0140 (44,164) | 12.67% | drift |
-| dark | thread-dark | 0.0197 (62,159) | 0.0073 (23,072) | 11.52% | pass |
-| dark | profile-dark | 0.0168 (52,967) | 0.0107 (33,967) | 8.91% | drift |
-| largest Dynamic Type | home-xxxl | 0.0330 (104,295) | 0.0164 (52,005) | 13.13% | drift |
-| largest Dynamic Type | thread-xxxl | 0.0266 (83,963) | 0.0119 (37,616) | 15.85% | drift |
-| largest Dynamic Type | profile-xxxl | 0.0250 (79,089) | 0.0179 (56,567) | 9.03% | drift |
-| empty seed | home-empty | 0.0267 (84,391) | 0.0189 (59,656) | 9.54% | drift |
-| empty seed | profile-empty | 0.0195 (61,732) | 0.0116 (36,728) | 8.98% | drift |
-| after like and repost | home-liked-reposted | 0.0284 (89,669) | 0.0136 (43,138) | 12.67% | drift |
-| after like and repost | thread-liked-reposted | 0.0241 (76,280) | 0.0113 (35,585) | 11.54% | drift |
+| State | Screen | Raw ratio (px) | Raw status | Masked ratio (px) | Mask area | Masked status |
+|---|---|---|---|---|---|---|
+| base | home | 0.0281 (88,903) | fail | 0.0138 (43,648) | 13.52% | drift |
+| base | thread | 0.0176 (55,623) | drift | 0.0092 (29,014) | 10.82% | pass |
+| base | profile | 0.0173 (54,727) | drift | 0.0109 (34,464) | 9.09% | drift |
+| dark | home-dark | 0.0280 (88,440) | fail | 0.0142 (44,764) | 13.52% | drift |
+| dark | thread-dark | 0.0170 (53,706) | drift | 0.0090 (28,422) | 10.82% | pass |
+| dark | profile-dark | 0.0161 (50,753) | drift | 0.0108 (34,050) | 9.09% | drift |
+| largest Dynamic Type | home-xxxl | 0.0316 (99,960) | fail | 0.0166 (52,558) | 13.81% | drift |
+| largest Dynamic Type | thread-xxxl | 0.0240 (75,938) | fail | 0.0152 (48,073) | 11.17% | drift |
+| largest Dynamic Type | profile-xxxl | 0.0248 (78,471) | fail | 0.0179 (56,695) | 9.11% | drift |
+| empty seed | home-empty | 0.0260 (82,106) | fail | 0.0189 (59,830) | 9.59% | drift |
+| empty seed | profile-empty | 0.0194 (61,496) | drift | 0.0116 (36,728) | 8.99% | drift |
+| mergefeed seed | home-mergefeed | 0.0226 (71,570) | fail | 0.0098 (30,872) | 13.37% | pass |
+| after like and repost | home-liked-reposted | 0.0278 (87,918) | fail | 0.0138 (43,738) | 13.52% | drift |
+| after like and repost | thread-liked-reposted | 0.0214 (67,715) | fail | 0.0127 (40,301) | 11.07% | drift |
 
-Mask areas stay below the 15% limit in `masking.md`, except `thread-xxxl` at 15.85%. At the largest
-text size the thread date line wraps with its who-can-reply label, so the date-line mask covers two
-lines.
+Every mask area is at or below the 15% limit. `thread-xxxl` was 15.85% in round 1; it is 11.17% now,
+because RN and native share one seed and the anchor date line is no longer masked (review finding N18).
 
-The remaining pixels are, by inspection of the diff images:
-- the default avatar figure (row 3 of "Differences that remain")
-- anti-aliasing at glyph edges, 1 px in places where Yoga and SwiftUI round differently
-- the Lucide chevrons and the share glyph where their boxes overlap text
+**Mask check failures (review finding N19).** `make_masks.py` reports native ink outside the RN-derived
+slots and exits 1. The pixels stay unmasked and are counted in the ratios above:
 
-**Events:** MATCH, 18 of 18, against an RN log derived from source (see "Event diff").
+| Screen | Native ink outside RN slots |
+|---|---|
+| home-xxxl | a control glyph (x 647-696, y 900-942); the fallback info glyph (x 76-175, y 2317-2374) |
+| thread-xxxl | the anchor like glyph (x 550-610, y 898-949) |
+| home-empty | the fallback info glyph (x 76-175, y 689-788) |
+
+**Events:** ordered MATCH, 19 of 19, against the RN list derived from source (see "Event diff").
 
 **Native error states** (no RN equivalent): `home-error`, `home-load-more-error`, `thread-error`,
-`profile-error`, captured by `capture-errors-native.yml` in the same run.
+`profile-error`, captured by `capture-errors-native.yml`.
 
 ## How the numbers were made
 
-All captures use one Maestro flow for both apps (`parity/flows/`). `LABEL` selects the app.
+One Maestro flow drives both apps (`parity/flows/`); `LABEL` selects the app.
 
-1. Capture one state for one app. The script takes the shared seed lock, sets the simulator
-   state, runs Maestro and resets the simulator:
+1. Capture one state in both apps in the same run (review finding N20):
    ```
    cd ios/parity
-   ./run-capture.sh rn <state>        # state: base | dark | xxxl | empty | interactions
-   ./run-capture.sh native <state>    # also: errors
+   ./run-pair.sh base     # also: dark, xxxl, empty, mergefeed, interactions
+   ./run-capture.sh native errors
    ```
-   - `base`, `interactions` and `errors` run `migration-pack/skills/check-parity/scripts/capture.mjs`.
-   - `dark` runs `xcrun simctl ui <udid> appearance dark` first.
-   - `xxxl` runs `xcrun simctl ui <udid> content_size extra-extra-extra-large` first.
-   - `empty` seeds `?users` only.
-   - Every run overrides the status bar with `xcrun simctl status_bar <udid> override --time 9:41`,
-     and resets appearance and content size to light and large at exit.
-2. Build the masks from the RN and native images of the state:
+   - `run-pair.sh` holds `/tmp/bsky-seed.lock` for both apps. The RN app seeds; the native app runs on the
+     same seed (`RESEED=false`), so both show the same posts and timestamps. `interactions` likes and
+     reposts, so each app seeds its own data.
+   - `run-capture.sh` runs `migration-pack/skills/check-parity/scripts/capture.mjs` with `--env` for
+     `SEED`, `SUFFIX` and `RESEED`, sets dark appearance or `extra-extra-extra-large` content size for
+     those states, and overrides the status bar with `--time 9:41`.
+   - For the native app it copies `Documents/events.jsonl` and writes `events.normalized.jsonl`.
+2. Build masks from the RN image (and fixed slots), checked against the native image:
    ```
    python3 make_masks.py masks-spec.json <state> out/<state>/rn/ios out/<state>/native/ios masks/<state>.json
    ```
-3. Diff raw and masked with the Pack's script (threshold 0.02, fuzz 5%):
+3. Diff raw and masked:
    ```
    node <pack>/skills/check-parity/scripts/diff.mjs --rn out/<state>/rn/ios --native out/<state>/native/ios --out out/<state>/diff-raw
    node <pack>/skills/check-parity/scripts/diff.mjs --rn out/<state>/rn/ios --native out/<state>/native/ios --out out/<state>/diff-masked --mask masks/<state>.json
    ```
-4. Write the Pack report:
-   ```
-   node <pack>/skills/check-parity/scripts/report.mjs --diff out/<state>/diff-masked/results.json --out out/<state>/parity-report.md --title "<state> (iOS)"
-   ```
 
-The RN images of the committed states are in `parity/baseline/rn/`:
-
-| State | Files |
-|---|---|
-| base (captured by the first port run, not overwritten) | `ios-home.png`, `ios-thread.png`, `ios-profile.png` |
-| dark | `ios-home-dark.png`, `ios-thread-dark.png`, `ios-profile-dark.png` |
-| largest Dynamic Type | `ios-home-xxxl.png`, `ios-thread-xxxl.png`, `ios-profile-xxxl.png` |
-| empty seed (`?users`) | `ios-home-empty.png`, `ios-profile-empty.png` |
-| after like and repost | `ios-home-liked-reposted.png`, `ios-thread-liked-reposted.png` |
+New RN baselines from this run, as new files (no baseline is overwritten), in `parity/baseline/rn/`:
+`ios-home-r2.png`, `ios-thread-r2.png`, `ios-profile-r2.png`, `ios-home-dark-r2.png`,
+`ios-thread-dark-r2.png`, `ios-profile-dark-r2.png`, `ios-home-xxxl-r2.png`, `ios-thread-xxxl-r2.png`,
+`ios-profile-xxxl-r2.png`, `ios-home-empty-r2.png`, `ios-profile-empty-r2.png`,
+`ios-home-mergefeed-r2.png`, `ios-home-liked-reposted-r2.png`, `ios-thread-liked-reposted-r2.png`.
 
 ## Masks
 
-Masks follow `check-parity/references/masking.md`. Each mask is one of these, generated by
-`make_masks.py` from bands in `masks-spec.json`, and measured on both images:
+Masks follow `check-parity/references/masking.md`. `make_masks.py` never widens a mask from the native
+image (review finding N19).
 
 | Kind | What it hides | Reason |
 |---|---|---|
 | `status` | y 0 to 180 px | Status bar: clock, battery, signal |
-| `glyphs` | Ink clusters of icon glyphs only. In post control rows the left group needs 36 px width, so the reply, repost and like counts stay visible; the right group (bookmark, share, more) has no text | Licence substitution: Lucide glyphs for the Central icon set (ASSETS.md section 2) |
-| `tail` | The last two ink clusters of a post meta line: "·" and the relative time | Capture time |
-| `rect` | The header logo slot, the thread anchor logo slot, the thread date line with the who-can-reply label that moves with its width, the FAB glyph, the info glyph, the bottom bar glyphs (the bell box stops below the badge) | Licence substitution, or capture time |
+| `glyphs` | A fixed icon slot centred on each RN glyph: 54 px (feed controls, 18pt), 66 px (anchor controls, 22pt), 72 px (header and composer, 24pt), 48 px (profile share and more); the ink box plus 4 px for the info and empty-state glyphs. Counts next to icons stay visible | Licence substitution: Lucide glyphs for the Central icon set (ASSETS.md section 2) |
+| `tail` | A 150 px slot from the RN "·" of a post meta line | The relative time follows the capture clock |
+| `datetime` | A 150 px slot over the anchor time digits, `interactions` only | Each app seeds its own data in that state. The date and the who-can-reply label stay visible (review finding N17) |
+| `rect` | The header logo slot, the thread anchor logo slot, the FAB glyph, the bottom bar glyphs (the bell box stops below the badge) | Licence substitution |
 
-Not masked: avatars (the code-drawn default avatar differs from RN's artwork), counts, badges,
-names, handles, post text, buttons, borders and backgrounds.
+Not masked: avatars, counts, badges, names, handles, post text, the anchor date line and who-can-reply
+label (except the `interactions` time digits), buttons, borders and backgrounds.
+
+**Clock (review finding N14).** The capture clock cannot be frozen for the RN app: the e2e build has no
+clock mock (`src/env/common.ts:32` `IS_E2E` changes no time code; `tick-every-minute.tsx:9,12` reads
+`Date.now()`), and `simctl` cannot set the simulator date. The `tail` slots therefore stay.
 
 ## Noise floor
 
-Two captures of the same native build and seed (`out/base` and `out/base2`), diffed with the
-same command and the same masks:
+Two native captures of the final build on the same seed (`out/base` and `out/base2`, the second with
+`RESEED=false ./run-capture.sh native base2 out/base2`), diffed with the same masks:
 
 ```
 node <pack>/skills/check-parity/scripts/diff.mjs --rn out/base/native/ios --native out/base2/native/ios --out out/noise/raw
@@ -116,123 +116,105 @@ node <pack>/skills/check-parity/scripts/diff.mjs --rn out/base/native/ios --nati
 
 | Screen | Raw (px) | Masked (px) |
 |---|---|---|
-| home | 0 (0.0000) | 0 (0.0000) |
-| thread | 12,372 (0.0039) | 1,462 (0.0005) |
-| profile | 0 (0.0000) | 0 (0.0000) |
+| home | 0.0033 (10,316) | 0 |
+| thread | 0.0017 (5,444) | 0 |
+| profile | 0.0017 (5,405) | 0 |
 
-The thread differs between two runs because its anchor date line shows the capture minute, and
-the reply's relative time can change between "now" and "5s". The masked remainder is the
-anti-aliased edge around those masks. In the previous run, one build earlier, all three screens
-were 0 px. The masked noise floor (at most 0.0005) is far below the smallest masked ratio (0.0073).
+The raw noise is the relative times. The masked noise floor is 0 px on all three screens.
 
-## Line-box measurements
+## Line boxes (review findings N12, A57, A19: open)
 
-RN renders text with `@bsky.app/react-native-uitextview` and Yoga pixel rounding. The RN runtime
-could not be inspected (see "Event diff"), so the port measures where RN boxes differ from the
-centred line-box model and applies each difference in one place: `RNLineBox` in
-`DesignSystem/Typography.swift`. Values are points, snapped to the device pixel grid.
+The port still uses per-component constants in `RNLineBox` (`DesignSystem/Typography.swift`), **fitted to
+the iPhone 17 Pro at 3x**. They are not verified on a 2x device.
 
-Method: ink rows of the text column (x 215 to 700 px, past the avatars) and border rows
-(`#DCE2EA` at x 1170) in the RN and native base captures. Values below are 3x pixels.
+A rule-based model was built, verified and reverted:
 
-| Constant | Where | RN measurement | Native before |
-|---|---|---|---|
-| `postMeta` box +2 px | PostMeta (text_md, leading_tight 17) | meta glyph top same, body line 70 px below it | body line 68 px below it |
-| `richText` box +1 px | RichText post text (text_md and text_lg, leading_snug) | plain feed row 273 px; thread reply 282 px; thread anchor border y 823 | 272 px; 281 px; 822 |
-| `tabLabel` box +1 px, bar -1 px | Pager tab label (lineHeight 20) | underline y 454 to 459, hairline y 460, composer border y 645 | 453 to 458, 459, 645 |
-| thread parent row -1 px | Feed rows with a thread line and no bottom padding | 248 px | 249 px |
-| `profileDisplayName` glyph -1 px, box +2 px | Profile name (text_3xl, leading_tight 28) | name ink y 628, handle y 726 | 627, 724 |
-| `profileHandle` box +1 px, `profileMetrics` box +1 px | Profile handle and metrics (leading_snug 20) | metrics y 811, tabs y 1024 | 808, 1020 |
-| `profileDescription` box +1 px, glyph +3 px | Profile bio (RichText) | bio ink y 912 | 905 |
-| `buttonLabel` box +1 px | Large ALF `Button` labels | end-of-feed pill 133 px (y 1136 to 1268) | 132 px |
-| `legacyGlyphOffset` +1 px | RN legacy `Text` (end-of-feed messages) | message ink y 963 and 1340 | 962 and 1339 |
-| `legacyTracking` 0.0043 em | RN legacy `Text` (Discover fallback header, end-of-feed messages) | 15pt line 808 px wide, 17pt line 903 px wide | 801 px, 894 px |
+- From source: RN `Text` sets paragraph minimum and maximum line height to L
+  (`RCTAttributedTextUtils.mm:229-232`) and raises glyphs by (L - N)/2 when L >= N
+  (`RCTApplyBaselineOffset`, `:300-340`); `RCTTextLayoutManager.mm:361-394` measures the box as
+  `ceil((n * L + 0.001) * scale) / scale`.
+- The formulas matched a TextKit 1 layout built like `RCTTextLayoutManager`, and SwiftUI text with iOS 26
+  `.lineHeight(.exact)` matched TextKit ink rows within 1 px, at 3x and 2x (test in commit `a2ef4c4`).
+- In the app, the rules did not keep parity. Base capture on one seed: home masked 0.0357 (fail)
+  against 0.0138 (drift) with the constants. Ink rows: native feed glyphs 2 px higher from the first
+  row (meta 679 against 681, text 749 against 751), the thread anchor body 3 px lower (562 against 559),
+  the profile bio 1 px higher. A TextKit probe showed the `numberOfLines` path gives the same heights, so
+  the remaining offsets come from layout rounding (Yoga `PixelGrid.cpp:87-127`) or the renderer choice
+  at runtime, which could not be derived. Commit `7461701` reverted the rules.
 
-Legacy `Text` (`src/view/com/util/text/Text.tsx`) renders through RN's paragraph view, not the
-UITextView of ALF `Text`, and measures about 1% wider. Three causes were tried and rejected by
-measurement: pair kerning off (+1 px only), and a fixed optical size of 14 (the 17pt line became too
-wide and wrapped). The tracking value is therefore the measured ratio, not a derived rule.
+Consequence: wrapped text with a line height below the font's natural height still grows about 1.4pt
+per extra line (A57). The base screens have no such wrapped text.
 
-After these values every border and text line of the three base screens is at the same pixel
-row in both apps (home borders 460, 645, 1166, 1439, 1712, 1985; thread 329, 823, 1105; profile
-1110, 1382).
+Border rows at x 1170 with the constants (base): home 460, 645, 1166, 1439, 1712, 1985 (same in both
+apps); thread 329, 823, 1105 (same); profile 1110, 1382 (same). The thread reply-prompt border is
+RN 2275 against native 2277 (review finding N11, open). Round 1 claimed every border matched; that
+was wrong for this row and for the home bottom bar.
 
 ## Event diff
 
-**Result: MATCH, 18 of 18 events, for the base flow.** The RN side is derived from source, not
-captured.
+**Result: ordered MATCH, 19 of 19 events, for `flows/capture.yml`.** The RN side is derived from source,
+not captured: the e2e build logs metrics only at debug level in a context the upstream `.env` hides
+(`src/logger/index.tsx:43-45,115-121`), and changing `.env` or restarting Metro is not allowed.
 
-The native app writes each event to `Documents/events.jsonl`. The RN event log could not be
-captured without changing upstream:
+```
+python3 events/normalize_events.py out/base/native/ios/events.jsonl > out/base/native/ios/events.normalized.jsonl
+node <pack>/skills/check-parity/scripts/events.mjs --rn events/rn-expected-base.jsonl \
+  --native out/base/native/ios/events.normalized.jsonl --ignore initMs,secondsActive --ordered
+MATCH (ordered): rn 19 event(s), native 19 event(s), ignoring initMs, secondsActive
+```
 
-- The e2e build sends events to `https://events.bsky.app/t` and logs them only at debug level in
-  the `metric` context. The upstream `.env` has `EXPO_PUBLIC_LOG_DEBUG=session`, which hides them
-  (`src/logger/index.tsx:43-45,115-121`). Showing them needs an `.env` change and a Metro restart.
-  Neither is allowed for this work. The Metro log contained no `(metric)` lines.
-- The Metro inspector WebSocket (`/inspector/debug`) closed with code 1006 right after it opened,
-  with Node's built-in `WebSocket` and with the `ws` package.
+- `normalize_events.py` resolves `authorDid` to a handle and each post `uri` to `<handle>|<text>` through
+  the PDS, so the diff checks that each event names the right post. It drops no event. Only `initMs`
+  and `secondsActive` (timing) are ignored (review finding N24; round 1 ignored `uri` and `authorDid`).
+- Two native runs give the same ordered list (`events.mjs --ordered`, `out/base` against `out/base2`: MATCH).
+- Order proof from source:
+  - Feed `post:view`: `List.tsx:123-131` reports `onViewableItemsChanged` items; RN `ViewabilityHelper.js:228-310`
+    reports a change's newly viewable rows in ascending index after 500 ms. The port does the same
+    (`Core/Analytics/ViewabilityTracker.swift`, review finding N6).
+  - Thread push: the anchor `post:view` effect runs on the cached placeholder anchor (`PostThread/index.tsx:95-112`)
+    before `router:navigate`, because `onStateChange` runs in the container's `useEffect`
+    (`BaseNavigationContainer.tsx:322-399`) and React runs child effects first (review finding N23).
+  - `thread:preferences:load` is not sent in this flow: Home loads preferences first, and RN sends the
+    metric only when preferences arrive or change after the thread mounts
+    (`useThreadPreferences.ts:33-71`, `prevServerPrefs` starts as `useState(serverPrefs)`).
+  - Swipe back: Home's `useFocusEffect` (`Home.tsx:175-186`) sends `home:feedDisplayed` before the container's
+    `router:navigate {from: "PostThread"}`.
+- The launch activation sends no `state:foreground`, as RN registers its AppState listener after launch.
 
-So `parity/events/rn-expected-base.jsonl` lists the RN events for `flows/capture.yml`, written
-from source:
-
-| # | Event and props | RN source |
+| # | Event | RN source |
 |---|---|---|
-| 1-2 | `router:navigate {}`, `init {initMs}` (logged-out launch: the navigator is ready on Home behind `LoggedOut`) | `src/Navigation.tsx:1012-1035`; `createNativeStackNavigatorWithAuth.tsx:124-126` |
-| 3 | `account:loggedIn {logContext: "LoginForm", withPassword: true}` | `src/state/session/index.tsx:325-329`; `TestCtrls.e2e.tsx:30-37` |
-| 4-5 | `router:navigate {}`, `init {initMs}` (the shell remounts with the account key) | `App.tsx:150-152`; `Navigation.tsx:955` |
-| 6 | `home:feedDisplayed {index: 0, feedType: "following", feedUrl: "following", reason: "focus"}` | `src/view/screens/Home.tsx:175-186` |
-| 7-10 | `post:view {uri, authorDid, isReply, logContext: "FeedItem", feedDescriptor: "following", position: 0..3}` | `src/view/com/posts/PostFeed.tsx:991-1013,1072-1100` |
-| 11 | `post:clickthroughItem {uri, authorDid, logContext: "FeedItem", feedDescriptor: "following"}` | `PostFeedItem.tsx:248-259` |
-| 12 | `router:navigate {from: "Home"}` | `Navigation.tsx:1059-1067` |
-| 13 | `thread:preferences:load {sort: "hotness", view: "linear"}` (`DEFAULT_THREAD_VIEW_PREFS` merged) | `useThreadPreferences.ts:55-72`; `preferences/const.ts:30-33` |
-| 14 | `post:view {uri, authorDid, isReply: false, logContext: "Post", feedDescriptor: "following"}` | `src/screens/PostThread/index.tsx:96-112` |
-| 15 | `post:view {uri, authorDid, isReply: true, logContext: "PostThreadItem"}` | `usePostViewTracking.ts:24` |
-| 16-17 | `nav:click {item: "profile", surface: "bottomBar"}`, `router:navigate {from: "PostThread"}` | `BottomBar.tsx:99`; `Navigation.tsx:1066` |
-| 18 | `post:view {..., feedDescriptor: "author|<did>|posts_and_author_threads", position: 0}` | `PostFeed.tsx:1092`; `Profile.tsx:436` |
+| 1-2 | `router:navigate {}`, `init` (logged-out launch) | `src/Navigation.tsx:1012-1035` |
+| 3 | `account:loggedIn` | `src/state/session/index.tsx:325-329`; `TestCtrls.e2e.tsx:30-37` |
+| 4-5 | `router:navigate {}`, `init` (shell remount) | `App.tsx:150-152`; `Navigation.tsx:955` |
+| 6 | `home:feedDisplayed {reason: "focus"}` | `Home.tsx:175-186` |
+| 7-10 | feed `post:view`, positions 0-3 | `PostFeed.tsx:1081-1099` |
+| 11 | `post:clickthroughItem` (bob "Thread root") | `PostFeedItem.tsx:248-259` |
+| 12 | anchor `post:view {logContext: "Post"}` | `PostThread/index.tsx:95-112` |
+| 13 | `router:navigate {from: "Home"}` | `Navigation.tsx:1059-1067` |
+| 14 | reply `post:view {logContext: "PostThreadItem"}` | `index.tsx:595-600`; `usePostViewTracking.ts:21-29` |
+| 15-16 | `home:feedDisplayed`, `router:navigate {from: "PostThread"}` (swipe back) | `Home.tsx:175-186`; `Navigation.tsx:1066` |
+| 17-18 | `nav:click {item: "profile"}`, `router:navigate {from: "Home"}` | `BottomBar.tsx:99`; `Navigation.tsx:1066` |
+| 19 | profile feed `post:view`, position 0 | `PostFeed.tsx:1092`; `Profile.tsx:436` |
 
-Maestro's `back` step has no effect on iOS (XCUITest has no back action). The native log proved
-it: the thread stayed open until the Profile tab tap. The expected RN list assumes the same for
-the RN app.
-
-Command and output:
-
-```
-python3 parity/events/normalize_events.py parity/out/base/native/events.jsonl > parity/out/base/native/events.normalized.jsonl
-node <pack>/skills/check-parity/scripts/events.mjs --rn parity/events/rn-expected-base.jsonl \
-  --native parity/out/base/native/events.normalized.jsonl --ignore uri,authorDid,initMs,secondsActive
-MATCH (unordered): rn 18 event(s), native 18 event(s), ignoring uri, authorDid, initMs, secondsActive
-```
-
-- `normalize_events.py` drops `state:foreground` and `state:background`. RN registers its AppState
-  listener after the bundle loads, so whether RN sees the launch activation depends on timing and
-  cannot be derived from source. It replaces DIDs inside `feedDescriptor` with `<did>`.
-- `--ignore` removes `uri` and `authorDid` (new per seed) and `initMs` and `secondsActive` (timing).
-- Two native runs of the same flow give the same 18 events (`events.mjs` MATCH).
-
-Events that the slice does not emit, by name:
-
-| RN event | Why not in native |
-|---|---|
-| `feature:viewed`, `experiment:viewed` | GrowthBook feature flags are not ported. In the e2e build GrowthBook timed out, so values are null |
-| `composer:open` | The composer is out of the slice; the native app shows "Not part of this showcase" |
-| `share:press:nativeShare`, `share:press:copyLink`, `share:press:openDmSearch` | The share menu is out of the slice. `post:share` fires on the share tap, as RN fires it when the menu opens |
-| `post:bookmark`, `post:unbookmark` | Bookmarks are out of the slice; RN fires them after the API call succeeds |
-| `home:feedDisplayed` without `reason` (pager `onPageSelected`) | Whether the native PagerView fires on mount could not be derived from source |
-| `invite:dialog:open` | Ported, fires on the Invite friends tap; not in the base flow |
-| `link:clicked`, `post:clickReply`, `post:clickQuotePost`, `post:share`, `post:like`, `post:unlike`, `post:repost`, `post:unrepost`, `post:clickthroughAuthor`, `post:likedBy:click`, `nav:click` (topBar), `composerPrompt:*`, `feed:refresh`, `feed:endReached`, `thread:click:*`, `account:loggedOut` | Ported with RN's props; not part of the base flow. Unit tests cover `post:like`, `post:unlike`, `feed:refresh`, `feed:endReached`, `post:view`, `thread:preferences:load` and `thread:click:showOtherReplies` |
+Not in the base flow, with unit tests: `post:like`, `post:unlike`, `feed:refresh`, `feed:endReached`,
+`thread:preferences:load` (late arrival only; `view` from `lab_treeViewEnabled`), `thread:click:showOtherReplies`,
+`link:clicked` (`LinkRouter`). `post:clickthroughAuthor` is sent only from the anchor avatar (review finding N1).
 
 ## States covered
 
-| State | RN | Native | Notes |
+| State | RN | Native | Evidence |
 |---|---|---|---|
-| Home, thread, profile (light) | yes | yes | |
-| Dark (system dark: RN uses dim) | yes | yes | |
-| Largest Dynamic Type (`extra-extra-extra-large`, multiplier 1.353) | yes | yes | |
-| Empty seed: home and profile | yes | yes | Home shows the fallback marker and end-of-feed block in both (RN `__DEV__` skips Discover) |
-| After like and repost: home and thread anchor stats row | yes | yes | `capture-interactions.yml` |
-| First-load feed error, load-more error, thread error, profile error | no | yes (`capture-errors-native.yml`) | RN has no fault control and the server must not be stopped, so no RN image exists. Native arms the Debug controls `e2eFailNextFeedLoad`, `e2eFailNextRefresh` (consumed by the Home re-tap soft reset with rows on screen), `e2eFailNextThread` and `e2eFailNextProfile` on the signed-out screen |
-| Loading skeletons | no | no | Loads finish before a screenshot can be taken reliably |
-| Tombstones, other replies, long posts, facets | no | no | The seed has none; unit tests cover the logic |
+| Home, thread, profile (light) | yes | yes | table above; swipe back from the thread asserted in the flow (N16) |
+| Dark (system dark: RN uses dim) | yes | yes | table above |
+| Largest Dynamic Type | yes | yes | table above |
+| Empty seed (`?users`) | yes | yes | table above |
+| Mergefeed seed: "Replied to" rows, self replies, thread lines | yes | yes | `capture-mergefeed.yml` (N13) |
+| After like and repost | yes | yes | `capture-interactions.yml` |
+| First-load, load-more, thread and profile errors | no | yes | RN has no fault control and the shared server must not be stopped. Unit tests: `FeedModelTests`, `ThreadTests.failureThenRetry`, `ProfileAndUnreadTests.profileErrorScreen` |
+| Loading skeletons | no | no | Loads finish before a screenshot. Unit test: `ThreadTests.placeholderShowsAnchorAndReplySkeletons` |
+| Repost reason rows, long posts, facets, tombstones, other replies | no | no | No upstream seed creates them (`dev-env/mock-server.ts`). Unit tests: `FeedTunerTests`, `RichTextTests`, `ThreadTests.tombstonesStopTheParentWalkAndSkipReplyBranches`, `ThreadTests.hiddenRepliesGoToTheOtherBucket` |
+| Load more after 30 posts, pull to refresh | no | no | A screenshot after scrolling is not deterministic. Unit tests: `FeedModelTests.loadMoreFailureKeepsPagingAndOffersRetry`, `refreshFailureWithRowsShowsRetryRow` |
+| Reply prompt hidden when replies are disabled | no | no | The seed has no threadgate. Unit test: `ThreadTests.canReplyFollowsTheAnchor` (N2) |
 
 ## Differences that remain
 
@@ -240,28 +222,41 @@ None of these is accepted. Each needs a named owner.
 
 | # | Difference | RN | Native | Parity check |
 |---|---|---|---|---|
-| 1 | UI icons | Central icon set | Lucide glyphs, same sizes and colour tokens | `glyphs` masks |
+| 1 | UI icons | Central icon set | Lucide glyphs, same sizes and colour tokens | `glyphs` slots; 4 native glyphs fall outside RN slots (see Verdict) |
 | 2 | Logo and anchor mark | Butterfly mark | Neutral diamond; empty anchor slot | `rect` masks |
-| 3 | Default avatar figure | Bluesky artwork | Generic silhouette in the same blue | Not masked; counted in every ratio |
-| 4 | Header hide on scroll | Drag-driven with a snap on drag end | Follows the scroll delta; no snap (SwiftUI on iOS 17 has no drag end callback) | Not captured |
-| 5 | Sign-out | Clears tokens | Also calls `com.atproto.server.deleteSession` (review finding A27) | Unit test |
-| 6 | `post:view` visibility | 40% visible for 500 ms | Row on screen for 500 ms | Event diff |
-| 7 | Tab roles | `accessibilityRole="tab"` | Buttons with the selected trait; SwiftUI has no tab trait | Not measured |
-| 8 | E2E controls | 12 controls at top 100, right 0 | The same 12, plus 5 native-only fault controls at top 100, left 0 | 15 px at the left edge, not masked |
-| 9 | Error states | Not capturable | Captured with injected faults | Native images only |
-| 10 | Release build | Production app | Smoke build: no sign-in form, local networking allowed | Release `build` |
+| 3 | Default avatar figure | Bluesky artwork | Generic silhouette in the same blue | Not masked; counted |
+| 4 | Header hide on scroll | Drag-driven with a snap on drag end | Follows the scroll delta; no snap | Not captured |
+| 5 | Bottom bar minimal-shell transform | `footerMode` translate and fade, driven only by screens that enable minimal shell (`minimal-mode.tsx`) | No transform. No screen in the slice enables minimal shell, so RN shows no transform here either (N4) | Not applicable to the slice |
+| 6 | Sign-out | Clears tokens | Also calls `com.atproto.server.deleteSession` with the newest refresh token | Unit tests |
+| 7 | `post:view` visibility | 40% visible for 500 ms | Row laid out for 500 ms | Event diff |
+| 8 | Tab roles | `accessibilityRole="tab"` | Buttons with the selected trait | Not measured |
+| 9 | E2E controls | 12 controls at top 100, right 0 | The same 12, plus 5 native-only fault controls at top 100, left 0 | 15 px at the left edge, not masked |
+| 10 | Release build | Production app | Smoke build: no sign-in form, local networking allowed, no event log | Release `build` |
 | 11 | Tag and other-user taps | Hashtag screen, other profiles | "Not part of this showcase" | Behaviour only |
-| 12 | Tabs container | RN tab navigator | `ZStack` of per-tab `NavigationStack`s. `TabView` with a hidden bar reserved the system bar's safe area on iOS 26 and moved the bar and the feed by several pixels | Pixel diff |
+| 12 | Tabs container | RN tab navigator | `ZStack` of per-tab `NavigationStack`s | Pixel diff |
+| 13 | Screen testIDs `HomeScreen`, `followingFeedPage`, `profileScreen` | Present | Not exposed: SwiftUI exposes only the outer id of a one-child container chain (measured with `maestro hierarchy`) | N7, open |
+| 14 | Thread reply-prompt border | y 2275 | y 2277 | N11, open |
+| 15 | Line boxes | RN text layout | Constants fitted to one 3x device | N12, A57, A19, open |
+| 16 | Link long press | Share sheet (`Link.tsx:258-281`) | No long-press action | N25, open |
+| 17 | Thread tree view | Labs preference | Linear view only; the metric logs the server value | Proposed out of scope |
 
-The proposed out-of-scope rows in `plan/slice-plan.md` (embeds, long-press quote, chat badge,
-other profile tabs and profiles, licence substitutions) also await owner acceptance.
+The proposed out-of-scope rows in `plan/slice-plan.md` also await owner acceptance.
+
+## Corrections to earlier claims
+
+- Round 1 said every border and text line matched (old lines 156-158). Wrong: the thread reply-prompt
+  border and the home bottom-bar border differed (N11).
+- Round 1 said the native thread stayed open because Maestro `back` has no effect on iOS, and assumed
+  the same for RN (old line 210). The flow now swipes back. That step showed the native pop gestures
+  were disabled while RN popped; commit `b55151f` fixed it.
+- Round 1 dropped `state:foreground` in the normaliser and ignored `uri` and `authorDid` without RN
+  evidence (N24). Both are corrected.
 
 ## Pack tools used, and problems found
 
 | Tool | Result |
 |---|---|
-| `capture.mjs` | Works for flows with `PLATFORM` and `LABEL` only. It cannot pass other variables, so `run-capture.sh` runs Maestro directly for `SEED` and `SUFFIX` |
-| `references/maestro-flows.md` | Its advice to set defaults in a flow-header `env:` block breaks `-e`: in Maestro 2.4.0 the header value wins, so the first "RN" dark, largest-text and empty captures launched the native app. The flows compute defaults with `evalScript` instead |
-| `references/maestro-flows.md` | A ternary `appId` in a flow header fails YAML parsing ("mapping values are not allowed"). The documented `runFlow` + `when` pattern works |
-| `diff.mjs`, `events.mjs`, `report.mjs` | Worked as documented |
-| Maestro `hierarchy` | Dumped the iOS home screen instead of the RN app after a flow ended, so no RN frames could be read |
+| `capture.mjs --env` | Works; `run-capture.sh` passes `SEED`, `SUFFIX` and `RESEED` through it |
+| `diff.mjs`, `events.mjs --ordered` | Worked as documented |
+| `maestro hierarchy` | Worked on the native app; showed the collapsed container ids (N7) |
+| Maestro `swipe` | Pops RN and, after the fix, native; the assertion must use a thread-only element |

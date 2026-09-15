@@ -21,12 +21,12 @@ The slice is defined in `../plan/slice-plan.md`. "In scope for every screen" is 
 
 | Checkpoint | What is ported |
 |---|---|
-| CP-00 foundation | ALF tokens with light, dark and dim themes following the system (dark system appearance gives dim, as RN's defaults); Inter with RN's Dynamic Type multiplier table; XRPC client with `atproto-proxy`; single-flight token refresh; session store with generation checks; Keychain credential actor; server session revoke on sign-out; analytics event log; image loader; custom tab shell with per-tab routers; bottom bar with unread polling; E2E test controls |
+| CP-00 foundation | ALF tokens with light, dark and dim themes following the system (dark system appearance gives dim, as RN's defaults); Inter with RN's Dynamic Type multiplier table; XRPC client with `atproto-proxy`; single-flight token refresh; session store with generation checks; Keychain credential actor; server session revoke on sign-out; analytics event log (E2E builds only; Release uses a no-op sink); image loader; custom tab shell with per-tab routers; bottom bar with unread polling; E2E test controls |
 | CP-01 home | Header (hides on scroll), Following and Feeds tabs, composer prompt with separate camera and image actions, Following timeline with RN's feed tuners and preferences, reason rows ("Reposted by you", "Pinned"), "Replied to" rows, rich text facets, "Show more" for long posts, like and repost with haptics, like animation and count wheel, fallback marker, loading, empty, first-load error and load-more error states, pull to refresh, soft reset |
 | CP-02 thread | `app.bsky.unspecced.getPostThreadV2` with RN's parameters and traversal: parents, anchor, replies, tombstones, read-more rows, the other-replies bucket; anchor with engagement stats row and who-can-reply; "Write your reply" prompt above the bottom bar; RN's thread error copy; placeholder skeletons; swipe back |
 | CP-03 profile | Own profile: banner, avatar, Edit Profile, Invite friends and More, name, handle, metrics, bio, section tabs, Posts tab feed with its empty state and "End of feed"; loading placeholder and error screen |
 
-Views and models depend on the `BlueskyAPI` protocol, the `AnalyticsSink` protocol, the
+Views and models depend on the `BlueskyAPI`, `PreferencesStore`, `AppActivity` and `URLOpening` protocols, the `AnalyticsSink` protocol, the
 `ImageLoading` protocol and the `HapticsPlaying` protocol. Tests inject fakes.
 
 ## Not ported
@@ -109,9 +109,12 @@ The suites cover:
 - XRPC: proxy header, auth header, thread V2 parameters, like records with `via`, single-flight
   refresh under concurrency, a revoked refresh token ending the session, a transient refresh
   failure keeping it, and an invalidated API reporting no tokens.
-- Session store: sign-in, restore, sign-out with server revoke, first-launch Keychain clear,
-  restore running once, only corrupt Keychain items deleted, stale refreshes after sign-out or an
-  account switch dropped, auth failure signing out. A hosted Keychain round trip.
+- Session store: one ordered credential write chain, tested with gated saves and clears (a refresh
+  from the previous account during a new sign-in, a quick sign-in after sign-out, sign-out during
+  sign-in, refresh order), revoke with the newest refresh token after invalidation, first-launch
+  Keychain clear, only corrupt Keychain items deleted, auth failure signing out. A hosted Keychain
+  round trip. No test waits on a timer.
+- Link policy (`LinkRouter`), app router and route-scoped models, unread polling stop.
 - The toggle mutation queue (optimistic state, rollback, compensation, collapsed toggles),
   shadows yielding to fresh server state, and the `post:like` and `post:unlike` event props.
 - Feed tuners, auto-pagination and fallback marker, first-load and load-more errors with retry,
@@ -129,16 +132,21 @@ RN e2e app (`xyz.blueskyweb.app`) or this app.
 
 ```
 cd ios/parity
-./run-capture.sh rn base        # also: dark, xxxl, empty, interactions
-./run-capture.sh native base    # also: errors (native only)
+./run-pair.sh base              # RN, then native on the same seed; also: dark, xxxl, empty, mergefeed, interactions
+./run-capture.sh native errors  # native-only error states
 python3 make_masks.py masks-spec.json base out/base/rn/ios out/base/native/ios masks/base.json
 node <pack>/skills/check-parity/scripts/diff.mjs --rn out/base/rn/ios --native out/base/native/ios \
   --out out/base/diff-masked --mask masks/base.json
+node <pack>/skills/check-parity/scripts/events.mjs --rn events/rn-expected-base.jsonl \
+  --native out/base/native/ios/events.normalized.jsonl --ignore initMs,secondsActive --ordered
 ```
 
-`run-capture.sh` takes the shared seed lock (`/tmp/bsky-seed.lock`), sets the simulator
-appearance or content size for the state, and resets it afterwards. Results, the noise floor,
-the event diff and the remaining differences are in [PARITY.md](PARITY.md).
+`run-pair.sh` holds the shared seed lock (`/tmp/bsky-seed.lock`) for both apps and captures them in the
+same run. `run-capture.sh` calls the Pack's `capture.mjs`, sets the simulator appearance or content size
+for the state, and copies and normalises the native event log. `make_masks.py` builds masks from the RN
+image and fixed slots only, and fails when native ink falls outside them or a screen is more than 15%
+masked. Results, the noise floor, the event diff and the remaining differences are in
+[PARITY.md](PARITY.md).
 
 ## Licensing
 
