@@ -13,7 +13,8 @@
      305
     ],
     "minw": 30,
-    "reason": "header icons and logo mark (licence substitution)"
+    "reason": "header icons and logo mark (licence substitution)",
+    "slot": 72
    },
    {
     "kind": "glyphs",
@@ -24,7 +25,8 @@
      610
     ],
     "minw": 40,
-    "reason": "composer camera and image glyphs (Lucide substitute)"
+    "reason": "composer camera and image glyphs (Lucide substitute)",
+    "slot": 72
    },
    {
     "kind": "tail",
@@ -79,7 +81,8 @@
      1180,
      885
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "glyphs",
@@ -89,7 +92,8 @@
      1180,
      1133
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "glyphs",
@@ -99,7 +103,8 @@
      1180,
      1406
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "glyphs",
@@ -109,7 +114,8 @@
      1180,
      1678
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "glyphs",
@@ -119,7 +125,8 @@
      1180,
      1951
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "rect",
@@ -195,7 +202,8 @@
      305
     ],
     "minw": 30,
-    "reason": "header back and options glyphs (Lucide substitute)"
+    "reason": "header back and options glyphs (Lucide substitute)",
+    "slot": 72
    },
    {
     "kind": "rect",
@@ -215,7 +223,8 @@
      1180,
      790
     ],
-    "minw": 40
+    "minw": 40,
+    "slot": 66
    },
    {
     "kind": "tail",
@@ -234,7 +243,8 @@
      1180,
      1075
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "rect",
@@ -290,7 +300,8 @@
      575
     ],
     "minw": 30,
-    "reason": "profile share and more glyphs (Lucide substitute)"
+    "reason": "profile share and more glyphs (Lucide substitute)",
+    "slot": 48
    },
    {
     "kind": "tail",
@@ -309,7 +320,8 @@
      1180,
      1350
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "rect",
@@ -377,7 +389,8 @@
      305
     ],
     "minw": 30,
-    "reason": "header icons and logo mark (licence substitution)"
+    "reason": "header icons and logo mark (licence substitution)",
+    "slot": 72
    },
    {
     "kind": "glyphs",
@@ -388,7 +401,8 @@
      610
     ],
     "minw": 40,
-    "reason": "composer camera and image glyphs (Lucide substitute)"
+    "reason": "composer camera and image glyphs (Lucide substitute)",
+    "slot": 72
    },
    {
     "kind": "tail",
@@ -443,7 +457,8 @@
      1180,
      885
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "glyphs",
@@ -453,7 +468,8 @@
      1180,
      1133
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "glyphs",
@@ -463,7 +479,8 @@
      1180,
      1406
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "glyphs",
@@ -473,7 +490,8 @@
      1180,
      1678
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "glyphs",
@@ -483,7 +501,8 @@
      1180,
      1951
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "rect",
@@ -559,7 +578,8 @@
      305
     ],
     "minw": 30,
-    "reason": "header back and options glyphs (Lucide substitute)"
+    "reason": "header back and options glyphs (Lucide substitute)",
+    "slot": 72
    },
    {
     "kind": "rect",
@@ -589,7 +609,8 @@
      1180,
      930
     ],
-    "minw": 40
+    "minw": 40,
+    "slot": 66
    },
    {
     "kind": "tail",
@@ -608,7 +629,8 @@
      1180,
      1220
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "rect",
@@ -666,7 +688,8 @@
      305
     ],
     "minw": 30,
-    "reason": "header icons and logo mark (licence substitution)"
+    "reason": "header icons and logo mark (licence substitution)",
+    "slot": 72
    },
    {
     "kind": "glyphs",
@@ -677,7 +700,8 @@
      610
     ],
     "minw": 40,
-    "reason": "composer camera and image glyphs (Lucide substitute)"
+    "reason": "composer camera and image glyphs (Lucide substitute)",
+    "slot": 72
    },
    {
     "kind": "tail",
@@ -732,7 +756,8 @@
      1180,
      955
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "glyphs",
@@ -742,7 +767,8 @@
      1180,
      1250
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "glyphs",
@@ -752,7 +778,8 @@
      1180,
      1562
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "glyphs",
@@ -762,7 +789,8 @@
      1180,
      1874
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "glyphs",
@@ -772,7 +800,8 @@
      1180,
      2186
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "glyphs",
@@ -783,7 +812,8 @@
      2375
     ],
     "minw": 40,
-    "reason": "info glyph (Lucide substitute)"
+    "reason": "info glyph (Lucide substitute)",
+    "slot": 0
    },
    {
     "kind": "rect",
@@ -849,7 +879,8 @@
      305
     ],
     "minw": 30,
-    "reason": "header back and options glyphs (Lucide substitute)"
+    "reason": "header back and options glyphs (Lucide substitute)",
+    "slot": 72
    },
    {
     "kind": "rect",
@@ -869,7 +900,8 @@
      1180,
      950
     ],
-    "minw": 40
+    "minw": 40,
+    "slot": 66
    },
    {
     "kind": "tail",
@@ -888,7 +920,8 @@
      1180,
      1300
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "rect",
@@ -944,7 +977,8 @@
      590
     ],
     "minw": 30,
-    "reason": "profile share and more glyphs (Lucide substitute)"
+    "reason": "profile share and more glyphs (Lucide substitute)",
+    "slot": 48
    },
    {
     "kind": "tail",
@@ -963,7 +997,8 @@
      1180,
      1520
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "rect",
@@ -1031,7 +1066,8 @@
      305
     ],
     "minw": 30,
-    "reason": "header icons and logo mark (licence substitution)"
+    "reason": "header icons and logo mark (licence substitution)",
+    "slot": 72
    },
    {
     "kind": "glyphs",
@@ -1042,7 +1078,8 @@
      610
     ],
     "minw": 40,
-    "reason": "composer camera and image glyphs (Lucide substitute)"
+    "reason": "composer camera and image glyphs (Lucide substitute)",
+    "slot": 72
    },
    {
     "kind": "glyphs",
@@ -1053,7 +1090,8 @@
      815
     ],
     "minw": 40,
-    "reason": "info glyph (Lucide substitute)"
+    "reason": "info glyph (Lucide substitute)",
+    "slot": 0
    },
    {
     "kind": "rect",
@@ -1139,7 +1177,8 @@
      575
     ],
     "minw": 30,
-    "reason": "profile share and more glyphs (Lucide substitute)"
+    "reason": "profile share and more glyphs (Lucide substitute)",
+    "slot": 48
    },
    {
     "kind": "glyphs",
@@ -1150,7 +1189,8 @@
      1405
     ],
     "minw": 40,
-    "reason": "empty-state edit glyph (Lucide substitute)"
+    "reason": "empty-state edit glyph (Lucide substitute)",
+    "slot": 0
    },
    {
     "kind": "rect",
@@ -1218,7 +1258,8 @@
      305
     ],
     "minw": 30,
-    "reason": "header icons and logo mark (licence substitution)"
+    "reason": "header icons and logo mark (licence substitution)",
+    "slot": 72
    },
    {
     "kind": "glyphs",
@@ -1229,7 +1270,8 @@
      610
     ],
     "minw": 40,
-    "reason": "composer camera and image glyphs (Lucide substitute)"
+    "reason": "composer camera and image glyphs (Lucide substitute)",
+    "slot": 72
    },
    {
     "kind": "tail",
@@ -1284,7 +1326,8 @@
      1180,
      885
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "glyphs",
@@ -1294,7 +1337,8 @@
      1180,
      1133
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "glyphs",
@@ -1304,7 +1348,8 @@
      1180,
      1406
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "glyphs",
@@ -1314,7 +1359,8 @@
      1180,
      1678
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "glyphs",
@@ -1324,7 +1370,8 @@
      1180,
      1951
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "rect",
@@ -1400,7 +1447,8 @@
      305
     ],
     "minw": 30,
-    "reason": "header back and options glyphs (Lucide substitute)"
+    "reason": "header back and options glyphs (Lucide substitute)",
+    "slot": 72
    },
    {
     "kind": "rect",
@@ -1420,7 +1468,8 @@
      1180,
      790
     ],
-    "minw": 40
+    "minw": 40,
+    "slot": 66
    },
    {
     "kind": "tail",
@@ -1439,7 +1488,8 @@
      1180,
      1075
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "rect",
@@ -1495,7 +1545,8 @@
      575
     ],
     "minw": 30,
-    "reason": "profile share and more glyphs (Lucide substitute)"
+    "reason": "profile share and more glyphs (Lucide substitute)",
+    "slot": 48
    },
    {
     "kind": "tail",
@@ -1514,7 +1565,198 @@
      1180,
      1350
     ],
-    "minw": 36
+    "minw": 36,
+    "slot": 54
+   },
+   {
+    "kind": "rect",
+    "box": [
+     1005,
+     2214,
+     1095,
+     2304
+    ],
+    "reason": "compose FAB glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     90,
+     2414,
+     190,
+     2506
+    ],
+    "reason": "bottom bar home glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     321,
+     2414,
+     421,
+     2506
+    ],
+    "reason": "bottom bar search glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     553,
+     2414,
+     653,
+     2506
+    ],
+    "reason": "bottom bar chat glyph (Lucide substitute)"
+   },
+   {
+    "kind": "rect",
+    "box": [
+     785,
+     2440,
+     885,
+     2506
+    ],
+    "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+   }
+  ]
+ },
+ "mergefeed": {
+  "home-mergefeed": [
+   {
+    "kind": "status"
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     30,
+     195,
+     1180,
+     305
+    ],
+    "minw": 30,
+    "reason": "header icons and logo mark (licence substitution)",
+    "slot": 72
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     940,
+     500,
+     1190,
+     610
+    ],
+    "minw": 40,
+    "reason": "composer camera and image glyphs (Lucide substitute)",
+    "slot": 72
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     668,
+     1160,
+     730
+    ]
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     941,
+     1160,
+     1003
+    ]
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     1214,
+     1160,
+     1276
+    ]
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     1487,
+     1160,
+     1549
+    ]
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     1760,
+     1160,
+     1822
+    ]
+   },
+   {
+    "kind": "tail",
+    "box": [
+     200,
+     2033,
+     1160,
+     2095
+    ]
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     815,
+     1180,
+     885
+    ],
+    "minw": 36,
+    "slot": 54
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     1088,
+     1180,
+     1158
+    ],
+    "minw": 36,
+    "slot": 54
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     1361,
+     1180,
+     1431
+    ],
+    "minw": 36,
+    "slot": 54
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     1634,
+     1180,
+     1704
+    ],
+    "minw": 36,
+    "slot": 54
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     180,
+     1907,
+     1180,
+     1977
+    ],
+    "minw": 36,
+    "slot": 54
    },
    {
     "kind": "rect",

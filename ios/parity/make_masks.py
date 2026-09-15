@@ -97,8 +97,18 @@ def build(band, rn):
         minw = band.get("minw", 36)
         right_x = band.get("right_x", 900)
         minw_right = band.get("minw_right", 12)
-        return [rect(c[0], c[2], c[1], c[3], band.get("reason", "icon glyph (Lucide substitute)"))
-                for c in found if c[1] - c[0] + 1 >= (minw_right if c[0] >= right_x else minw)]
+        # Fixed slot: the icon's layout box at 3x, centred on the RN glyph. The Lucide glyph drawn
+        # in the same box has a different ink extent, so the RN ink box alone is too tight.
+        slot = band.get("slot", 72)
+        out = []
+        for c in found:
+            if c[1] - c[0] + 1 < (minw_right if c[0] >= right_x else minw):
+                continue
+            cx, cy = (c[0] + c[1]) // 2, (c[2] + c[3]) // 2
+            half = max(slot // 2, (c[1] - c[0]) // 2 + PAD, (c[3] - c[2]) // 2 + PAD)
+            out.append(rect(cx - half, cy - half, cx + half, cy + half,
+                            band.get("reason", "icon glyph (Lucide substitute), icon slot"), pad=0))
+        return out
     if kind == "tail":
         if len(found) < 2:
             return []
