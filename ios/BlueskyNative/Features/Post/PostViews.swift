@@ -123,7 +123,7 @@ struct PostControls: View {
                     controlButton(glyph: .repost, color: reposted ? theme.repostActive : theme.control,
                                   count: reposts, active: reposted, id: "repostBtn", countID: "repostCount",
                                   label: "\(reposted ? "Undo repost" : "Repost") (\(Plural.count(reposts, one: "repost", other: "reposts")))") {
-                        haptics.play(.light)
+                        // RN opens the dialog without a haptic (`RepostButton.tsx:45`, review finding N15).
                         showsRepostMenu = true
                     }
                 }

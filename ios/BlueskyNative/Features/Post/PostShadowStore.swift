@@ -73,14 +73,6 @@ final class PostShadowStore {
         pending[uri] != nil
     }
 
-    /// Forgets overrides for URIs with no running request.
-    func reset(uris: some Sequence<String>) {
-        for uri in uris where pending[uri] == nil {
-            shadows[uri] = nil
-            order.removeAll { $0 == uri }
-        }
-    }
-
     /// Merges the shadow into a server post, adjusting counts by +-1 against that post's own
     /// viewer state, as `mergeShadow` does in RN (counts never go below 0).
     func apply(to post: PostView) -> PostView {

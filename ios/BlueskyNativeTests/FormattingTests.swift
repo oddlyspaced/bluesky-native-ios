@@ -96,6 +96,19 @@ struct FormattingTests {
             == "Unable to connect. Please check your internet connection and try again.")
     }
 
+    /// Review findings N8-N10: the remaining `cleanError` branches, matched on code or message.
+    @Test func cleanErrorBranches() {
+        #expect(ErrorText.clean(XRPCError.http(status: 400, error: "AccountTakedown", message: "Account has been suspended"))
+            == "Account has been suspended")
+        #expect(ErrorText.clean(XRPCError.http(status: 400, error: "InvalidRequest", message: "Profile not found"))
+            == "Profile not found")
+        #expect(ErrorText.clean(XRPCError.http(status: 502, error: "UpstreamFailure", message: "Something else"))
+            == "The server appears to be experiencing issues. Please try again in a few moments.")
+        #expect(ErrorText.clean(XRPCError.http(status: 400, error: "InvalidRequest", message: nil)) == "InvalidRequest")
+        #expect(ErrorText.clean(XRPCError.sessionInvalidated) == "Session ended")
+        #expect(ErrorText.cleanString("Unable to resolve handle: bob") == "Unable to resolve handle")
+    }
+
     @Test func fontScaleTableMatchesRN() {
         #expect(FontScale.multiplier(for: .large) == 1)
         #expect(FontScale.multiplier(for: .xxxLarge) == 1.353)
