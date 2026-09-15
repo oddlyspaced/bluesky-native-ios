@@ -139,24 +139,74 @@ struct ThreadTests {
         #expect(empty.items.count == 5)
     }
 
-    /// Review finding N22: no `thread:preferences:load` and no thread request while preferences
-    /// fail; the retry loads them, sends the metric once and loads the thread.
-    @Test func preferencesMetricWaitsForServerPreferences() async throws {
+    /// Review findings N22 and F3: while preferences fail, RN keeps its placeholder data
+    /// (`usePostThread/index.ts:74,141-151`). The screen keeps the cached anchor and the reply
+    /// skeletons, or the full skeleton without a cached anchor, and shows no error screen. No
+    /// metric and no thread request. The next load asks again, sends the metric once and loads.
+    @Test func preferencesFailureKeepsThePlaceholder() async throws {
         let api = FakeBlueskyAPI()
         await api.setThread(try Fixtures.decode(PostThreadV2Response.self, "getPostThreadV2"))
         await api.setFailingPrefix("getPreferences", error: URLError(.notConnectedToInternet))
         let thread = model(api)
+        thread.setPlaceholder(Make.post("root", replies: 1))
         await thread.loadIfNeeded()
+        #expect(thread.status == .loading)
+        #expect(thread.items.map(\.id) == [Make.uri("root"), "anchor-skeleton-reply-0"])
         #expect(analytics.events(named: "thread:preferences:load").isEmpty)
         #expect(!(await api.calls).contains { $0.hasPrefix("getPostThreadV2") })
-        #expect(thread.status == .failed(title: "Error loading post",
-                                         message: "Something went wrong. Please try again in a moment."))
+
+        let withoutPlaceholder = model(api)
+        await withoutPlaceholder.loadIfNeeded()
+        #expect(withoutPlaceholder.status == .loading)
+        #expect(withoutPlaceholder.items.first == .anchorSkeleton)
+        #expect(withoutPlaceholder.items.count == 5)
 
         await api.setFailingPrefix(nil)
-        await thread.retry()
+        await thread.loadIfNeeded()
         #expect(thread.status == .loaded)
         #expect(analytics.events(named: "thread:preferences:load").count == 1)
+        #expect(await api.calls.filter { $0 == "getPreferences" }.count == 3)
+    }
+
+    /// Review finding F10: RN compares only `threadViewPrefs` and refetches preferences older than
+    /// the 15 s stale time (`preferences/index.ts:65-66`). Fresh cache: no refetch. Stale cache with
+    /// only home feed changes: refetch, no metric. Stale cache with a new sort: the metric once, and
+    /// the thread loads again with the new sort.
+    @Test func stalePreferencesRefetchAndCompareOnlyThreadViewPrefs() async throws {
+        let api = FakeBlueskyAPI()
+        await api.setThread(try Fixtures.decode(PostThreadV2Response.self, "getPostThreadV2"))
+        let clock = TestClock()
+        let prefs = PreferencesModel(api: api, now: { clock.now })
+        _ = try await prefs.load()
+        func open() -> ThreadModel {
+            ThreadModel(api: api, anchor: "at://root", feedDescriptor: "following", preferences: prefs,
+                        analytics: analytics, userDid: "did:plc:alice")
+        }
+
+        clock.now += 10
+        let fresh = open()
+        await fresh.loadIfNeeded()
+        #expect(fresh.preferencesRefresh == nil)
+        #expect(await api.calls.filter { $0 == "getPreferences" }.count == 1)
+
+        clock.now += 10
+        await api.setPreferences(ActorPreferences(homeFeed: HomeFeedPreferences(hideReplies: true)))
+        let staleOther = open()
+        await staleOther.loadIfNeeded()
+        await staleOther.preferencesRefresh?.value
         #expect(await api.calls.filter { $0 == "getPreferences" }.count == 2)
+        #expect(prefs.preferences?.homeFeed.hideReplies == true)
+        #expect(analytics.events(named: "thread:preferences:load").isEmpty)
+
+        clock.now += 20
+        await api.setPreferences(ActorPreferences(threadSort: "newest"))
+        let staleSort = open()
+        await staleSort.loadIfNeeded()
+        #expect(await api.lastThreadRequest?.sort == .top)
+        await staleSort.preferencesRefresh?.value
+        #expect(analytics.events(named: "thread:preferences:load").map(\.props) == [["sort": "newest", "view": "linear"]])
+        #expect(staleSort.status == .loaded)
+        #expect(await api.lastThreadRequest?.sort == .newest)
     }
 
     /// RN `useThreadPreferences.ts:50-71`: preferences cached when the screen appears send no
@@ -281,4 +331,10 @@ struct ThreadTests {
         post.likeCount = nil
         #expect(ThreadAnchorView.showsStats(post))
     }
+}
+
+/// A clock the test moves by hand.
+@MainActor
+final class TestClock {
+    var now = Date(timeIntervalSince1970: 1_000_000)
 }

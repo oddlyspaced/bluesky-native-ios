@@ -244,6 +244,19 @@ enum ThreadTraversal {
     }
 }
 
+/// `preferences.threadViewPrefs`: the only part of the preferences that `useThreadPreferences`
+/// compares (`useThreadPreferences.ts:33-52`, review finding F10).
+struct ThreadViewPreferences: Hashable, Sendable {
+    var sort: String?
+    var treeViewEnabled: Bool
+}
+
+extension ActorPreferences {
+    var threadViewPreferences: ThreadViewPreferences {
+        ThreadViewPreferences(sort: threadSort, treeViewEnabled: threadTreeViewEnabled)
+    }
+}
+
 /// Loads a post thread. Port of `usePostThread` (`src/state/queries/usePostThread/index.ts`)
 /// in the linear view.
 @MainActor
@@ -277,8 +290,11 @@ final class ThreadModel {
     @ObservationIgnored private let faults: DebugFaults?
     @ObservationIgnored private let userDid: String
     @ObservationIgnored private var reportedPreferences = false
-    /// The server preferences this screen saw when it appeared (RN `useState(serverPrefs)`).
-    @ObservationIgnored private var preferencesAtAppear: ActorPreferences?
+    /// The thread view preferences this screen saw when it appeared (RN `useState(serverPrefs)`,
+    /// where `serverPrefs` is `preferences.threadViewPrefs`, review finding F10).
+    @ObservationIgnored private var threadPrefsAtAppear: ThreadViewPreferences?
+    /// The background refetch started when the cached preferences were stale.
+    @ObservationIgnored private(set) var preferencesRefresh: Task<Void, Never>?
     @ObservationIgnored private var reportedAnchorUri: String?
     @ObservationIgnored private var viewedPosts = Set<String>()
     @ObservationIgnored private var loadTask: Task<Void, Never>?
@@ -295,7 +311,7 @@ final class ThreadModel {
         self.faults = faults
         self.userDid = userDid
         self.placeholder = placeholder
-        preferencesAtAppear = preferences.preferences
+        threadPrefsAtAppear = preferences.preferences?.threadViewPreferences
         let onViewable: @MainActor ([String]) -> Void = { [weak self] ids in self?.reportViewable(ids) }
         tracker = viewWaiter.map { ViewabilityTracker(waiter: $0, onViewable: onViewable) }
             ?? ViewabilityTracker(onViewable: onViewable)
@@ -359,16 +375,26 @@ final class ThreadModel {
     private func load() async {
         reportRenderEvents()
         let prefs: ActorPreferences
-        do {
-            prefs = try await preferences.load()
-        } catch where RequestFailure.isCancellation(error) {
-            return
-        } catch {
-            // RN enables the thread query only after preferences load (`usePostThread/index.ts:74`)
-            // and sends no metric (`useThreadPreferences.ts:50-70`, review finding N22). RN keeps
-            // the placeholder; the port shows the thread error with Retry (PARITY.md).
-            status = Self.failure(for: error)
-            return
+        if let cached = preferences.preferences {
+            // RN reads the cached preferences query and refetches it in the background when it is
+            // older than the 15 s stale time (`preferences/index.ts:65-66`, review finding F10).
+            prefs = cached
+            if preferences.isStale, preferencesRefresh == nil {
+                preferencesRefresh = Task { await self.refreshPreferences() }
+            }
+        } else {
+            do {
+                prefs = try await preferences.load()
+            } catch where RequestFailure.isCancellation(error) {
+                return
+            } catch {
+                // RN enables the thread query only after preferences load (`usePostThread/index.ts:74`)
+                // and shows its placeholder data meanwhile: the cached anchor and reply skeletons
+                // (`index.ts:141-151`). A failed load sends no metric (`useThreadPreferences.ts:50-70`)
+                // and is not retried (`react-query.tsx:134`). The status stays `.loading`, so the
+                // screen keeps the placeholder, and the next load asks again (review finding F3).
+                return
+            }
         }
         preferencesArrived(prefs)
         do {
@@ -393,9 +419,23 @@ final class ThreadModel {
     /// preferences arrive or change after that. Preferences already cached on appear (Home loaded
     /// them) send nothing; a failed load sends nothing.
     private func preferencesArrived(_ prefs: ActorPreferences) {
-        guard prefs != preferencesAtAppear else { return }
-        preferencesAtAppear = prefs
+        let threadPrefs = prefs.threadViewPreferences
+        guard threadPrefs != threadPrefsAtAppear else { return }
+        threadPrefsAtAppear = threadPrefs
         reportPreferences(prefs)
+    }
+
+    /// The stale-time refetch. Changed thread view preferences send the metric (once, as a server
+    /// update does in RN). A changed sort is a new RN query key, so the thread loads again.
+    private func refreshPreferences() async {
+        let before = threadPrefsAtAppear
+        guard let fresh = try? await preferences.refetch() else { return }
+        preferencesArrived(fresh)
+        guard status == .loaded, ThreadSort.normalize(fresh.threadSort) != ThreadSort.normalize(before?.sort) else {
+            return
+        }
+        status = .loading
+        await loadIfNeeded()
     }
 
     /// The metric with the merged server values: `sort` raw with the `hotness` default, `view` from

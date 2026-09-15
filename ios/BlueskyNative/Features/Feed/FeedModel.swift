@@ -10,18 +10,41 @@ import os
 @MainActor
 @Observable
 final class PreferencesModel {
+    /// `STALE.SECONDS.FIFTEEN`, the preferences query's stale time (`preferences/index.ts:65`).
+    static let staleTime: TimeInterval = 15
+
     private(set) var preferences: ActorPreferences?
+    /// When `preferences` last arrived from the server.
+    @ObservationIgnored private(set) var loadedAt: Date?
     @ObservationIgnored private let api: any BlueskyAPI
+    @ObservationIgnored private let now: @MainActor () -> Date
     @ObservationIgnored private var task: Task<ActorPreferences, any Error>?
     @ObservationIgnored private let log = Logger(subsystem: "io.nativestarter.showcase.bluesky", category: "preferences")
 
-    init(api: any BlueskyAPI) {
+    init(api: any BlueskyAPI, now: @escaping @MainActor () -> Date = { Date() }) {
         self.api = api
+        self.now = now
+    }
+
+    /// True when no preferences are loaded or they are older than `staleTime`. A screen that
+    /// mounts on stale data refetches it in the background, as a stale query does.
+    var isStale: Bool {
+        guard let loadedAt else { return true }
+        return now().timeIntervalSince(loadedAt) > Self.staleTime
     }
 
     /// Returns the preferences, loading them when none are loaded yet.
     func load() async throws -> ActorPreferences {
         if let preferences { return preferences }
+        return try await fetch()
+    }
+
+    /// Asks the server again, as a stale query refetch does. A failure keeps the loaded value.
+    func refetch() async throws -> ActorPreferences {
+        try await fetch()
+    }
+
+    private func fetch() async throws -> ActorPreferences {
         let running: Task<ActorPreferences, any Error>
         if let task {
             running = task
@@ -34,6 +57,7 @@ final class PreferencesModel {
             let loaded = try await running.value
             if task == running { task = nil }
             preferences = loaded
+            loadedAt = now()
             try Task.checkCancellation()
             return loaded
         } catch {

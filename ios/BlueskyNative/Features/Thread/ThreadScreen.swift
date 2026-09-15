@@ -725,7 +725,9 @@ struct ThreadComposePrompt: View {
             haptics.play(.heavy)
         }
         .padding(.horizontal, Space.sm)
-        .padding(.bottom, Space._2xs)
+        // `pb_2xs` plus 2 px (3x): the RN pill borders sit at y 2275 and 2346 at x 1170, the native
+        // ones at 2277 and 2348 with `pb_2xs` alone (review findings N11, F12).
+        .padding(.bottom, Space._2xs + RNLineBox.snap(2.0 / 3, pixelLength: pixelLength))
         .background {
             LinearGradient(stops: [.init(color: theme.bg.opacity(0), location: 0.15),
                                    .init(color: theme.bg, location: 0.4)],
