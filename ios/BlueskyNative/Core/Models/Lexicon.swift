@@ -490,10 +490,15 @@ struct ActorPreferences: Decodable, Sendable, Hashable {
     var homeFeed = HomeFeedPreferences()
     /// `app.bsky.actor.defs#threadViewPref.sort`, raw.
     var threadSort: String?
+    /// `threadViewPref.lab_treeViewEnabled`. RN's thread tree view is proposed out of scope, so
+    /// the port always renders the linear view but logs the value RN logs (review finding N5).
+    var threadTreeViewEnabled = false
 
-    init(homeFeed: HomeFeedPreferences = HomeFeedPreferences(), threadSort: String? = nil) {
+    init(homeFeed: HomeFeedPreferences = HomeFeedPreferences(), threadSort: String? = nil,
+         threadTreeViewEnabled: Bool = false) {
         self.homeFeed = homeFeed
         self.threadSort = threadSort
+        self.threadTreeViewEnabled = threadTreeViewEnabled
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -507,10 +512,12 @@ struct ActorPreferences: Decodable, Sendable, Hashable {
         var hideReposts: Bool?
         var hideQuotePosts: Bool?
         var sort: String?
+        var treeViewEnabled: Bool?
 
         private enum CodingKeys: String, CodingKey {
             case type = "$type"
             case feed, hideReplies, hideReposts, hideQuotePosts, sort
+            case treeViewEnabled = "lab_treeViewEnabled"
         }
     }
 
@@ -525,6 +532,7 @@ struct ActorPreferences: Decodable, Sendable, Hashable {
                 homeFeed.hideQuotePosts = pref.hideQuotePosts ?? false
             case "app.bsky.actor.defs#threadViewPref":
                 threadSort = pref.sort
+                threadTreeViewEnabled = pref.treeViewEnabled ?? false
             default:
                 break
             }

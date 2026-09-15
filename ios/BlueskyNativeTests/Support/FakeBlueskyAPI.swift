@@ -16,8 +16,13 @@ actor FakeBlueskyAPI: SessionBoundAPI {
     var preferences = ActorPreferences()
     var notifications: [NotificationView] = []
     var failNextCall = false
-    /// Fails every call whose name starts with this prefix.
+    /// Fails every call whose name starts with this prefix, with `failure`.
     var failingPrefix: String?
+    /// The error a failing call throws. Tests set realistic transport or XRPC errors, so error
+    /// paths go through the real error mapping (review finding A53).
+    var failure: any Error = Failure()
+    /// When set, `getPostThreadV2` waits at this gate before it answers.
+    nonisolated let threadGate: Gate?
     var likeCounter = 0
     var invalidated = false
     /// When set, `getTimeline` waits for `resumeTimeline()` before answering.
@@ -28,8 +33,9 @@ actor FakeBlueskyAPI: SessionBoundAPI {
     private(set) var lastThreadRequest: PostThreadRequest?
     private(set) var vias: [StrongRef?] = []
 
-    init(accountDid: String = "did:plc:alice") {
+    init(accountDid: String = "did:plc:alice", threadGate: Gate? = nil) {
         self.accountDid = accountDid
+        self.threadGate = threadGate
     }
 
     func setTimeline(_ page: FeedPage, cursor: String? = nil) { timelinePages[cursor] = page }
@@ -37,7 +43,10 @@ actor FakeBlueskyAPI: SessionBoundAPI {
     func setThread(_ response: PostThreadV2Response) { threadResponse = response }
     func setThreadError(_ error: XRPCError?) { threadError = error }
     func setFailNextCall(_ fail: Bool) { failNextCall = fail }
-    func setFailingPrefix(_ prefix: String?) { failingPrefix = prefix }
+    func setFailingPrefix(_ prefix: String?, error: any Error = Failure()) {
+        failingPrefix = prefix
+        failure = error
+    }
     func setPreferences(_ value: ActorPreferences) { preferences = value }
     func setProfile(_ value: ProfileViewDetailed) { profile = value }
     func setNotifications(_ value: [NotificationView]) { notifications = value }
@@ -53,10 +62,10 @@ actor FakeBlueskyAPI: SessionBoundAPI {
 
     private func record(_ call: String) throws {
         calls.append(call)
-        if let failingPrefix, call.hasPrefix(failingPrefix) { throw Failure() }
+        if let failingPrefix, call.hasPrefix(failingPrefix) { throw failure }
         if failNextCall {
             failNextCall = false
-            throw Failure()
+            throw failure
         }
     }
 
@@ -82,6 +91,7 @@ actor FakeBlueskyAPI: SessionBoundAPI {
     func getPostThreadV2(_ request: PostThreadRequest) async throws -> PostThreadV2Response {
         try record("getPostThreadV2(\(request.anchor))")
         lastThreadRequest = request
+        if let threadGate { await threadGate.pass() }
         if let threadError { throw threadError }
         guard let threadResponse else {
             return PostThreadV2Response(thread: [ThreadItem(uri: request.anchor, depth: 0, value: .notFound)])

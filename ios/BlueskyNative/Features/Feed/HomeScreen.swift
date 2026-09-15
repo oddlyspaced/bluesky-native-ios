@@ -17,6 +17,17 @@ struct HomeScreen: View {
     private var feed: FeedModel { container.homeFeed }
 
     var body: some View {
+        // `Layout.Screen testID="HomeScreen"` (`Home.tsx:95`) holds the pager `homeScreen`
+        // (`Home.tsx:308`), which holds `FeedPage testID="followingFeedPage"` (`Home.tsx:320`,
+        // review finding N7).
+        feedPage
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("homeScreen")
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("HomeScreen")
+    }
+
+    private var feedPage: some View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: 0) {
@@ -36,8 +47,6 @@ struct HomeScreen: View {
                 .accessibilityIdentifier("followingFeedPage-feed-flatlist")
             }
             .accessibilityIdentifier("followingFeedPage-feed")
-            // `FeedPage testID="followingFeedPage"` (`Home.tsx:320`) wraps the feed list.
-            .accessibilityElement(children: .contain)
             .refreshable { await feed.pullToRefresh() }
             .safeAreaInset(edge: .top, spacing: 0) {
                 headerView
@@ -67,7 +76,8 @@ struct HomeScreen: View {
                 "reason": "focus",
             ])
         }
-        .accessibilityIdentifier("homeScreen")
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("followingFeedPage")
     }
 
     private static let topID = "homeTop"

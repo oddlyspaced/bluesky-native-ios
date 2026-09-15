@@ -29,12 +29,12 @@ struct FeedRows<Leading: View, Empty: View, EndOfFeed: View>: View {
                     switch row.kind {
                     case .post(let item, let reason):
                         PostFeedItemView(row: row, item: item, reason: reason, context: eventContext)
-                            .onAppear { if row.id == model.rows.last?.id { model.loadMore() } }
-                            .task(id: row.id) {
-                                // RN counts a row as seen after 500 ms on screen.
-                                try? await Task.sleep(for: .milliseconds(500))
-                                if !Task.isCancelled { model.recordView(of: row) }
+                            .onAppear {
+                                // RN reports rows seen for 500 ms in index order (`List.onItemSeen`, N6).
+                                model.rowAppeared(row)
+                                if row.id == model.rows.last?.id { model.loadMore() }
                             }
+                            .onDisappear { model.rowDisappeared(row) }
                     case .viewFullThread(let rootUri):
                         ViewFullThreadRow(rootUri: rootUri)
                     }

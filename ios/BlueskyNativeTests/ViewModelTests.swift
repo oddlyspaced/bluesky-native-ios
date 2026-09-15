@@ -222,6 +222,39 @@ struct FeedModelTests {
         #expect(feed.rows.first?.hideTopBorder == true)
     }
 
+    /// Review finding A54: a failed preferences load is not kept; the next load asks again and
+    /// keeps the server value.
+    @Test func failedPreferencesAreNotCached() async throws {
+        let api = FakeBlueskyAPI()
+        await api.setFailingPrefix("getPreferences", error: URLError(.timedOut))
+        let prefs = PreferencesModel(api: api)
+        await #expect(throws: URLError.self) { _ = try await prefs.load() }
+        #expect(prefs.preferences == nil)
+        #expect(try await prefs.loadOrDefaults() == ActorPreferences())
+
+        await api.setFailingPrefix(nil)
+        await api.setPreferences(ActorPreferences(homeFeed: HomeFeedPreferences(hideReplies: true)))
+        #expect(try await prefs.load().homeFeed.hideReplies)
+        _ = try await prefs.load()
+        #expect(await api.calls.filter { $0 == "getPreferences" }.count == 3)
+    }
+
+    /// Review finding N6: the first screen of feed rows is reported in position order.
+    @Test func feedViewsFollowIndexOrder() async throws {
+        let gate = Gate()
+        let api = FakeBlueskyAPI()
+        let page = try Fixtures.decode(FeedPage.self, "getTimeline")
+        await api.setTimeline(FeedPage(feed: page.feed, cursor: nil))
+        let feed = FeedModel(source: .following, api: api, preferences: PreferencesModel(api: api), analytics: analytics,
+                             userDid: "did:plc:alice", viewWaiter: { _ in await gate.pass() })
+        await feed.loadIfNeeded()
+        for row in feed.rows.reversed() { feed.rowAppeared(row) }
+        await gate.waitForArrivals(1)
+        gate.open()
+        while analytics.events(named: "post:view").count < 4 { await Task.yield() }
+        #expect(analytics.events(named: "post:view").map { $0.props["position"] } == [0, 1, 2, 3])
+    }
+
     @Test func postViewIsRecordedOncePerURI() async throws {
         let api = FakeBlueskyAPI()
         let page = try Fixtures.decode(FeedPage.self, "getTimeline")

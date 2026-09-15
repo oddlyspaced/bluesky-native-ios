@@ -56,10 +56,9 @@ struct ThreadScreen: View {
                     ForEach(items) { item in
                         row(item)
                             .id(item.id)
-                            .task(id: item.id) {
-                                try? await Task.sleep(for: .milliseconds(500))
-                                if !Task.isCancelled { model.recordView(of: item) }
-                            }
+                            // RN reports rows seen for 500 ms in index order (`List.onItemSeen`, N6).
+                            .onAppear { model.itemAppeared(item) }
+                            .onDisappear { model.itemDisappeared(item) }
                     }
                     if model.status == .loaded {
                         // `ListFooter`: the top border is the line under the last item.
@@ -188,7 +187,9 @@ struct ThreadAnchorView: View {
             }
             HStack(spacing: Space.md) {
                 Button {
-                    container.analytics.metric("post:clickthroughAuthor", context.props(for: post))
+                    if let event = ThreadModel.authorTapEvent(for: post, isAnchor: true, context: context) {
+                        container.analytics.record(event)
+                    }
                     container.router.openProfile(did: post.author.did)
                 } label: {
                     UserAvatar(url: post.author.avatar, size: AvatarSize.post)
@@ -472,7 +473,10 @@ struct ThreadPostView: View {
     private var content: some View {
         HStack(alignment: .top, spacing: Space.md) {
             Button {
-                container.analytics.metric("post:clickthroughAuthor", context.props(for: post))
+                // Reply and parent avatars log no event in RN (review finding N1).
+                if let event = ThreadModel.authorTapEvent(for: post, isAnchor: false, context: context) {
+                    container.analytics.record(event)
+                }
                 container.router.openProfile(did: post.author.did)
             } label: {
                 UserAvatar(url: post.author.avatar, size: AvatarSize.post)

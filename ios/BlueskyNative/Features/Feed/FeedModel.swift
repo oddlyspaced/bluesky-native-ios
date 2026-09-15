@@ -2,36 +2,59 @@ import Foundation
 import Observation
 import os
 
-/// Loads `app.bsky.actor.getPreferences` once per account (`src/state/queries/preferences`).
+/// Loads `app.bsky.actor.getPreferences` for the account (`src/state/queries/preferences`).
+///
+/// Only a successful load is kept (review finding A54). A failure is thrown to every caller of
+/// that request, and the next `load()` asks the server again. Concurrent callers share one
+/// request; a cancelled caller stops waiting without cancelling the request for the others.
 @MainActor
 @Observable
 final class PreferencesModel {
     private(set) var preferences: ActorPreferences?
     @ObservationIgnored private let api: any BlueskyAPI
-    @ObservationIgnored private var task: Task<ActorPreferences, Never>?
+    @ObservationIgnored private var task: Task<ActorPreferences, any Error>?
     @ObservationIgnored private let log = Logger(subsystem: "io.nativestarter.showcase.bluesky", category: "preferences")
 
     init(api: any BlueskyAPI) {
         self.api = api
     }
 
-    /// Returns the preferences, loading them on first use. A failed load falls back to
-    /// RN's defaults (`DEFAULT_HOME_FEED_PREFS`) so the feed still loads.
-    func load() async -> ActorPreferences {
+    /// Returns the preferences, loading them when none are loaded yet.
+    func load() async throws -> ActorPreferences {
         if let preferences { return preferences }
-        if task == nil {
+        let running: Task<ActorPreferences, any Error>
+        if let task {
+            running = task
+        } else {
             let api = self.api
-            let log = self.log
-            task = Task {
-                do { return try await api.getPreferences() } catch {
-                    log.error("getPreferences failed: \(String(describing: error), privacy: .public)")
-                    return ActorPreferences()
-                }
-            }
+            running = Task { try await api.getPreferences() }
+            task = running
         }
-        let loaded = await task?.value ?? ActorPreferences()
-        preferences = loaded
-        return loaded
+        do {
+            let loaded = try await running.value
+            if task == running { task = nil }
+            preferences = loaded
+            try Task.checkCancellation()
+            return loaded
+        } catch {
+            if task == running { task = nil }
+            if !RequestFailure.isCancellation(error) {
+                log.error("getPreferences failed: \(String(describing: error), privacy: .public)")
+            }
+            throw error
+        }
+    }
+
+    /// The feed's rule: RN's defaults (`DEFAULT_HOME_FEED_PREFS`) when the load fails, so the
+    /// feed still loads. Cancellation is rethrown.
+    func loadOrDefaults() async throws -> ActorPreferences {
+        do {
+            return try await load()
+        } catch where RequestFailure.isCancellation(error) {
+            throw error
+        } catch {
+            return ActorPreferences()
+        }
     }
 }
 
@@ -86,9 +109,12 @@ final class FeedModel {
     @ObservationIgnored private var lastFailureWasRefresh = false
     /// URIs already reported with `post:view` (once per URI per feed instance).
     @ObservationIgnored private var viewedPosts = Set<String>()
+    /// Row id to index in `rows`, for the viewability order.
+    @ObservationIgnored private var rowIndex: [String: Int] = [:]
+    @ObservationIgnored private var tracker: ViewabilityTracker<String>?
 
     init(source: Source, api: any BlueskyAPI, preferences: PreferencesModel, analytics: any AnalyticsSink = NoopAnalytics(),
-         faults: DebugFaults? = nil, userDid: String) {
+         faults: DebugFaults? = nil, userDid: String, viewWaiter: ViewabilityTracker<String>.Waiter? = nil) {
         self.source = source
         self.api = api
         self.preferences = preferences
@@ -99,6 +125,9 @@ final class FeedModel {
         case .following: feedDescriptor = "following"
         case .author(let actor, let filter): feedDescriptor = "author|\(actor)|\(filter.rawValue)"
         }
+        let onViewable: @MainActor ([String]) -> Void = { [weak self] ids in self?.reportViewable(ids) }
+        tracker = viewWaiter.map { ViewabilityTracker(waiter: $0, onViewable: onViewable) }
+            ?? ViewabilityTracker(onViewable: onViewable)
     }
 
     var isFollowing: Bool { source == .following }
@@ -136,7 +165,7 @@ final class FeedModel {
         isRefreshing = true
         defer { if generation == self.generation { isRefreshing = false } }
         do {
-            let prefs = await preferences.load()
+            let prefs = try await preferences.loadOrDefaults()
             if faults?.consume(.feedFirstPage) == true { throw InjectedFault() }
             if !slices.isEmpty, faults?.consume(.feedRefresh) == true { throw InjectedFault() }
             var fresh = FeedTuner(tuners: tuners(prefs))
@@ -182,6 +211,22 @@ final class FeedModel {
         } else {
             startLoadMore()
             await loadMoreTask?.value
+        }
+    }
+
+    /// A row was laid out on screen (`List.onItemSeen` viewability, review finding N6).
+    func rowAppeared(_ row: FeedRow) {
+        tracker?.appeared(row.id, index: rowIndex[row.id] ?? 0)
+    }
+
+    func rowDisappeared(_ row: FeedRow) {
+        tracker?.disappeared(row.id)
+    }
+
+    private func reportViewable(_ ids: [String]) {
+        for id in ids {
+            guard let index = rowIndex[id], rows.indices.contains(index) else { continue }
+            recordView(of: rows[index])
         }
     }
 
@@ -259,6 +304,7 @@ final class FeedModel {
 
     private func rebuildRows() {
         rows = FeedRow.rows(for: slices, firstRowHidesBorder: !isFollowing)
+        rowIndex = Dictionary(uniqueKeysWithValues: rows.enumerated().map { ($1.id, $0) })
     }
 }
 

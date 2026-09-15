@@ -59,14 +59,17 @@ struct TabShell: View {
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
+            // The prompt shows only while the top thread allows replies, and only a mounted
+            // prompt hides the bar's border (`PostThread/index.tsx:647-649`, review finding N2).
+            let showsReplyPrompt = topThreadModel?.canReply ?? false
             VStack(spacing: 0) {
-                if router.isThreadOnTop {
+                if showsReplyPrompt {
                     ThreadComposePrompt(avatarURL: container.profile.profile?.avatar) {
                         container.shell.notInShowcase = NotInShowcaseItem(title: "Reply")
                     }
                 }
                 BottomBar(selected: router.selected, unreadText: container.unread.displayText,
-                          avatarURL: container.profile.profile?.avatar, hidesBorder: router.isThreadOnTop,
+                          avatarURL: container.profile.profile?.avatar, hidesBorder: showsReplyPrompt,
                           onSelect: router.select)
             }
         }
@@ -113,6 +116,12 @@ struct TabShell: View {
             updateStatusBar()
         }
         .onChange(of: theme.name) { updateStatusBar() }
+    }
+
+    /// The model of the thread on top of the selected tab's stack, if any.
+    private var topThreadModel: ThreadModel? {
+        guard let route = container.router.currentRouter?.path.last, case .thread = route else { return nil }
+        return container.threadModel(for: route)
     }
 
     private func tab(_ tab: ShellTab, @ViewBuilder content: () -> some View) -> some View {

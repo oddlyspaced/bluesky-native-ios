@@ -139,6 +139,119 @@ struct ThreadTests {
         #expect(empty.items.count == 5)
     }
 
+    /// Review finding N22: no `thread:preferences:load` and no thread request while preferences
+    /// fail; the retry loads them, sends the metric once and loads the thread.
+    @Test func preferencesMetricWaitsForServerPreferences() async throws {
+        let api = FakeBlueskyAPI()
+        await api.setThread(try Fixtures.decode(PostThreadV2Response.self, "getPostThreadV2"))
+        await api.setFailingPrefix("getPreferences", error: URLError(.notConnectedToInternet))
+        let thread = model(api)
+        await thread.loadIfNeeded()
+        #expect(analytics.events(named: "thread:preferences:load").isEmpty)
+        #expect(!(await api.calls).contains { $0.hasPrefix("getPostThreadV2") })
+        #expect(thread.status == .failed(title: "Error loading post",
+                                         message: "Something went wrong. Please try again in a moment."))
+
+        await api.setFailingPrefix(nil)
+        await thread.retry()
+        #expect(thread.status == .loaded)
+        #expect(analytics.events(named: "thread:preferences:load").count == 1)
+        #expect(await api.calls.filter { $0 == "getPreferences" }.count == 2)
+    }
+
+    /// Review finding N5: the logged view is the server's `lab_treeViewEnabled`; the port still
+    /// renders the linear view (the tree view is proposed out of scope).
+    @Test func preferencesMetricLogsTheServerView() async throws {
+        let api = FakeBlueskyAPI()
+        await api.setPreferences(ActorPreferences(threadSort: "newest", threadTreeViewEnabled: true))
+        await model(api).loadIfNeeded()
+        #expect(analytics.events(named: "thread:preferences:load").first?.props == ["sort": "newest", "view": "tree"])
+        let decoded = try JSONDecoder().decode(ActorPreferences.self, from: Data(#"""
+            {"preferences":[{"$type":"app.bsky.actor.defs#threadViewPref","sort":"top","lab_treeViewEnabled":true}]}
+            """#.utf8))
+        #expect(decoded.threadTreeViewEnabled)
+        #expect(decoded.threadSort == "top")
+    }
+
+    /// Review finding N23: with a cached anchor, the anchor `post:view` fires before the network
+    /// answers, and only once.
+    @Test func anchorViewFiresOnThePlaceholder() async throws {
+        let gate = Gate()
+        let api = FakeBlueskyAPI(threadGate: gate)
+        let response = try Fixtures.decode(PostThreadV2Response.self, "getPostThreadV2")
+        await api.setThread(response)
+        guard case .post(let anchorValue) = response.thread[0].value else {
+            Issue.record("fixture anchor is not a post")
+            return
+        }
+        let thread = model(api, uri: response.thread[0].uri)
+        thread.setPlaceholder(anchorValue.post)
+        let load = Task { await thread.loadIfNeeded() }
+        await gate.waitForArrivals(1)
+        // Preferences were not loaded yet, so RN's placeholder effect runs before the metric.
+        #expect(analytics.names == ["post:view", "thread:preferences:load"])
+        #expect(analytics.events(named: "post:view").map { $0.props["logContext"] } == ["Post"])
+        gate.open()
+        await load.value
+        #expect(analytics.events(named: "post:view").count == 1)
+    }
+
+    /// Review finding N1: only the anchor's avatar logs `post:clickthroughAuthor`.
+    @Test func onlyTheAnchorAvatarLogsClickthroughAuthor() {
+        let post = Make.post("p")
+        let context = PostEventContext.threadItem("following")
+        #expect(ThreadModel.authorTapEvent(for: post, isAnchor: false, context: context) == nil)
+        let event = ThreadModel.authorTapEvent(for: post, isAnchor: true, context: context)
+        #expect(event?.name == "post:clickthroughAuthor")
+        #expect(event?.props == ["uri": .string(post.uri), "authorDid": "did:plc:bob",
+                                 "logContext": "PostThreadItem", "feedDescriptor": "following"])
+    }
+
+    /// Review finding N2: `canReply` follows the anchor's `viewer.replyDisabled`, including the
+    /// placeholder, and is true while no anchor is known.
+    @Test func canReplyFollowsTheAnchor() async {
+        let api = FakeBlueskyAPI()
+        var disabled = Make.post("root")
+        disabled.viewer?.replyDisabled = true
+        let thread = model(api, uri: disabled.uri)
+        #expect(thread.canReply)
+        thread.setPlaceholder(disabled)
+        #expect(!thread.canReply)
+        await api.setThread(PostThreadV2Response(thread: [Make.threadPost(disabled, depth: 0)]))
+        await thread.loadIfNeeded()
+        #expect(!thread.canReply)
+
+        let open = model(api, uri: "at://open")
+        await api.setThread(PostThreadV2Response(thread: [Make.threadPost(Make.post("open"), depth: 0)]))
+        await open.loadIfNeeded()
+        #expect(open.canReply)
+    }
+
+    /// Review finding N6: rows seen together are reported in index order, whatever order they
+    /// appeared in, and a row that left before the delay is not reported.
+    @Test func replyViewsFollowIndexOrder() async {
+        let gate = Gate()
+        let api = FakeBlueskyAPI()
+        let anchor = Make.post("anchor", replies: 3)
+        let replies = (0..<3).map { Make.post("r\($0)", by: "carla", reply: Make.replyRef(root: anchor, parent: anchor)) }
+        await api.setThread(PostThreadV2Response(thread: [Make.threadPost(anchor, depth: 0)]
+            + replies.map { Make.threadPost($0, depth: 1) }))
+        let thread = ThreadModel(api: api, anchor: anchor.uri, feedDescriptor: nil, preferences: PreferencesModel(api: api),
+                                 analytics: analytics, userDid: "did:plc:alice", viewWaiter: { _ in await gate.pass() })
+        await thread.loadIfNeeded()
+        let items = thread.items
+        thread.itemAppeared(items[3])
+        thread.itemAppeared(items[1])
+        thread.itemAppeared(items[2])
+        thread.itemAppeared(items[0])
+        await gate.waitForArrivals(1)
+        gate.open()
+        while analytics.events(named: "post:view").count < 4 { await Task.yield() }
+        #expect(analytics.events(named: "post:view").map { $0.props["uri"] } == [
+            .string(anchor.uri), .string(replies[0].uri), .string(replies[1].uri), .string(replies[2].uri),
+        ])
+    }
+
     @Test func statsRowRule() {
         var post = Make.post("p")
         #expect(!ThreadAnchorView.showsStats(post))

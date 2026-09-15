@@ -256,14 +256,17 @@ final class ThreadModel {
         case failed(title: String, message: String)
     }
 
-    private(set) var status: Status = .loading
-    private(set) var result = ThreadTraversal.Result(items: [], otherItems: [])
-    private(set) var hasOtherReplies = false
-    private(set) var otherItemsVisible = false
-    private(set) var serverOtherItems: [ThreadListItem] = []
-    private(set) var isLoadingOther = false
+    private(set) var status: Status = .loading { didSet { rebuildItems() } }
+    private(set) var result = ThreadTraversal.Result(items: [], otherItems: []) { didSet { rebuildItems() } }
+    private(set) var hasOtherReplies = false { didSet { rebuildItems() } }
+    private(set) var otherItemsVisible = false { didSet { rebuildItems() } }
+    private(set) var serverOtherItems: [ThreadListItem] = [] { didSet { rebuildItems() } }
+    private(set) var isLoadingOther = false { didSet { rebuildItems() } }
     /// The anchor from another screen's data, shown while the thread loads.
-    private(set) var placeholder: PostView?
+    private(set) var placeholder: PostView? { didSet { rebuildItems() } }
+    /// The list RN renders (`buildThread`, `traversal.ts:462-565`), rebuilt only when its inputs
+    /// change, so rows never recompute it (review finding A61).
+    private(set) var items: [ThreadListItem] = []
 
     let anchorUri: String
     let feedDescriptor: String?
@@ -274,13 +277,14 @@ final class ThreadModel {
     @ObservationIgnored private let faults: DebugFaults?
     @ObservationIgnored private let userDid: String
     @ObservationIgnored private var reportedPreferences = false
-    @ObservationIgnored private var reportedAnchorView = false
+    @ObservationIgnored private var reportedAnchorUri: String?
     @ObservationIgnored private var viewedPosts = Set<String>()
     @ObservationIgnored private var loadTask: Task<Void, Never>?
+    @ObservationIgnored private var tracker: ViewabilityTracker<String>?
 
     init(api: any BlueskyAPI, anchor: String, feedDescriptor: String?, preferences: PreferencesModel,
          analytics: any AnalyticsSink = NoopAnalytics(), faults: DebugFaults? = nil, userDid: String,
-         placeholder: PostView? = nil) {
+         placeholder: PostView? = nil, viewWaiter: ViewabilityTracker<String>.Waiter? = nil) {
         self.api = api
         self.anchorUri = anchor
         self.feedDescriptor = feedDescriptor
@@ -289,37 +293,14 @@ final class ThreadModel {
         self.faults = faults
         self.userDid = userDid
         self.placeholder = placeholder
+        let onViewable: @MainActor ([String]) -> Void = { [weak self] ids in self?.reportViewable(ids) }
+        tracker = viewWaiter.map { ViewabilityTracker(waiter: $0, onViewable: onViewable) }
+            ?? ViewabilityTracker(onViewable: onViewable)
+        rebuildItems()
     }
 
     func setPlaceholder(_ post: PostView?) {
         if status == .loading, placeholder == nil { placeholder = post }
-    }
-
-    /// The list RN renders (`buildThread`, `traversal.ts:462-565`).
-    var items: [ThreadListItem] {
-        switch status {
-        case .loading:
-            if let placeholder {
-                let anchor = ThreadListItem.post(uri: placeholder.uri, depth: 0,
-                                                 value: ThreadItemValue.Post(post: placeholder), isBlurred: false,
-                                                 ui: ThreadPostUI(isAnchor: true))
-                return [anchor] + (0..<(placeholder.replyCount ?? 4)).map { ThreadListItem.replySkeleton(index: $0) }
-            }
-            return [.anchorSkeleton] + (0..<4).map { ThreadListItem.replySkeleton(index: $0) }
-        case .failed:
-            return []
-        case .loaded:
-            var list = result.items
-            if !result.otherItems.isEmpty || hasOtherReplies {
-                if otherItemsVisible {
-                    list += result.otherItems
-                    list += isLoadingOther ? [.replySkeleton(index: 1000), .replySkeleton(index: 1001)] : serverOtherItems
-                } else {
-                    list.append(.showOtherReplies)
-                }
-            }
-            return list
-        }
     }
 
     var anchor: PostView? {
@@ -331,6 +312,22 @@ final class ThreadModel {
 
     var hasParents: Bool {
         result.items.contains { ($0.depth ?? 0) < 0 }
+    }
+
+    /// `canReply` (`PostThread/index.tsx:158`): false only when the anchor RN has (loaded or the
+    /// placeholder) says replies are disabled. The mobile prompt shows only when this is true
+    /// (`index.tsx:647-649`, review finding N2).
+    var canReply: Bool {
+        let current = anchor ?? (status == .loading ? placeholder : nil)
+        return current?.viewer?.replyDisabled != true
+    }
+
+    /// The event a tap on a thread row's avatar logs. RN logs `post:clickthroughAuthor` only on the
+    /// anchor (`ThreadItemAnchor.tsx:280-286`); reply and parent avatars log nothing
+    /// (`ThreadItemPost.tsx:280-286`, review finding N1).
+    static func authorTapEvent(for post: PostView, isAnchor: Bool, context: PostEventContext) -> AnalyticsEvent? {
+        guard isAnchor else { return nil }
+        return AnalyticsEvent(name: "post:clickthroughAuthor", props: context.props(for: post))
     }
 
     /// Loads once; later calls do nothing unless the last load failed.
@@ -350,13 +347,24 @@ final class ThreadModel {
     }
 
     private func load() async {
-        let prefs = await preferences.load()
-        if !reportedPreferences {
-            reportedPreferences = true
-            // RN merges `DEFAULT_THREAD_VIEW_PREFS` (`sort: 'hotness'`) into the server prefs.
-            analytics.metric("thread:preferences:load",
-                             ["sort": .string(prefs.threadSort ?? "hotness"), "view": "linear"])
+        // RN reads loaded preferences while it renders, before the anchor's view effect runs.
+        if let loaded = preferences.preferences { reportPreferences(loaded) }
+        // The anchor `post:view` fires on the placeholder anchor from the query cache, before
+        // the network answers (`PostThread/index.tsx:95-112`, review finding N23).
+        if let placeholder { reportAnchorView(placeholder) }
+        let prefs: ActorPreferences
+        do {
+            prefs = try await preferences.load()
+        } catch where RequestFailure.isCancellation(error) {
+            return
+        } catch {
+            // RN enables the thread query only after preferences load (`usePostThread/index.ts:74`)
+            // and sends no metric (`useThreadPreferences.ts:50-70`, review finding N22). RN keeps
+            // the placeholder; the port shows the thread error with Retry (PARITY.md).
+            status = Self.failure(for: error)
+            return
         }
+        reportPreferences(prefs)
         do {
             if faults?.consume(.thread) == true { throw InjectedFault() }
             let response = try await api.getPostThreadV2(
@@ -366,12 +374,24 @@ final class ThreadModel {
             // `hasOtherReplies` stays true once any response set it (`index.ts:111-120`).
             hasOtherReplies = hasOtherReplies || response.hasOtherReplies
             status = .loaded
-            reportAnchorView()
+            if let anchor { reportAnchorView(anchor) }
         } catch where RequestFailure.isCancellation(error) {
             return
         } catch {
             status = Self.failure(for: error)
         }
+    }
+
+    /// `thread:preferences:load`, once per screen, with the merged server values
+    /// (`useThreadPreferences.ts:65-70`: `sort` raw with the `hotness` default, `view` from
+    /// `lab_treeViewEnabled`).
+    private func reportPreferences(_ prefs: ActorPreferences) {
+        guard !reportedPreferences else { return }
+        reportedPreferences = true
+        analytics.metric("thread:preferences:load", [
+            "sort": .string(prefs.threadSort ?? "hotness"),
+            "view": .string(prefs.threadTreeViewEnabled ? "tree" : "linear"),
+        ])
     }
 
     /// `ThreadError.tsx:26-38`: only errors whose message starts with "Post not found" get the
@@ -400,10 +420,10 @@ final class ThreadModel {
         }
     }
 
-    /// Anchor `post:view` (`PostThread/index.tsx:96-112`), once per anchor.
-    private func reportAnchorView() {
-        guard !reportedAnchorView, let anchor else { return }
-        reportedAnchorView = true
+    /// Anchor `post:view` (`PostThread/index.tsx:96-112`), once per anchor URI.
+    private func reportAnchorView(_ anchor: PostView) {
+        guard reportedAnchorUri != anchor.uri else { return }
+        reportedAnchorUri = anchor.uri
         var props: [String: EventValue] = [
             "uri": .string(anchor.uri), "authorDid": .string(anchor.author.did),
             "isReply": .bool(anchor.record.reply != nil), "logContext": "Post",
@@ -412,7 +432,23 @@ final class ThreadModel {
         analytics.metric("post:view", props)
     }
 
-    /// Non-anchor `post:view` after 500 ms on screen (`usePostViewTracking.ts:24`).
+    /// A row was laid out on screen (`List.onItemSeen`, review finding N6).
+    func itemAppeared(_ item: ThreadListItem) {
+        guard let index = items.firstIndex(where: { $0.id == item.id }) else { return }
+        tracker?.appeared(item.id, index: index)
+    }
+
+    func itemDisappeared(_ item: ThreadListItem) {
+        tracker?.disappeared(item.id)
+    }
+
+    private func reportViewable(_ ids: [String]) {
+        for id in ids {
+            if let item = items.first(where: { $0.id == id }) { recordView(of: item) }
+        }
+    }
+
+    /// Non-anchor `post:view` (`index.tsx:595-600`, `usePostViewTracking.ts:21-29`), once per URI.
     func recordView(of item: ThreadListItem) {
         guard case .post(let uri, let depth, let value, _, _) = item, depth != 0,
               viewedPosts.insert(uri).inserted else { return }
@@ -420,5 +456,32 @@ final class ThreadModel {
             "uri": .string(uri), "authorDid": .string(value.post.author.did),
             "isReply": .bool(value.post.record.reply != nil), "logContext": "PostThreadItem",
         ])
+    }
+
+    private func rebuildItems() {
+        switch status {
+        case .loading:
+            if let placeholder {
+                let anchor = ThreadListItem.post(uri: placeholder.uri, depth: 0,
+                                                 value: ThreadItemValue.Post(post: placeholder), isBlurred: false,
+                                                 ui: ThreadPostUI(isAnchor: true))
+                items = [anchor] + (0..<(placeholder.replyCount ?? 4)).map { ThreadListItem.replySkeleton(index: $0) }
+            } else {
+                items = [.anchorSkeleton] + (0..<4).map { ThreadListItem.replySkeleton(index: $0) }
+            }
+        case .failed:
+            items = []
+        case .loaded:
+            var list = result.items
+            if !result.otherItems.isEmpty || hasOtherReplies {
+                if otherItemsVisible {
+                    list += result.otherItems
+                    list += isLoadingOther ? [.replySkeleton(index: 1000), .replySkeleton(index: 1001)] : serverOtherItems
+                } else {
+                    list.append(.showOtherReplies)
+                }
+            }
+            items = list
+        }
     }
 }

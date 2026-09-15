@@ -45,6 +45,9 @@ struct ProfileScreen: View {
         .background(theme.bg)
         .toolbar(.hidden, for: .navigationBar)
         .background(InteractivePopEnabler())
+        // `Layout.Screen testID="profileScreen"` (`Profile.tsx:63`, review finding N7).
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("profileScreen")
         .task {
             // The shell starts the profile load at sign-in. A failed load keeps its error screen
             // until Retry, as RN does; appearing again does not retry on its own.
