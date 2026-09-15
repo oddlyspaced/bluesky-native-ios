@@ -53,6 +53,7 @@ These differences are not accepted yet. The gate "Parity report passes, or every
 | 2026-09-15 | iOS | `reviews/2026-09-15-ios-CP00-03-architecture-review-1.md` | 2 blockers |
 | 2026-09-15 | iOS | `reviews/2026-09-15-ios-CP00-03-parity-review-2.md` | 2 blockers (N1 extra event; N21 no human sign-off) |
 | 2026-09-15 | iOS | `reviews/2026-09-15-ios-CP00-03-architecture-review-2.md` | 2 blockers (A46 credential write ordering; A59 storage and policy in a view) |
+| 2026-09-16 | iOS | `reviews/2026-09-16-ios-CP00-03-parity-review-3.md` | 2 blockers (F1 no human sign-off; F2 screen testIDs) |
 
 ## Acceptance
 
