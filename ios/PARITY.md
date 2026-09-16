@@ -337,6 +337,45 @@ on a live gesture. The numbers in the tables above are unchanged and still come 
 | A64 screen ids | `ScreenIdentifierTests`: the shell takes the home stack's id from `ScreenRegistry`, a root registered without an id leaves its stack unlabelled, and the five ids hold RN's values. `parity/flows/capture.yml` now asserts all five with `assertVisible` | That a screen still exposes its id at runtime. **No unit test can read this.** SwiftUI answers accessibility for an out-of-process client (XCUITest, and `maestro hierarchy` through it) and does not fill in `UIView.accessibilityElements` or `accessibilityElementCount()` in process. Measured: a `UIHostingController` holding `HomeScreen` and `ProfileScreen`, in a scene-backed `UIWindow`, laid out and flushed through `CATransaction`, renders its `HostingScrollView` and reports zero accessibility children and zero identifiers. The `assertVisible` steps are therefore the only check that catches a removed id, and they need `./run-pair.sh base` |
 | A69 unlabeled spacers | Nothing. **Not fixed.** | Each of the four screen ids on Home and Profile sits on a container whose second child is a zero-size view marked `accessibilityElement(children: .ignore)`, and each of those children is its own unlabeled accessibility element. The fix needs the same out-of-process tree read that round 2 used (`maestro hierarchy`) to confirm the ids stay exposed afterwards: the round-2 measurement in "Screen test ids" records that a hidden second child does **not** keep the container separate, and that two ids in one modifier chain collapse. Changing the structure without that measurement would risk the F2 result, which is measured and passing, so it was left alone and recorded here. To close it: run `maestro --device <udid> hierarchy` on the signed-in app, try a second child that is not an accessibility element, and keep whichever form still shows all five ids |
 | A71 shell tab check | `ScreenIdentifierTests.theShellTakesTheHomeStackIdFromTheRegistry` and `onlyARegisteredIdentifierLabelsAStack`. `TabShell` now reads `registry.rootIdentifier(for:)` and names no tab | Nothing further; this one needs no capture |
+| A84 overlapping preference guards | Nothing. **Not fixed.** | The review's Minor list gives this finding as a phrase with no file, line or evidence path, and the preference guards are spread over `PreferencesModel.load`, `fetch`, `loadOrDefaults` and `isStale`, and `ThreadModel.load`. Which overlap was meant is ambiguous, and changing a guard blind would alter when the app refetches preferences, which the F10 stale-time work measured. It is recorded here rather than guessed at. A84 needs the reviewer to name the two guards |
+| A55, A66, A67, A68, A70, A72, A78, A82, A83, A85, A86, A87 | The test suite. Each is named in its commit message and has at least one test asserting the new behaviour | Nothing; none of these needs a capture |
+
+## The E2E build and Release are different binaries (review finding A65)
+
+Review finding A60 moved the event log behind `#if E2E`, so **Release emits no events at all**. Every
+event-parity claim in this report was therefore produced by a binary that is not the shipping one.
+This section names every difference. None of it is softened: the event evidence describes the E2E
+build, and it is not evidence about Release.
+
+| What differs | E2E build (Debug) | Release | Where |
+|---|---|---|---|
+| Analytics sink | `JSONLinesEventLog`, appending to `Documents/events.jsonl` | `NoopAnalytics`, which discards every event | `App/App.swift:56-62`; `Core/Analytics/Analytics.swift:54,113` |
+| Fault hook | `DebugFaults.arm` and its storage compile; five faults can be armed | `consume` folds to a constant `false`; no fault can be injected | `Features/Shell/ShellSupport.swift:97-111` |
+| Service URL | `AppConfig.e2eService` = `http://localhost:3000`, the dev network | The constant does not exist; the app has no service to sign in to | `App/AppConfig.swift` |
+| AppView proxy DID | `did:plc:bw7ad3erl7btq6qwf66yqiov#bsky_appview` | `did:web:api.bsky.app#bsky_appview` | `App/AppConfig.swift` |
+| Sign-in path | `E2ETestControls` signs in as alice or bob with one tap | No sign-in form and no controls; the app stops at the signed-out screen | `App/RootView.swift`; `README.md` |
+| `.test` handles | Linkified as mentions, so the dev network's handles render as RN's do | Left as plain text, matching the SDK | `App/AppConfig.swift`; review finding A67 |
+| Compilation condition | `SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG E2E` | Neither is set | `ios/project.yml:46-49` |
+
+**What this costs the event-parity claims.**
+
+1. The "ordered MATCH, 19 of 19" result cannot be reproduced on Release, by construction, because
+   Release records nothing. There is no Release event log to diff, now or ever, while A60 stands.
+2. The events were produced against a different AppView proxy DID and a different service URL, so
+   the data that drove them came from a different backend than Release would talk to.
+3. Events 3 to 5 (`account:loggedIn`, then the shell remount's `router:navigate` and `init`) are
+   reached through a sign-in path that does not exist in Release. Release has no way to reach the
+   signed-in shell at all, so it can never produce entries 3 to 19.
+4. The four native-only error captures (`home-error`, `home-load-more-error`, `thread-error`,
+   `profile-error`) use a fault hook that Release does not compile, so they describe states a
+   Release build cannot be driven into by the same route.
+5. Since A67, one behaviour differs between the two builds on purpose: `.test` mentions linkify in
+   the E2E build only. Any captured screen showing a `.test` mention as a link shows E2E behaviour.
+
+**Therefore:** every event result in this report is scoped to the E2E build. No row in "Event diff"
+should be read as a statement about the shipping binary. The honest summary is that event parity is
+demonstrated for a build that differs from Release in seven named ways, and that Release's event
+behaviour is not measured, because there is nothing to measure.
 
 ## Differences that remain
 
