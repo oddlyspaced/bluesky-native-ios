@@ -315,21 +315,14 @@
    "y": 0.082,
    "w": 0.06053,
    "h": 0.02784,
-   "reason": "header back and options glyphs (Lucide substitute)"
-  },
-  {
-   "x": 0.45357,
-   "y": 0.07361,
-   "w": 0.09204,
-   "h": 0.04233,
-   "reason": "header back and options glyphs (Lucide substitute)"
+   "reason": "header back glyph (Lucide substitute)"
   },
   {
    "x": 0.88889,
    "y": 0.082,
    "w": 0.06053,
    "h": 0.02784,
-   "reason": "header back and options glyphs (Lucide substitute)"
+   "reason": "header options glyph (Lucide substitute)"
   },
   {
    "x": 0.87894,
@@ -339,67 +332,18 @@
    "reason": "anchor logo slot: RN shows its trademark mark only in screenshots"
   },
   {
-   "x": 0.0539,
-   "y": 0.29329,
-   "w": 0.05556,
-   "h": 0.02555,
-   "reason": "icon glyph (Lucide substitute), icon slot"
-  },
-  {
-   "x": 0.10531,
-   "y": 0.29329,
-   "w": 0.05556,
-   "h": 0.02555,
-   "reason": "icon glyph (Lucide substitute), icon slot"
-  },
-  {
-   "x": 0.18491,
-   "y": 0.29329,
-   "w": 0.06219,
-   "h": 0.0286,
-   "reason": "icon glyph (Lucide substitute), icon slot"
-  },
-  {
-   "x": 0.24793,
-   "y": 0.29443,
-   "w": 0.05556,
-   "h": 0.02555,
-   "reason": "icon glyph (Lucide substitute), icon slot"
-  },
-  {
-   "x": 0.3068,
-   "y": 0.28719,
-   "w": 0.08209,
-   "h": 0.03776,
-   "reason": "icon glyph (Lucide substitute), icon slot"
-  },
-  {
    "x": 0.4005,
    "y": 0.29329,
    "w": 0.05556,
    "h": 0.02555,
-   "reason": "icon glyph (Lucide substitute), icon slot"
-  },
-  {
-   "x": 0.45771,
-   "y": 0.2685,
-   "w": 0.16833,
-   "h": 0.07742,
-   "reason": "icon glyph (Lucide substitute), icon slot"
-  },
-  {
-   "x": 0.69735,
-   "y": 0.28871,
-   "w": 0.08043,
-   "h": 0.03699,
-   "reason": "icon glyph (Lucide substitute), icon slot"
+   "reason": "who-can-reply globe glyph (Lucide substitute)"
   },
   {
    "x": 0.76783,
    "y": 0.29367,
    "w": 0.05556,
    "h": 0.02555,
-   "reason": "icon glyph (Lucide substitute), icon slot"
+   "reason": "who-can-reply chevron glyph (Lucide substitute)"
   },
   {
    "x": 0.034,

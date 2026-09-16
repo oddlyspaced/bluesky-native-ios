@@ -208,11 +208,23 @@
     "box": [
      30,
      195,
+     300,
+     305
+    ],
+    "minw": 30,
+    "reason": "header back glyph (Lucide substitute)",
+    "slot": 72
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     1000,
+     195,
      1180,
      305
     ],
     "minw": 30,
-    "reason": "header back and options glyphs (Lucide substitute)",
+    "reason": "header options glyph (Lucide substitute)",
     "slot": 72
    },
    {
@@ -614,11 +626,23 @@
     "box": [
      30,
      195,
+     300,
+     305
+    ],
+    "minw": 30,
+    "reason": "header back glyph (Lucide substitute)",
+    "slot": 72
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     1000,
+     195,
      1180,
      305
     ],
     "minw": 30,
-    "reason": "header back and options glyphs (Lucide substitute)",
+    "reason": "header options glyph (Lucide substitute)",
     "slot": 72
    },
    {
@@ -936,11 +960,23 @@
     "box": [
      30,
      195,
+     300,
+     305
+    ],
+    "minw": 30,
+    "reason": "header back glyph (Lucide substitute)",
+    "slot": 72
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     1000,
+     195,
      1180,
      305
     ],
     "minw": 30,
-    "reason": "header back and options glyphs (Lucide substitute)",
+    "reason": "header options glyph (Lucide substitute)",
     "slot": 72
    },
    {
@@ -1554,11 +1590,23 @@
     "box": [
      30,
      195,
+     300,
+     305
+    ],
+    "minw": 30,
+    "reason": "header back glyph (Lucide substitute)",
+    "slot": 72
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     1000,
+     195,
      1180,
      305
     ],
     "minw": 30,
-    "reason": "header back and options glyphs (Lucide substitute)",
+    "reason": "header options glyph (Lucide substitute)",
     "slot": 72
    },
    {
@@ -2159,11 +2207,23 @@
     "box": [
      30,
      195,
+     300,
+     305
+    ],
+    "minw": 30,
+    "reason": "header back glyph (Lucide substitute)",
+    "slot": 72
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     1000,
+     195,
      1180,
      305
     ],
     "minw": 30,
-    "reason": "header back and options glyphs (Lucide substitute)",
+    "reason": "header options glyph (Lucide substitute)",
     "slot": 72
    },
    {
@@ -2179,12 +2239,25 @@
    {
     "kind": "glyphs",
     "box": [
-     20,
+     480,
      775,
-     1180,
+     560,
      833
     ],
-    "minw": 40,
+    "minw": 30,
+    "reason": "who-can-reply globe glyph (Lucide substitute)",
+    "slot": 66
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     935,
+     775,
+     995,
+     833
+    ],
+    "minw": 12,
+    "reason": "who-can-reply chevron glyph (Lucide substitute)",
     "slot": 66
    },
    {
@@ -2575,11 +2648,23 @@
     "box": [
      30,
      195,
+     300,
+     305
+    ],
+    "minw": 30,
+    "reason": "header back glyph (Lucide substitute)",
+    "slot": 72
+   },
+   {
+    "kind": "glyphs",
+    "box": [
+     1000,
+     195,
      1180,
      305
     ],
     "minw": 30,
-    "reason": "header back and options glyphs (Lucide substitute)",
+    "reason": "header options glyph (Lucide substitute)",
     "slot": 72
    },
    {

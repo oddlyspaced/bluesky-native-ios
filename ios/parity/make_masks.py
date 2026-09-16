@@ -26,6 +26,15 @@ Rules (review findings N18, N19, F5):
   (the glyph does not fit the RN slot), unless RN has a cluster with the same box there. Clusters
   are searched in every band and around every mask.
 - A screen whose masks cover more than 15% of its pixels is an error.
+- Every band and every mask is bounded, because a mask that is too wide hides matching content in
+  both apps and still passes the ink check (review finding A74). Each bound below is a failure
+  that names the band, never a silent skip:
+    * a declared band may cover at most 5% of the screen;
+    * a `glyphs` band may declare a slot of at most 96 px, a `tail` or `datetime` band 150 px;
+    * a cluster a `glyphs` band promotes must be glyph-shaped: at least `minh` px tall and at
+      most MAX_ASPECT times as long as it is wide. Text runs and wide counts are not;
+    * a `rect` must hide RN ink and may not exceed that ink box by more than 40 px per side;
+    * no mask may be wider or taller than 160 px.
 
 Ink is a pixel whose luma differs from the background of its row by more than 40. The row
 background is detected, not assumed: the row is sampled every 4 px, the samples are binned by
@@ -49,6 +58,14 @@ AROUND = 12
 SAME_REGION = 60
 MAX_AREA = 0.15
 INK = 40        # luma difference from the row background that counts as ink
+MAX_BAND = 0.05      # a declared band may cover at most this share of the screen
+MAX_MASK = 160       # no mask may be wider or taller than this, in px
+MAX_SLOT = 96        # the widest icon slot a `glyphs` band may declare
+MAX_TIME_SLOT = 150  # the widest slot a `tail` or `datetime` band may declare
+MAX_RECT_MARGIN = 40 # a `rect` may not exceed the RN ink it hides by more than this, per side
+MAX_ASPECT = 1.8     # a glyph is about as tall as it is wide; text is not
+MIN_GLYPH_H = 34     # measured: glyph clusters are 36 px tall or more, digits 29-30
+MIN_GLYPH_H_RIGHT = 8   # the right control group carries no text; its "more" dots are 12x12
 BG_STEP = 4     # the row background is sampled every BG_STEP px
 BG_BIN = 8      # luma bin width for the sample count
 BG_EDGE = 4     # sampling starts here: x 0-2 holds the native E2E fault-control column
@@ -137,58 +154,111 @@ def rect(x0, y0, x1, y1, reason, kind, pad=PAD):
             "h": round((y1 - y0) / H, 5), "reason": reason, "px": [x0, y0, x1, y1], "kind": kind}
 
 
-def build(band, rn):
+def too_large(masks, index, kind, box, problems):
+    """Names any mask that is larger than MAX_MASK on a side (review finding A74)."""
+    for m in masks:
+        mx0, my0, mx1, my1 = m["px"]
+        if mx1 - mx0 > MAX_MASK or my1 - my0 > MAX_MASK:
+            problems.append(f"band {index} ({kind} {box}) builds a {mx1 - mx0}x{my1 - my0} px mask at "
+                            f"{m['px']}, above the {MAX_MASK} px mask limit")
+    return masks
+
+
+def build(band, rn, index=0, problems=None):
+    """Returns the masks of one band. Every bound it breaks is appended to `problems`."""
+    problems = [] if problems is None else problems
     kind = band["kind"]
     if kind == "status":
         return [{"x": 0, "y": 0, "w": 1, "h": round(180 / H, 5), "reason": "status bar: clock, battery, signal",
                  "px": [0, 0, W, 180], "kind": kind}]
-    if kind == "rect":
-        x0, y0, x1, y1 = band["box"]
-        return [{"x": round(x0 / W, 5), "y": round(y0 / H, 5), "w": round((x1 - x0) / W, 5),
-                 "h": round((y1 - y0) / H, 5), "reason": band["reason"], "px": [x0, y0, x1, y1], "kind": kind}]
     box = band["box"]
+    x0, y0, x1, y1 = box
+    area = (x1 - x0) * (y1 - y0) / (W * H)
+    if area > MAX_BAND:
+        # An unbounded band can promote anything inside it, so it builds nothing until it is fixed.
+        problems.append(f"band {index} ({kind} {box}) covers {area * 100:.2f}% of the screen, above the "
+                        f"{MAX_BAND * 100:.0f}% band limit")
+        return []
+    if kind == "rect":
+        mask = {"x": round(x0 / W, 5), "y": round(y0 / H, 5), "w": round((x1 - x0) / W, 5),
+                "h": round((y1 - y0) / H, 5), "reason": band["reason"], "px": [x0, y0, x1, y1], "kind": kind}
+        # A hand-written slot must hide something, and it must be tight around what it hides.
+        ink = ink_pixels(rn, mask["px"])
+        if not ink:
+            problems.append(f"band {index} (rect {box}) hides no RN ink: \"{band['reason']}\"")
+        else:
+            ix0, iy0 = min(x for x, _ in ink), min(y for _, y in ink)
+            ix1, iy1 = max(x for x, _ in ink), max(y for _, y in ink)
+            margins = (ix0 - x0, iy0 - y0, x1 - 1 - ix1, y1 - 1 - iy1)
+            if max(margins) > MAX_RECT_MARGIN:
+                problems.append(f"band {index} (rect {box}) exceeds the RN ink it hides "
+                                f"[{ix0}, {iy0}, {ix1}, {iy1}] by {max(margins)} px on a side, above the "
+                                f"{MAX_RECT_MARGIN} px limit: \"{band['reason']}\"")
+        return too_large([mask], index, kind, box, problems)
     found = clusters(ink_columns(rn, box))
     if kind == "glyphs":
         # Post control rows: the left group (reply, repost, like) carries counts, which stay
         # visible through `minw`. The right group (bookmark, share, more) has no text, so its
         # narrower glyphs (the "more" ellipsis) use `minw_right` from x >= `right_x`.
+        #
+        # `minw` = 36 is measured, not chosen: over the eight committed states the narrowest RN
+        # cluster that is a glyph in these bands is 36 px wide, the widest cluster that is a count
+        # is 15 px, and no cluster between 16 and 35 px exists. A count of three digits or more
+        # could still pass `minw`, so it is `minh` and MAX_ASPECT that keep it visible: digits
+        # measure 29-30 px tall against 36 px or more for a glyph (review finding A74).
         minw = band.get("minw", 36)
         right_x = band.get("right_x", 900)
         minw_right = band.get("minw_right", 12)
+        minh = band.get("minh", MIN_GLYPH_H)
+        minh_right = band.get("minh_right", MIN_GLYPH_H_RIGHT)
         # Fixed slot: the icon's layout box at 3x, centred on the RN glyph. The Lucide glyph drawn
         # in the same box has a different ink extent, so the RN ink box alone is too tight.
         slot = band.get("slot", 72)
+        if slot > MAX_SLOT:
+            problems.append(f"band {index} (glyphs {box}) declares a {slot} px slot, above the "
+                            f"{MAX_SLOT} px slot limit")
+            return []
         # `maxw`: wider clusters are not glyphs (for example the compose FAB circle that overlaps the
         # last control row at xxxl); they stay unmasked.
         maxw = band.get("maxw", W)
         out = []
         for c in found:
-            if c[1] - c[0] + 1 < (minw_right if c[0] >= right_x else minw):
+            w, h = c[1] - c[0] + 1, c[3] - c[2] + 1
+            if w < (minw_right if c[0] >= right_x else minw) or w > maxw:
                 continue
-            if c[1] - c[0] + 1 > maxw:
+            if h < (minh_right if c[0] >= right_x else minh) or max(w / h, h / w) > MAX_ASPECT:
+                problems.append(f"band {index} (glyphs {box}) promotes a cluster x {c[0]}-{c[1]} y {c[2]}-{c[3]} "
+                                f"({w}x{h} px, aspect {max(w / h, h / w):.2f}) that is not a glyph: a glyph is at "
+                                f"least {minh_right if c[0] >= right_x else minh} px tall and at most "
+                                f"{MAX_ASPECT} times as long as it is wide. Narrow the band")
                 continue
             cx, cy = (c[0] + c[1]) // 2, (c[2] + c[3]) // 2
             half = max(slot // 2, (c[1] - c[0]) // 2 + PAD, (c[3] - c[2]) // 2 + PAD)
             out.append(rect(cx - half, cy - half, cx + half, cy + half,
                             band.get("reason", "icon glyph (Lucide substitute), icon slot"), kind, pad=0))
-        return out
-    if kind == "tail":
-        if len(found) < 2:
-            return []
-        # The "·" is the last small cluster (about 7x7 px at 3x). A time such as "1m" splits into
-        # two clusters, so `found[-2]` would start the slot at the first digit.
-        dots = [c for c in found[:-1] if c[1] - c[0] < 12 and c[3] - c[2] < 12]
-        dot = dots[-1] if dots else found[-2]
+        return too_large(out, index, kind, box, problems)
+    if kind in ("tail", "datetime"):
         slot = band.get("slot", 150)
-        return [rect(dot[0], box[1], dot[0] + slot, box[3] - 1,
-                     "relative time (capture clock; slot for now..59m)", kind, pad=0)]
-    if kind == "datetime":
+        if slot > MAX_TIME_SLOT:
+            problems.append(f"band {index} ({kind} {box}) declares a {slot} px slot, above the "
+                            f"{MAX_TIME_SLOT} px slot limit")
+            return []
+        if kind == "tail":
+            if len(found) < 2:
+                return []
+            # The "·" is the last small cluster (about 7x7 px at 3x). A time such as "1m" splits into
+            # two clusters, so `found[-2]` would start the slot at the first digit.
+            dots = [c for c in found[:-1] if c[1] - c[0] < 12 and c[3] - c[2] < 12]
+            dot = dots[-1] if dots else found[-2]
+            return too_large([rect(dot[0], box[1], dot[0] + slot, box[3] - 1,
+                                   "relative time (capture clock; slot for now..59m)", kind, pad=0)],
+                             index, kind, box, problems)
         if not found:
             return []
         first = found[0]
-        slot = band.get("slot", 150)
-        return [rect(first[0], box[1], first[0] + slot, box[3] - 1,
-                     "anchor time digits (the apps need separate seeds in this state)", kind, pad=0)]
+        return too_large([rect(first[0], box[1], first[0] + slot, box[3] - 1,
+                               "anchor time digits (the apps need separate seeds in this state)", kind, pad=0)],
+                         index, kind, box, problems)
     raise SystemExit(f"unknown band kind {kind}")
 
 
@@ -286,8 +356,10 @@ def main():
         rn = load(f"{rn_dir}/{screen}.png")
         nat = load(f"{nat_dir}/{screen}.png")
         masks = []
-        for band in bands:
-            masks += build(band, rn)
+        problems = []
+        for index, band in enumerate(bands):
+            masks += build(band, rn, index, problems)
+        errors += [f"{screen}: {p}" for p in problems]
         for m in masks:
             found = native_only_ink(m, rn, nat)
             if found is None:

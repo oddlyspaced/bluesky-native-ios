@@ -315,21 +315,14 @@
    "y": 0.082,
    "w": 0.06053,
    "h": 0.02784,
-   "reason": "header back and options glyphs (Lucide substitute)"
-  },
-  {
-   "x": 0.45357,
-   "y": 0.07361,
-   "w": 0.09204,
-   "h": 0.04233,
-   "reason": "header back and options glyphs (Lucide substitute)"
+   "reason": "header back glyph (Lucide substitute)"
   },
   {
    "x": 0.88889,
    "y": 0.082,
    "w": 0.06053,
    "h": 0.02784,
-   "reason": "header back and options glyphs (Lucide substitute)"
+   "reason": "header options glyph (Lucide substitute)"
   },
   {
    "x": 0.87894,
