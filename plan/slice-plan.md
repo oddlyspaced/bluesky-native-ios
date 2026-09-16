@@ -60,6 +60,13 @@ These differences are not accepted yet. The gate "Parity report passes, or every
 
 ## Acceptance
 
+Every difference that needs a signature is collected in `owner-signoff.md`: the screens that drift on
+both platforms, the differences the ports keep on purpose, the work proposed as out of scope, and the
+limits of the evidence. Nothing there is signed.
+
+Two screens are `fail` and cannot be signed: iOS `home-api` (0.0273 masked) and Android error home
+(4.91% masked). They stay open as engineering work.
+
 ```acceptance
 state: not accepted
 ```
