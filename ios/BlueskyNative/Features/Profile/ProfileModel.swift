@@ -22,6 +22,8 @@ final class ProfileModel {
     @ObservationIgnored private let api: any BlueskyAPI
     @ObservationIgnored private let analytics: any AnalyticsSink
     @ObservationIgnored private let faults: DebugFaults?
+    /// The bio facet resolution, owned by the model so `cancel()` stops it (review finding A68).
+    @ObservationIgnored private var facetTask: Task<[Facet]?, Never>?
 
     init(api: any BlueskyAPI, actor: String, posts: FeedModel, analytics: any AnalyticsSink = NoopAnalytics(),
          faults: DebugFaults? = nil) {
@@ -40,9 +42,7 @@ final class ProfileModel {
             // (`Profile.tsx:209-210`), and resolves again only when the text changes.
             let description = loaded.description ?? ""
             if profile == nil || description != (profile?.description ?? "") {
-                let api = self.api
-                descriptionFacets = description.isEmpty ? nil : await RichTextDetection.detectAndResolve(
-                    description, resolveHandle: { try await api.resolveHandle($0) })
+                descriptionFacets = description.isEmpty ? nil : await resolveDescriptionFacets(description)
             }
             profile = loaded
             status = .loaded
@@ -80,10 +80,28 @@ final class ProfileModel {
     static let ownProfileTabs = ["Posts", "Replies", "Media", "Videos", "Likes", "Feeds", "Starter Packs", "Lists"]
 }
 
+extension ProfileModel {
+    /// The bio's facets, resolved in a task the model owns, so `cancel()` stops it and a second
+    /// load replaces it (review finding A68).
+    fileprivate func resolveDescriptionFacets(_ description: String) async -> [Facet]? {
+        facetTask?.cancel()
+        let api = self.api
+        let task = Task {
+            await RichTextDetection.detectAndResolve(description,
+                                                     resolveHandle: { try await api.resolveHandle($0) })
+        }
+        facetTask = task
+        defer { if facetTask == task { facetTask = nil } }
+        return await task.value
+    }
+}
+
 extension ProfileModel: RouteScopedModel {
-    /// Stops the Posts tab's work when a pushed profile's route leaves the stack
-    /// (review finding A83).
+    /// Stops the Posts tab and the bio facet resolution when a pushed profile's route leaves the
+    /// stack (review findings A83, A68).
     func cancel() {
+        facetTask?.cancel()
+        facetTask = nil
         posts.cancel()
     }
 }

@@ -70,6 +70,36 @@ struct RichTextDetectionTests {
         #expect(summary(resolved) == ["0-9 mention:did:plc:bob", "14-26 mention:"])
     }
 
+    /// Review finding A68: handles resolved one after another, with no cache, so a bio with
+    /// several mentions waited for one round trip after another and the profile stayed loading
+    /// until the last returned.
+    ///
+    /// The gate proves the concurrency: it opens only after two resolutions have arrived, so a
+    /// serial implementation never gets past `waitForArrivals(2)`.
+    @Test func handlesResolveConcurrentlyAndOncePerHandle() async {
+        let gate = Gate()
+        let calls = Box<[String]>([])
+        let resolving = Task {
+            await RichTextDetection.detectAndResolve("@bob.test @carla.test @bob.test") { handle in
+                calls.value.append(handle)
+                await gate.pass()
+                return "did:plc:\(handle)"
+            }
+        }
+
+        await gate.waitForArrivals(2)
+        gate.open()
+        let resolved = await resolving.value
+
+        // Three mentions, two distinct handles, so the repeated one costs no second request.
+        #expect(calls.value.sorted() == ["bob.test", "carla.test"])
+        #expect(summary(resolved) == [
+            "0-9 mention:did:plc:bob.test",
+            "10-21 mention:did:plc:carla.test",
+            "22-31 mention:did:plc:bob.test",
+        ])
+    }
+
     @Test func profileBioGetsResolvedFacetsOnce() async throws {
         let api = FakeBlueskyAPI()
         var profile = try Fixtures.decode(ProfileViewDetailed.self, "getProfile")

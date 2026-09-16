@@ -89,14 +89,35 @@ enum RichTextDetection {
     /// `RichTextAPI.detectFacets(client)`: detection, then each mention handle resolved to a DID.
     /// An unresolved mention gets an empty DID, which `RichTextView` renders as plain text. Facets
     /// are sorted by `byteStart` (`facetSort`).
+    /// Handles resolve concurrently, and each distinct handle resolves once however many times it
+    /// appears, so a bio with several mentions no longer waits for one round trip after another
+    /// (review finding A68). Cancelling the calling task cancels every resolution with it.
     static func detectAndResolve(_ text: String, allowsTestTLD: Bool = AppConfig.treatsTestTLDAsValid,
-                                 resolveHandle: @Sendable (String) async throws -> String) async -> [Facet]? {
+                                 resolveHandle: @Sendable @escaping (String) async throws -> String) async -> [Facet]? {
         guard var facets = detect(text, allowsTestTLD: allowsTestTLD) else { return nil }
+        // One entry per distinct handle: the cache that makes a repeated mention free.
+        let handles = Set(facets.flatMap { facet in
+            facet.features.compactMap { feature -> String? in
+                if case .mention(let handle) = feature { return handle }
+                return nil
+            }
+        })
+        var dids: [String: String] = [:]
+        if !handles.isEmpty {
+            dids = await withTaskGroup(of: (String, String).self) { group in
+                for handle in handles {
+                    // An unresolved mention gets an empty DID, as the SDK does.
+                    group.addTask { (handle, (try? await resolveHandle(handle)) ?? "") }
+                }
+                var resolved: [String: String] = [:]
+                for await (handle, did) in group { resolved[handle] = did }
+                return resolved
+            }
+        }
         for index in facets.indices {
             for featureIndex in facets[index].features.indices {
                 guard case .mention(let handle) = facets[index].features[featureIndex] else { continue }
-                let did = (try? await resolveHandle(handle)) ?? ""
-                facets[index].features[featureIndex] = .mention(did: did)
+                facets[index].features[featureIndex] = .mention(did: dids[handle] ?? "")
             }
         }
         // A stable sort, as JS `Array.prototype.sort`.
