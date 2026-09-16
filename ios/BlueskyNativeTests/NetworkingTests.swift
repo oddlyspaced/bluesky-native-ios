@@ -69,6 +69,9 @@ actor MemoryCredentialStore: CredentialStore {
     var failLoad: CredentialStoreError?
     /// Every write in the order it finished: "save:<did>" or "clear".
     var log: [String] = []
+    /// The refresh token of every save, in order. The DID alone cannot show the order of two
+    /// refreshes of the same account (review finding A85).
+    var savedTokens: [String] = []
     nonisolated let saveGate: Gate
     nonisolated let clearGate: Gate
 
@@ -87,6 +90,7 @@ actor MemoryCredentialStore: CredentialStore {
         await saveGate.pass()
         saved = session
         log.append("save:\(session.did)")
+        savedTokens.append(session.refreshJwt)
     }
 
     func clear() async throws {
@@ -490,6 +494,9 @@ struct SessionStoreTests {
         await saveGate.waitForArrivals(arrivals + 1)
         saveGate.open()
         await store.waitForPendingWork()
+        // Every save landed, in the order the API reported them. Asserting only the final token let
+        // a chain that dropped or reordered the first refresh pass (review finding A85).
+        #expect(await credentials.savedTokens == ["r", "t1", "t2"])
         #expect(await credentials.saved?.refreshJwt == "t2")
     }
 

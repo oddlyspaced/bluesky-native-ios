@@ -38,6 +38,32 @@ struct ThreadTests {
         #expect(ThreadSort.normalize("hotness") == .top)
     }
 
+    /// Review finding A70: viewability scanned `items` linearly for every row event. The model
+    /// keeps an index map now, as `FeedModel` already did, and reports still follow index order.
+    @Test func threadViewsFollowIndexOrder() async throws {
+        let gate = Gate()
+        let api = FakeBlueskyAPI()
+        await api.setThread(try Fixtures.decode(PostThreadV2Response.self, "getPostThreadV2"))
+        let thread = ThreadModel(api: api, anchor: "at://root", feedDescriptor: "following",
+                                 preferences: PreferencesModel(api: api), analytics: analytics,
+                                 userDid: "did:plc:alice", viewWaiter: { _ in await gate.pass() })
+        await thread.loadIfNeeded()
+        #expect(thread.status == .loaded)
+        #expect(thread.items.count == 2)
+
+        // Announced in reverse order; the reports must still follow the index.
+        for item in thread.items.reversed() { thread.itemAppeared(item) }
+        await gate.waitForArrivals(1)
+        gate.open()
+        while analytics.events(named: "post:view").count < 2 { await Task.yield() }
+        // The anchor is reported by the load, at depth 0; the reply is the tracked one.
+        #expect(analytics.events(named: "post:view").map { $0.props["logContext"] } == ["Post", "PostThreadItem"])
+
+        // An item that is not in the list is ignored rather than reported at index 0.
+        thread.itemAppeared(.replySkeleton(index: 999))
+        #expect(analytics.events(named: "post:view").count == 2)
+    }
+
     @Test func parentsRepliesAndLines() {
         let root = Make.post("root", by: "bob")
         let middle = Make.post("middle", by: "carla", reply: Make.replyRef(root: root, parent: root))

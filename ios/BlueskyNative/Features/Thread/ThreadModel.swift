@@ -297,6 +297,10 @@ final class ThreadModel {
     @ObservationIgnored private(set) var preferencesRefresh: Task<Void, Never>?
     @ObservationIgnored private var reportedAnchorUri: String?
     @ObservationIgnored private var viewedPosts = Set<String>()
+    /// Item id to index in `items`, for the viewability order. A linear scan of `items` for every
+    /// row event is O(n squared) over a long thread; `FeedModel` already solved it this way
+    /// (review finding A70).
+    @ObservationIgnored private var itemIndex: [String: Int] = [:]
     @ObservationIgnored private var loadTask: Task<Void, Never>?
     @ObservationIgnored private var tracker: ViewabilityTracker<String>?
 
@@ -489,7 +493,7 @@ final class ThreadModel {
 
     /// A row was laid out on screen (`List.onItemSeen`, review finding N6).
     func itemAppeared(_ item: ThreadListItem) {
-        guard let index = items.firstIndex(where: { $0.id == item.id }) else { return }
+        guard let index = itemIndex[item.id] else { return }
         tracker?.appeared(item.id, index: index)
     }
 
@@ -499,7 +503,8 @@ final class ThreadModel {
 
     private func reportViewable(_ ids: [String]) {
         for id in ids {
-            if let item = items.first(where: { $0.id == id }) { recordView(of: item) }
+            guard let index = itemIndex[id], items.indices.contains(index) else { continue }
+            recordView(of: items[index])
         }
     }
 
@@ -514,18 +519,24 @@ final class ThreadModel {
     }
 
     private func rebuildItems() {
+        items = computeItems()
+        // Rebuilt with the list, so every row event is a dictionary lookup (review finding A70).
+        // A duplicate id keeps the last position rather than trapping.
+        itemIndex = items.enumerated().reduce(into: [:]) { map, pair in map[pair.element.id] = pair.offset }
+    }
+
+    private func computeItems() -> [ThreadListItem] {
         switch status {
         case .loading:
             if let placeholder {
                 let anchor = ThreadListItem.post(uri: placeholder.uri, depth: 0,
                                                  value: ThreadItemValue.Post(post: placeholder), isBlurred: false,
                                                  ui: ThreadPostUI(isAnchor: true))
-                items = [anchor] + (0..<(placeholder.replyCount ?? 4)).map { ThreadListItem.replySkeleton(index: $0) }
-            } else {
-                items = [.anchorSkeleton] + (0..<4).map { ThreadListItem.replySkeleton(index: $0) }
+                return [anchor] + (0..<(placeholder.replyCount ?? 4)).map { ThreadListItem.replySkeleton(index: $0) }
             }
+            return [.anchorSkeleton] + (0..<4).map { ThreadListItem.replySkeleton(index: $0) }
         case .failed:
-            items = []
+            return []
         case .loaded:
             var list = result.items
             if !result.otherItems.isEmpty || hasOtherReplies {
@@ -536,7 +547,7 @@ final class ThreadModel {
                     list.append(.showOtherReplies)
                 }
             }
-            items = list
+            return list
         }
     }
 }
