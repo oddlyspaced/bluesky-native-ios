@@ -77,10 +77,17 @@ if [ "$LABEL" = "native" ]; then
   data=$(xcrun simctl get_app_container "$UDID" "$NATIVE_ID" data 2>/dev/null)
   if [ -n "$data" ] && [ -f "$data/Documents/events.jsonl" ]; then
     cp "$data/Documents/events.jsonl" "$OUT/native/ios/events.jsonl"
-    python3 "$HERE/events/normalize_events.py" "$OUT/native/ios/events.jsonl" > "$OUT/native/ios/events.normalized.jsonl" \
-      || echo "event normalisation failed"
+    # The normaliser writes the file itself and leaves none when it fails, so no run can read a
+    # truncated list as evidence. A failure fails the capture (review finding A89).
+    rm -f "$OUT/native/ios/events.normalized.jsonl"
+    if ! python3 "$HERE/events/normalize_events.py" "$OUT/native/ios/events.jsonl" \
+        "$OUT/native/ios/events.normalized.jsonl"; then
+      echo "ERROR event normalisation failed: $OUT/native/ios/events.normalized.jsonl was not written" >&2
+      code=1
+    fi
   else
-    echo "no native events.jsonl found"
+    echo "ERROR no native events.jsonl found in the app container" >&2
+    code=1
   fi
 fi
 exit $code

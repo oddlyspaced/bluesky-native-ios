@@ -9,9 +9,15 @@ the local PDS (http://localhost:3000) without authentication.
   that each event names the right post instead of ignoring the URI (review finding N24).
 - No event is dropped. `initMs` and `secondsActive` are timing values; events.mjs ignores them.
 
+Usage: normalize_events.py <events.jsonl> [out.jsonl]
+With an output path the script writes `<out.jsonl>.part` and renames it only after the last
+event is written, so a failure leaves no file to read as evidence (review finding A89).
+Without one it writes to stdout; the caller must then test the exit code itself.
+
 Exit 1 when a DID or a post cannot be resolved.
 """
 import json
+import os
 import re
 import sys
 import urllib.parse
@@ -48,8 +54,8 @@ def post(uri):
     return texts[uri]
 
 
-def main():
-    for line in open(sys.argv[1], encoding="utf-8"):
+def normalize(source, out):
+    for line in open(source, encoding="utf-8"):
         line = line.strip()
         if not line:
             continue
@@ -61,7 +67,27 @@ def main():
             props["uri"] = post(props["uri"])
         if isinstance(props.get("feedDescriptor"), str):
             props["feedDescriptor"] = DID.sub(lambda m: handle(m.group(0)), props["feedDescriptor"])
-        print(json.dumps({"name": event["name"], "props": props}, sort_keys=True))
+        print(json.dumps({"name": event["name"], "props": props}, sort_keys=True), file=out)
+
+
+def main():
+    source = sys.argv[1]
+    if len(sys.argv) < 3:
+        normalize(source, sys.stdout)
+        return
+    out = sys.argv[2]
+    part = out + ".part"
+    try:
+        with open(part, "w", encoding="utf-8") as fh:
+            normalize(source, fh)
+        os.replace(part, out)
+    except BaseException:
+        # A failure must leave no file: a truncated normalised list reads as evidence (A89).
+        try:
+            os.unlink(part)
+        except FileNotFoundError:
+            pass
+        raise
 
 
 if __name__ == "__main__":
