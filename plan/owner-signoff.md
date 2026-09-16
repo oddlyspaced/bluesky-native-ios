@@ -31,6 +31,18 @@ Two results are `fail`. No signature makes them pass. Both keep their checkpoint
 The owner does not need to decide anything about these two. They are engineering work that is not
 finished.
 
+Three more items are not signable, for a different reason: their cause is not established.
+
+| Platform | Item | Measure |
+|---|---|---|
+| Android | The readonly flow's event log does not match: `home:feedDisplayed` is emitted after the first `post:view`, where RN emits it before | 21 RN events against 19 native, byte-identical in `base` and `dark` |
+| Android | Following-feed `post:view` positions read 1, 2, 3 against RN's 0, 1, 2, and the first row's `isReply` is `false` against RN's `true` | `mismatches` at indexes 7, 8, 9 |
+| Android | The profile feed emits no `feed:endReached` and one fewer `post:view` | `missing`, indexes 19 and 20 |
+
+The RN side of that comparison is derived from source, not captured, so each of the three is either a
+defect in the port or an error in the derived list. A signature cannot cover a difference whose cause
+is unknown. Each one is first explained, then either fixed or moved into the tables below.
+
 ## How to review a row
 
 For each row in group A:
