@@ -132,10 +132,14 @@ private struct TabStack: View {
     }
 
     private var stack: some View {
+        // `interactivePopEnabled` re-enables this stack's pop gestures, which SwiftUI disables with
+        // the hidden toolbar, and it reaches only this stack (review findings N16, A63).
         NavigationStack(path: $router.path) {
             container.registry.root(for: router.tab, container: container)
+                .interactivePopEnabled()
                 .navigationDestination(for: Route.self) { route in
                     container.registry.view(for: route, container: container)
+                        .interactivePopEnabled()
                 }
         }
     }

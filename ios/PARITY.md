@@ -311,6 +311,18 @@ that element. A container with a **second child** (a zero-size view that is an i
 element) stays a separate element. A hidden second child (`accessibilityHidden(true)`) does not work,
 and neither does putting two ids in one modifier chain.
 
+## Verified without a capture (review round 3 fixes)
+
+The test server was only partly up during this pass: the AppView's ports 2584 and 3003 were closed
+and its Postgres and Redis were down. No capture, no Maestro run and no new parity number was made
+in this pass. Every claim in this section rests on `xcodebuild … test` alone, not on pixels and not
+on a live gesture. The numbers in the tables above are unchanged and still come from the
+2026-09-16 captures made before this pass.
+
+| Finding | Verified by a test | Not verified |
+|---|---|---|
+| A63 swipe back | `InteractivePopTests`: the proxy refuses the pop at the root of a stack and allows it once a screen is pushed; every other `UIGestureRecognizerDelegate` message reaches the delegate it replaced; a disabled gesture is re-enabled; a second install reuses the proxy instead of wrapping it; the representable's controller reaches its own stack; a second `UINavigationController` in the process keeps its own delegate | That a real swipe pops the screen. The last live measurement is the Maestro swipe step on iOS 26.4 (`flows/capture.yml`), made against the previous implementation. The new one re-enables the gestures from its own screen's layout and one main-queue turn later, not from the navigation controller's own layout pass, so `./run-pair.sh base` must run again before swipe back can be claimed as measured |
+
 ## Differences that remain
 
 None of these is accepted. Each needs a named owner.
