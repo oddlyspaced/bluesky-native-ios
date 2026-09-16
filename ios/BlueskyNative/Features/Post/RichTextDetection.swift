@@ -25,7 +25,11 @@ enum RichTextDetection {
     }
 
     /// Facets in `text`, mentions still unresolved (the handle is in `did`). nil when none, as the SDK.
-    static func detect(_ text: String) -> [Facet]? {
+    ///
+    /// `allowsTestTLD` carries the capture accommodation (review finding A67). The dev network's
+    /// handles end in `.test`, which is not a real top-level domain, so only the E2E build treats
+    /// it as one. Release matches the SDK and leaves such mentions as plain text.
+    static func detect(_ text: String, allowsTestTLD: Bool = AppConfig.treatsTestTLDAsValid) -> [Facet]? {
         let ns = text as NSString
         let whole = NSRange(location: 0, length: ns.length)
         var facets: [Facet] = []
@@ -37,7 +41,7 @@ enum RichTextDetection {
 
         for match in mentionRegex.matches(in: text, range: whole) {
             let handle = ns.substring(with: match.range(at: 3))
-            guard isValidDomain(handle) || handle.hasSuffix(".test") else { continue }
+            guard isValidDomain(handle) || (allowsTestTLD && handle.hasSuffix(".test")) else { continue }
             let start = match.range(at: 3).location - 1
             facets.append(facet(start, start + (handle as NSString).length + 1, .mention(did: handle)))
         }
@@ -85,9 +89,9 @@ enum RichTextDetection {
     /// `RichTextAPI.detectFacets(client)`: detection, then each mention handle resolved to a DID.
     /// An unresolved mention gets an empty DID, which `RichTextView` renders as plain text. Facets
     /// are sorted by `byteStart` (`facetSort`).
-    static func detectAndResolve(_ text: String,
+    static func detectAndResolve(_ text: String, allowsTestTLD: Bool = AppConfig.treatsTestTLDAsValid,
                                  resolveHandle: @Sendable (String) async throws -> String) async -> [Facet]? {
-        guard var facets = detect(text) else { return nil }
+        guard var facets = detect(text, allowsTestTLD: allowsTestTLD) else { return nil }
         for index in facets.indices {
             for featureIndex in facets[index].features.indices {
                 guard case .mention(let handle) = facets[index].features[featureIndex] else { continue }

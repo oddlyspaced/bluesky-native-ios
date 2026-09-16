@@ -40,6 +40,24 @@ struct RichTextDetectionTests {
         #expect(!RichTextDetection.isValidDomain("bsky.SOCIAL"))
     }
 
+    /// Review finding A67: `.test` is not a top-level domain. Treating it as one was a capture
+    /// accommodation sitting in shipping detection code, so Release linkified mentions that the
+    /// SDK leaves as plain text. It is a build flag now.
+    @Test func onlyTheE2EBuildLinkifiesTestHandles() {
+        // Release behaviour: the SDK leaves it as plain text.
+        #expect(RichTextDetection.detect("hi @bob.test", allowsTestTLD: false) == nil)
+        // The capture build, which talks to the dev network.
+        #expect(summary(RichTextDetection.detect("hi @bob.test", allowsTestTLD: true)) == ["3-12 mention:bob.test"])
+        // A real top-level domain is a mention in either build.
+        #expect(summary(RichTextDetection.detect("hi @bob.social", allowsTestTLD: false)) == ["3-14 mention:bob.social"])
+
+        // The test target does not define `E2E`; only the app target's Debug configuration does
+        // (`ios/project.yml`). The app module under test is therefore always the E2E build, so its
+        // flag must be true here. The Release value is covered by the `allowsTestTLD: false` case
+        // above and by the Release build, which compiles the other branch.
+        #expect(AppConfig.treatsTestTLDAsValid)
+    }
+
     @Test func byteOffsetsCountUTF8() {
         #expect(summary(RichTextDetection.detect("🦋 @bob.test")) == ["5-14 mention:bob.test"])
     }
