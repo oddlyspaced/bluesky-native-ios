@@ -118,6 +118,52 @@ struct InteractivePopTests {
         #expect(gesture.isEnabled)
     }
 
+    /// `UIGestureRecognizer.delegate` is weak, so a proxy that simply deallocates with the screen
+    /// would leave the stack with a nil delegate. Tearing the screen down must put UIKit's own
+    /// delegate back.
+    @Test func tearingDownTheScreenPutsTheOriginalDelegateBack() throws {
+        let navigation = stack()
+        let gesture = try #require(navigation.interactivePopGestureRecognizer)
+        let uikit = StubGestureDelegate()
+        gesture.delegate = uikit
+
+        let screen = UIViewController()
+        let host = InteractivePopHostController()
+        screen.addChild(host)
+        screen.view.addSubview(host.view)
+        host.didMove(toParent: screen)
+        navigation.pushViewController(screen, animated: false)
+        host.enablePopGestures()
+        #expect(gesture.delegate is PopGestureDelegateProxy)
+
+        // The sequence UIKit runs when the screen goes away.
+        host.willMove(toParent: nil)
+        host.view.removeFromSuperview()
+        host.removeFromParent()
+        host.didMove(toParent: nil)
+
+        #expect(gesture.delegate != nil)
+        #expect(gesture.delegate === uikit)
+        #expect(!(gesture.delegate is PopGestureDelegateProxy))
+    }
+
+    /// The restore must not take back a delegate somebody else installed after this one.
+    @Test func teardownLeavesALaterDelegateAlone() throws {
+        let navigation = stack()
+        let gesture = try #require(navigation.interactivePopGestureRecognizer)
+        let uikit = StubGestureDelegate()
+        gesture.delegate = uikit
+        let installer = InteractivePopInstaller()
+        installer.install(on: navigation)
+        #expect(gesture.delegate is PopGestureDelegateProxy)
+
+        let later = StubGestureDelegate()
+        gesture.delegate = later
+        installer.uninstall()
+
+        #expect(gesture.delegate === later)
+    }
+
     /// Review finding A63: a second navigation controller in the same process, such as a
     /// system-presented share sheet, keeps its own delegate.
     @Test func anotherStackInTheProcessKeepsItsDelegate() throws {

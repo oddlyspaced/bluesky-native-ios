@@ -45,6 +45,12 @@ struct InteractivePopEnabler: UIViewControllerRepresentable {
     func updateUIViewController(_ controller: InteractivePopHostController, context: Context) {
         controller.enablePopGestures()
     }
+
+    /// SwiftUI's teardown hook. The proxy must be removed here, not left to deallocate: see
+    /// `InteractivePopInstaller.uninstall()`.
+    static func dismantleUIViewController(_ controller: InteractivePopHostController, coordinator: Coordinator) {
+        controller.restorePopGestureDelegates()
+    }
 }
 
 /// An empty controller whose only job is to own an `InteractivePopInstaller` and to find the
@@ -69,9 +75,17 @@ final class InteractivePopHostController: UIViewController {
 
     override func didMove(toParent parent: UIViewController?) {
         super.didMove(toParent: parent)
-        enablePopGestures()
+        // Leaving the parent is the screen going away: put UIKit's delegates back.
+        if parent == nil {
+            restorePopGestureDelegates()
+        } else {
+            enablePopGestures()
+        }
     }
 
+    /// `rescheduled` guards only the turn it was armed in; it is cleared on that turn, so a rapid
+    /// push sequence can schedule one pass per turn. That is harmless: `install` is idempotent and
+    /// reuses the proxy it already made.
     func enablePopGestures() {
         guard let navigation = navigationController else { return }
         installer.install(on: navigation)
@@ -83,15 +97,28 @@ final class InteractivePopHostController: UIViewController {
             if let later = navigationController { installer.install(on: later) }
         }
     }
+
+    /// Puts UIKit's gesture delegates back. Called when this controller leaves its parent and from
+    /// `InteractivePopEnabler.dismantleUIViewController`.
+    func restorePopGestureDelegates() {
+        installer.uninstall()
+    }
 }
 
 /// Installs `PopGestureDelegateProxy` on one navigation controller's pop gestures and keeps them
 /// enabled. One installer belongs to one screen; it never touches another stack.
 @MainActor
 final class InteractivePopInstaller {
-    /// Proxies by gesture, so a second install reuses the first proxy and never wraps a proxy in
-    /// a proxy.
-    private var proxies: [ObjectIdentifier: PopGestureDelegateProxy] = [:]
+    /// What this installer wrapped, by gesture, so a second install reuses the first proxy and
+    /// never wraps a proxy in a proxy, and so `uninstall()` can put the delegates back.
+    private var installed: [ObjectIdentifier: Installation] = [:]
+
+    private struct Installation {
+        /// Strong. A `UIGestureRecognizer` refers to its view weakly, so this keeps nothing else
+        /// alive, and `uninstall()` needs the gesture to put its delegate back.
+        var gesture: UIGestureRecognizer
+        var proxy: PopGestureDelegateProxy
+    }
 
     /// The edge gesture and, from iOS 26, the gesture over the whole content area.
     static func popGestures(of navigationController: UINavigationController) -> [UIGestureRecognizer] {
@@ -106,21 +133,37 @@ final class InteractivePopInstaller {
         for gesture in Self.popGestures(of: navigationController) {
             let key = ObjectIdentifier(gesture)
             let proxy: PopGestureDelegateProxy
-            if let existing = proxies[key] {
-                proxy = existing
+            if let existing = installed[key] {
+                proxy = existing.proxy
             } else {
+                // The delegate captured here is UIKit's own. `uninstall()` puts it back.
                 proxy = PopGestureDelegateProxy(original: gesture.delegate,
                                                 navigationController: navigationController)
-                proxies[key] = proxy
+                installed[key] = Installation(gesture: gesture, proxy: proxy)
             }
             if gesture.delegate !== proxy { gesture.delegate = proxy }
             if !gesture.isEnabled { gesture.isEnabled = true }
         }
     }
 
+    /// Puts back the delegate each gesture had before this installer wrapped it.
+    ///
+    /// `UIGestureRecognizer.delegate` is weak, and the only strong reference to a proxy is this
+    /// installer, which the screen's host controller owns. Without this, popping the screen would
+    /// leave the navigation controller with a pop gesture whose delegate is nil instead of the
+    /// delegate UIKit installed.
+    func uninstall() {
+        for installation in installed.values {
+            // Never clobber a delegate that somebody else installed after this one.
+            guard installation.gesture.delegate === installation.proxy else { continue }
+            installation.gesture.delegate = installation.proxy.original
+        }
+        installed.removeAll()
+    }
+
     /// The proxy installed on `gesture`, if this installer installed one. Tests read it.
     func proxy(for gesture: UIGestureRecognizer) -> PopGestureDelegateProxy? {
-        proxies[ObjectIdentifier(gesture)]
+        installed[ObjectIdentifier(gesture)]?.proxy
     }
 }
 
@@ -129,6 +172,11 @@ final class InteractivePopInstaller {
 final class PopGestureDelegateProxy: NSObject, UIGestureRecognizerDelegate {
     /// UIKit's own delegate. Weak: it is owned by the navigation controller and it refers back to
     /// it, so a strong reference here would make a cycle.
+    ///
+    /// Assumption: the navigation controller keeps this delegate alive for as long as the gesture
+    /// exists. If it ever does not, this goes nil, and `gestureRecognizerShouldBegin` then answers
+    /// `true` for a gesture that is not one of the stack's pop gestures. That is what UIKit does
+    /// for a recognizer with no delegate, so the fallback matches the unwrapped behaviour.
     private(set) weak var original: (any UIGestureRecognizerDelegate)?
     private weak var navigationController: UINavigationController?
 
