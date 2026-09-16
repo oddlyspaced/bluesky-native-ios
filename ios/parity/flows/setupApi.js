@@ -81,12 +81,34 @@ function now() {
   return new Date().toISOString()
 }
 
+function rkey(uri) {
+  return uri.split('/').pop()
+}
+
+// `com.atproto.repo.listRecords` gives no ordering guarantee and pages at 100 records, so the
+// first record of the first page is not a stable choice (review finding A76). Every page is read
+// and the matching record with the highest rkey wins. An rkey is a TID: fixed width, and it sorts
+// lexicographically in creation order, so the winner is always the newest matching post whatever
+// order the server returns. The PDS returns its pages newest first today, so this selects the same
+// record as the previous rule; it no longer depends on that behaviour.
 function findPost(handle, text) {
-  var page = get('com.atproto.repo.listRecords', 'repo=' + handle + '&collection=app.bsky.feed.post&limit=100')
-  for (var i = 0; i < page.records.length; i++) {
-    if (text === null || page.records[i].value.text === text) return page.records[i]
+  var best = null
+  var cursor = ''
+  for (var page = 0; page < 20; page++) {
+    var query = 'repo=' + handle + '&collection=app.bsky.feed.post&limit=100'
+    var result = get('com.atproto.repo.listRecords', cursor ? query + '&cursor=' + cursor : query)
+    var records = result.records || []
+    for (var i = 0; i < records.length; i++) {
+      if (text !== null && records[i].value.text !== text) continue
+      if (best === null || rkey(records[i].uri) > rkey(best.uri)) best = records[i]
+    }
+    if (records.length === 0 || !result.cursor) break
+    cursor = result.cursor
   }
-  throw new Error('no post by ' + handle + ' with text ' + text)
+  if (best === null) throw new Error('no post by ' + handle + ' with text ' + text)
+  report('setupApi: selected ' + best.uri + ' as the newest post by ' + handle +
+    (text === null ? '' : ' with text "' + text + '"'))
+  return best
 }
 
 // Byte offsets of an ASCII substring (every facet text below is ASCII).
