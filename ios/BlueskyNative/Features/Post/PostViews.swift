@@ -108,7 +108,10 @@ struct PostControls: View {
 
     var body: some View {
         HStack(spacing: Space.md) {
-            HStack(spacing: 0) {
+            // RN cells use `align_start` (`PostControls/index.tsx:218,255,265`): a control without a
+            // count is shorter and sits at the top of the row. This shows only when the count text is
+            // taller than the icon, at the largest Dynamic Type sizes (review finding F6).
+            HStack(alignment: .top, spacing: 0) {
                 cell {
                     controlButton(glyph: .reply, color: theme.control, count: post.replyCount ?? 0, active: false,
                                   id: "replyBtn", countID: nil,
@@ -218,7 +221,7 @@ struct PostControls: View {
     }
 
     private func cell(@ViewBuilder _ content: () -> some View) -> some View {
-        content().frame(maxWidth: .infinity, alignment: .leading)
+        content().frame(maxWidth: .infinity, alignment: .topLeading)
     }
 
     private func controlButton(glyph: IconGlyph, color: Color, count: Int, active: Bool, id: String,

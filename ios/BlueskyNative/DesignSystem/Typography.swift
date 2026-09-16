@@ -204,7 +204,12 @@ private struct RNTextStyleModifier: ViewModifier {
         content
             .font(Font(font as CTFont))
             .tracking(style.legacyText ? RNLineBox.legacyTracking(for: scaled.size) : 0)
-            .lineSpacing(max(0, lineHeight - natural))
+            // Line pitch is `font.lineHeight + lineSpacing`, so the spacing uses the unrounded font
+            // height: each line then advances exactly `lineHeight`, as RN's paragraph style does, and
+            // n wrapped lines measure n x lineHeight. With the pixel-rounded `natural` the pitch was
+            // 19.82pt for text_md snug and a 3-line post row was 1 px (3x) short (review finding F7).
+            // A line height below the font's height cannot shrink the pitch (A57, recorded).
+            .lineSpacing(max(0, lineHeight - font.lineHeight))
             .padding(.top, top)
             .padding(.bottom, bottom)
             .offset(y: RNLineBox.snap(adjustment.glyphOffset + (style.legacyText ? RNLineBox.legacyGlyphOffset : 0),
