@@ -177,7 +177,13 @@ final class PopGestureDelegateProxy: NSObject, UIGestureRecognizerDelegate {
     /// exists. If it ever does not, this goes nil, and `gestureRecognizerShouldBegin` then answers
     /// `true` for a gesture that is not one of the stack's pop gestures. That is what UIKit does
     /// for a recognizer with no delegate, so the fallback matches the unwrapped behaviour.
-    private(set) weak var original: (any UIGestureRecognizerDelegate)?
+    ///
+    /// `nonisolated(unsafe)`: conforming to `UIGestureRecognizerDelegate` makes this class
+    /// main-actor isolated, but `responds(to:)` and `forwardingTarget(for:)` override nonisolated
+    /// `NSObject` methods and must read this property. It is written once, in `init`, and only read
+    /// afterwards, and the ObjC runtime sends those two messages on the thread that sends the
+    /// delegate message, which UIKit does on the main thread.
+    private(set) nonisolated(unsafe) weak var original: (any UIGestureRecognizerDelegate)?
     private weak var navigationController: UINavigationController?
 
     init(original: (any UIGestureRecognizerDelegate)?, navigationController: UINavigationController) {
