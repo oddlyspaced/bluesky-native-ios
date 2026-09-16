@@ -14,10 +14,6 @@ struct ProfileRoute: ScreenRoute {
 }
 
 extension AppRouter {
-    func openThread(uri: String, feedDescriptor: String? = nil) {
-        push(ThreadRoute(uri: uri, feedDescriptor: feedDescriptor))
-    }
-
     /// Profiles other than your own are out of the showcase.
     func openProfile(did: String) {
         guard did == accountDid else {
