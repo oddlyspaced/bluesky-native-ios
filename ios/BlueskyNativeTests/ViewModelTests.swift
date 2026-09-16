@@ -65,6 +65,21 @@ struct FeedTunerTests {
         #expect(tuner.tune([repost]).isEmpty)
     }
 
+    /// `feed-manip.ts:448-465`: a reposted reply records its root, so the later slice of the same
+    /// thread is removed. Found by the api parity capture (review finding F9).
+    @Test func repostedReplyHidesItsThreadSlice() {
+        let root = Make.post("root", by: "bob")
+        let reply = Make.post("reply", by: "carla", reply: Make.replyRef(root: root, parent: root))
+        let context = FeedViewPost.Reply(root: .post(root), parent: .post(root))
+        let repost = feedItem(reply, reply: context,
+                              reason: .repost(by: Make.author("bob"), uri: "at://r", cid: "c", indexedAt: "2"))
+        let thread = feedItem(reply, reply: context)
+        var tuner = FeedTuner(tuners: [.dedupThreads])
+        let slices = tuner.tune([repost, thread])
+        #expect(slices.count == 1)
+        #expect(slices.first?.isRepost == true)
+    }
+
     @Test func mutedThreadsAreRemoved() {
         var post = Make.post("p")
         post.viewer?.threadMuted = true

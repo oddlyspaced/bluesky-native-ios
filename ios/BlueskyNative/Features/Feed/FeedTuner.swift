@@ -172,12 +172,13 @@ struct FeedTuner {
         case .removeReplies:
             return slices.filter { !($0.isReply && !$0.isRepost && !Self.areSameAuthor($0)) }
         case .dedupThreads:
+            // `feed-manip.ts:448-465`: a repost is never removed, but its root is still recorded, so a
+            // later slice of the same thread is removed. Found by the api parity capture (a reposted
+            // reply above its own thread, review finding F9).
             var kept: [FeedSlice] = []
             for slice in slices {
-                if !slice.isRepost {
-                    if seenRootUris.contains(slice.rootUri) { continue }
-                    seenRootUris.insert(slice.rootUri)
-                }
+                if !slice.isRepost && seenRootUris.contains(slice.rootUri) { continue }
+                seenRootUris.insert(slice.rootUri)
                 kept.append(slice)
             }
             return kept
