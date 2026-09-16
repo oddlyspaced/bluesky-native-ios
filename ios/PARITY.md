@@ -20,27 +20,39 @@ Masked ratio = differing pixels after masks / 3,162,132, threshold 0.02, fuzz 5%
 | State | Screen | Raw ratio (px) | Raw status | Masked ratio (px) | Mask area | Masked status |
 |---|---|---|---|---|---|---|
 | base | home | 0.0266 (84,000) | fail | 0.0139 (43,799) | 13.54% | drift |
-| base | thread | 0.0166 (52,358) | drift | 0.0089 (28,054) | 10.83% | pass |
+| base | thread | 0.0166 (52,358) | drift | 0.0094 † | 10.83% † | pass |
 | base | profile | 0.0174 (54,999) | drift | 0.0109 (34,615) | 9.10% | drift |
 | dark | home-dark | 0.0267 (84,448) | fail | 0.0142 (44,917) | 13.54% | drift |
-| dark | thread-dark | 0.0170 (53,673) | drift | 0.0091 (28,693) | 10.83% | pass |
+| dark | thread-dark | 0.0170 (53,673) | drift | 0.0096 † | 10.83% † | pass |
 | dark | profile-dark | 0.0162 (51,254) | drift | 0.0108 (34,240) | 9.10% | drift |
 | largest Dynamic Type | home-xxxl | 0.0307 (97,174) | fail | 0.0170 (53,610) | 13.41% | drift |
-| largest Dynamic Type | thread-xxxl | 0.0231 (73,004) | fail | 0.0150 (47,342) | 11.18% | drift |
+| largest Dynamic Type | thread-xxxl | 0.0231 (73,004) | fail | 0.0156 † | 11.18% † | drift |
 | largest Dynamic Type | profile-xxxl | 0.0246 (77,907) | fail | 0.0179 (56,749) | 9.12% | drift |
 | empty seed | home-empty | 0.0252 (79,828) | fail | 0.0188 (59,596) | 9.60% | drift |
 | empty seed | profile-empty | 0.0194 (61,496) | drift | 0.0116 (36,668) | 9.00% | drift |
 | mergefeed seed | home-mergefeed | 0.0224 (70,763) | fail | 0.0097 (30,633) | 13.38% | pass |
 | after like and repost | home-liked-reposted | 0.0264 (83,537) | fail | 0.0139 (43,889) | 13.54% | drift |
-| after like and repost | thread-liked-reposted | 0.0206 (65,225) | fail | 0.0126 (39,769) | 11.08% | drift |
+| after like and repost | thread-liked-reposted | 0.0206 (65,225) | fail | 0.0132 † | 11.08% † | drift |
 | wrapped text (API setup) | home-wrapped | 0.0253 (80,036) | fail | 0.0128 (40,618) | 13.29% | drift |
-| wrapped text (API setup) | thread-wrapped | 0.0228 (72,197) | fail | 0.0141 (44,688) | 12.65% | drift |
+| wrapped text (API setup) | thread-wrapped | 0.0228 (72,197) | fail | 0.0166 † | 12.65% † | drift |
 | wrapped text (API setup) | profile-wrapped | 0.0234 (74,037) | fail | 0.0157 (49,787) | 9.84% | drift |
 | API setup states | home-api | 0.0405 (128,086) | fail | **0.0273 (86,373)** | 13.29% | **fail** |
-| API setup states | thread-api | 0.0121 (38,295) | drift | 0.0051 (16,003) | 10.29% | pass |
+| API setup states | thread-api | 0.0121 (38,295) | drift | 0.0056 † | 10.29% † | pass |
 | API setup states | profile-api | 0.0246 (77,759) | fail | 0.0172 (54,256) | 9.84% | drift |
 
 Every mask area is at or below the 15% limit.
+
+**† Mask correction, after this table was first written.** Two mask band families were over-wide and
+were hiding content that matched in both apps: the thread header band covered the centred "Post"
+title on six screens, and the wrapped band covered the anchor date line and the "Everybody can
+reply" label. That is exactly the silent pass recorded as review finding A74. The bands were
+narrowed, and six thread masked ratios moved: thread 0.0089 to 0.0094, thread-dark 0.0091 to 0.0096,
+thread-xxxl 0.0150 to 0.0156, thread-liked-reposted 0.0126 to 0.0132, thread-wrapped 0.0141 to
+0.0166, thread-api 0.0051 to 0.0056. **No verdict changed.** The corrected ratios above come from
+the parity-tooling pass that narrowed the bands, not from a measurement made in this pass: this pass
+ran no capture, because the test server was only partly up. The differing-pixel counts and the mask
+areas for those six rows were measured with the old, wider bands, so they are marked † and are not
+restated as fact; a capture run must re-derive them.
 
 **`home-api` is the one failing screen. What is measured, and what was tried.**
 
