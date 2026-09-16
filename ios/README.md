@@ -132,7 +132,8 @@ RN e2e app (`xyz.blueskyweb.app`) or this app.
 
 ```
 cd ios/parity
-./run-pair.sh base              # RN, then native on the same seed; also: dark, xxxl, empty, mergefeed, interactions
+./run-pair.sh base              # RN, then native on the same seed; also: dark, xxxl, empty, mergefeed,
+                                # interactions, wrapped, api
 ./run-capture.sh native errors  # native-only error states
 python3 make_masks.py masks-spec.json base out/base/rn/ios out/base/native/ios masks/base.json
 node <pack>/skills/check-parity/scripts/diff.mjs --rn out/base/rn/ios --native out/base/native/ios \
@@ -143,10 +144,15 @@ node <pack>/skills/check-parity/scripts/events.mjs --rn events/rn-expected-base.
 
 `run-pair.sh` holds the shared seed lock (`/tmp/bsky-seed.lock`) for both apps and captures them in the
 same run. `run-capture.sh` calls the Pack's `capture.mjs`, sets the simulator appearance or content size
-for the state, and copies and normalises the native event log. `make_masks.py` builds masks from the RN
-image and fixed slots only, and fails when native ink falls outside them or a screen is more than 15%
-masked. Results, the noise floor, the event diff and the remaining differences are in
-[PARITY.md](PARITY.md).
+for the state, and copies and normalises the native event log. The `wrapped` and `api` flows run
+`flows/setupApi.js` after the seed: it writes records through the PDS XRPC API (a post that wraps to
+three lines; a repost by bob, a threadgate, a post with facets and bio facets), so the RN app and this
+app capture states that no upstream seed creates.
+
+`make_masks.py` builds masks from the RN image and fixed slots only. It fails when native ink inside
+any app mask lies outside the RN ink area of that mask, when a native ink cluster of any width crosses
+a mask edge where RN has no matching cluster, or when a screen is more than 15% masked. Results, the
+noise floor, the event diff and the remaining differences are in [PARITY.md](PARITY.md).
 
 ## Licensing
 
