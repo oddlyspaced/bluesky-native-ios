@@ -289,10 +289,17 @@
   },
   {
    "x": 0.65091,
-   "y": 0.93059,
+   "y": 0.93898,
    "w": 0.08292,
-   "h": 0.02517,
-   "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+   "h": 0.01678,
+   "reason": "bottom bar bell glyph below the unread badge (Lucide substitute)"
+  },
+  {
+   "x": 0.65091,
+   "y": 0.92067,
+   "w": 0.04395,
+   "h": 0.01831,
+   "reason": "bottom bar bell glyph left of the unread badge (Lucide substitute)"
   }
  ],
  "thread-dark": [
@@ -452,10 +459,17 @@
   },
   {
    "x": 0.65091,
-   "y": 0.93059,
+   "y": 0.93898,
    "w": 0.08292,
-   "h": 0.02517,
-   "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+   "h": 0.01678,
+   "reason": "bottom bar bell glyph below the unread badge (Lucide substitute)"
+  },
+  {
+   "x": 0.65091,
+   "y": 0.92067,
+   "w": 0.04395,
+   "h": 0.01831,
+   "reason": "bottom bar bell glyph left of the unread badge (Lucide substitute)"
   }
  ],
  "profile-dark": [
@@ -545,10 +559,17 @@
   },
   {
    "x": 0.65091,
-   "y": 0.93059,
+   "y": 0.93898,
    "w": 0.08292,
-   "h": 0.02517,
-   "reason": "bottom bar bell glyph below the badge (Lucide substitute)"
+   "h": 0.01678,
+   "reason": "bottom bar bell glyph below the unread badge (Lucide substitute)"
+  },
+  {
+   "x": 0.65091,
+   "y": 0.92067,
+   "w": 0.04395,
+   "h": 0.01831,
+   "reason": "bottom bar bell glyph left of the unread badge (Lucide substitute)"
   }
  ]
 }

@@ -1,0 +1,57 @@
+# Wrapped text (review finding F7): the standard seed plus one alice post that wraps to three
+# lines, created through the PDS API by setupApi.js. Captures home (the post is the top row),
+# its thread anchor and the profile Posts tab.
+#
+# Variables: LABEL (capture.mjs --label), RESEED ("false" skips the seed and setup steps for the
+# second app of a pair, so both apps show the same records).
+appId: io.nativestarter.showcase.bluesky
+---
+- evalScript: "${output.reseed = (typeof RESEED === 'undefined' || RESEED !== 'false')}"
+- runFlow:
+    when:
+      true: ${output.reseed}
+    commands:
+      - runScript:
+          file: setupServer.js
+          env:
+            SERVER_PATH: "?users&follows&posts&feeds&thread"
+      - runScript:
+          file: setupApi.js
+          env:
+            SETUP: "wrapped"
+- runFlow:
+    file: launch.yml
+- retry:
+    maxRetries: 2
+    commands:
+      - tapOn:
+          id: "e2eSignInAlice"
+      - extendedWaitUntil:
+          notVisible: "Create account"
+          timeout: 30000
+- extendedWaitUntil:
+    visible: "Wrapped text check.*"
+    timeout: 60000
+- waitForAnimationToEnd
+- takeScreenshot: home-wrapped
+- tapOn: "Wrapped text check.*"
+# `postThreadItem-by-<handle>` marks a thread row in both apps (RN `ThreadItemAnchor.tsx:319`,
+# native `ThreadScreen.swift:210`) and does not depend on any count, unlike `likeCount-expanded`
+# (the stats row shows only with likes, reposts or quotes). The RN reply pill and the
+# who-can-reply label are not exposed as text to XCUITest, so checks on them cannot be used.
+- extendedWaitUntil:
+    visible:
+      id: "postThreadItem-by-alice.test"
+    timeout: 20000
+- waitForAnimationToEnd
+- takeScreenshot: thread-wrapped
+# The bottom bar is reachable from the thread, so the profile tab is tapped directly. The swipe
+# back is exercised by `capture.yml` in the base state (review finding N16).
+- tapOn:
+    id: "bottomBarProfileBtn"
+- extendedWaitUntil:
+    visible:
+      id: "profileView"
+    timeout: 20000
+- waitForAnimationToEnd
+- takeScreenshot: profile-wrapped

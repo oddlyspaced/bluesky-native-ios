@@ -42,6 +42,7 @@ GAP = 6
 PAD = 4
 TOL = 4
 AROUND = 12
+SAME_REGION = 60
 MAX_AREA = 0.15
 
 
@@ -119,9 +120,14 @@ def build(band, rn):
         # Fixed slot: the icon's layout box at 3x, centred on the RN glyph. The Lucide glyph drawn
         # in the same box has a different ink extent, so the RN ink box alone is too tight.
         slot = band.get("slot", 72)
+        # `maxw`: wider clusters are not glyphs (for example the compose FAB circle that overlaps the
+        # last control row at xxxl); they stay unmasked.
+        maxw = band.get("maxw", W)
         out = []
         for c in found:
             if c[1] - c[0] + 1 < (minw_right if c[0] >= right_x else minw):
+                continue
+            if c[1] - c[0] + 1 > maxw:
                 continue
             cx, cy = (c[0] + c[1]) // 2, (c[2] + c[3]) // 2
             half = max(slot // 2, (c[1] - c[0]) // 2 + PAD, (c[3] - c[2]) // 2 + PAD)
@@ -131,7 +137,10 @@ def build(band, rn):
     if kind == "tail":
         if len(found) < 2:
             return []
-        dot = found[-2]
+        # The "·" is the last small cluster (about 7x7 px at 3x). A time such as "1m" splits into
+        # two clusters, so `found[-2]` would start the slot at the first digit.
+        dots = [c for c in found[:-1] if c[1] - c[0] < 12 and c[3] - c[2] < 12]
+        dot = dots[-1] if dots else found[-2]
         slot = band.get("slot", 150)
         return [rect(dot[0], box[1], dot[0] + slot, box[3] - 1,
                      "relative time (capture clock; slot for now..59m)", kind, pad=0)]
@@ -202,16 +211,22 @@ def edge_crossings(rn, nat, bands, masks):
     seen = set()
     out = []
     for area in areas:
-        reference = clusters(ink_columns(rn, area))
         for c in clusters(ink_columns(nat, area)):
             key = tuple(c)
             if key in seen:
                 continue
             seen.add(key)
             hit = [m for m in masks if m["kind"] != "status" and intersects(c, m)]
-            if hit and not covered(c, hit) and not ink_covered(nat, c, hit) \
-                    and not any(same_box(c, r) for r in reference):
-                out.append((c, hit[0]))
+            if not hit or covered(c, hit) or ink_covered(nat, c, hit):
+                continue
+            # Compare whole clusters, not clusters clipped by the search area: both images are
+            # clustered again in a region SAME_REGION px around the mask.
+            mx0, my0, mx1, my1 = hit[0]["px"]
+            region = [mx0 - SAME_REGION, my0 - SAME_REGION, mx1 + SAME_REGION, my1 + SAME_REGION]
+            full = next((n for n in clusters(ink_columns(nat, region))
+                         if n[0] <= c[1] and c[0] <= n[1] and n[2] <= c[3] and c[2] <= n[3]), c)
+            if not any(same_box(full, r) for r in clusters(ink_columns(rn, region))):
+                out.append((full, hit[0]))
     return out
 
 

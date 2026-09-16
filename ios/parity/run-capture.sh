@@ -58,11 +58,14 @@ case "$STATE" in
   mergefeed) FLOW=capture-mergefeed.yml ;;
   interactions) FLOW=capture-interactions.yml ;;
   errors) FLOW=capture-errors-native.yml ;;
+  # API setup states (review findings F7, F9): setupApi.js writes records after the seed.
+  wrapped) FLOW=capture-wrapped.yml ;;
+  api) FLOW=capture-api.yml ;;
   *) echo "unknown state $STATE"; exit 2 ;;
 esac
 if [ "${RESEED:-true}" = "false" ]; then
   case "$FLOW" in
-    capture.yml|capture-mergefeed.yml) ENV+=(--env RESEED=false) ;;
+    capture.yml|capture-mergefeed.yml|capture-wrapped.yml|capture-api.yml) ENV+=(--env RESEED=false) ;;
     *) echo "RESEED=false is not supported for $FLOW (it changes or needs its own data)"; exit 2 ;;
   esac
 fi
