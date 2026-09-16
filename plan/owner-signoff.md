@@ -68,6 +68,15 @@ Every screen below is above 1% and at or below 2% after masks. Numbers come from
 Refresh this table from the two parity reports, and confirm the commit each number came from, before
 you ask for a signature.
 
+Three iOS rows rose on 2026-09-16 and the rise is an improvement, not a regression. Two mask bands
+were found to be too wide and were hiding matching content in **both** apps: a thread header band
+covered the centred "Post" title on six screens, and a wrapped-text band covered the anchor date and
+"Everybody can reply". Narrowing them exposed pixels that were always different and had never been
+judged. A6 went 0.0150 to 0.0156, A11 0.0126 to 0.0132, A13 0.0141 to 0.0166. No verdict changed.
+Each of the three was re-measured independently with `diff.mjs` against the corrected masks, and the
+screens that share those states were unchanged as a control (`home-xxxl` 0.0170, `profile-xxxl`
+0.0179, `home-wrapped` 0.0128, `profile-wrapped` 0.0157, `home-liked-reposted` 0.0139).
+
 ### iOS, 15 screens (4 pass, 15 drift, 1 fail)
 
 | # | State | Screen | Masked ratio | Accepted by | Date | Notes |
@@ -77,14 +86,14 @@ you ask for a signature.
 | A3 | dark | home-dark | 0.0142 | | | |
 | A4 | dark | profile-dark | 0.0108 | | | |
 | A5 | largest Dynamic Type | home-xxxl | 0.0170 | | | |
-| A6 | largest Dynamic Type | thread-xxxl | 0.0150 | | | |
+| A6 | largest Dynamic Type | thread-xxxl | 0.0156 | | | |
 | A7 | largest Dynamic Type | profile-xxxl | 0.0179 | | | |
 | A8 | empty seed | home-empty | 0.0188 | | | |
 | A9 | empty seed | profile-empty | 0.0116 | | | |
 | A10 | after like and repost | home-liked-reposted | 0.0139 | | | |
-| A11 | after like and repost | thread-liked-reposted | 0.0126 | | | |
+| A11 | after like and repost | thread-liked-reposted | 0.0132 | | | |
 | A12 | wrapped text | home-wrapped | 0.0128 | | | |
-| A13 | wrapped text | thread-wrapped | 0.0141 | | | |
+| A13 | wrapped text | thread-wrapped | 0.0166 | | | |
 | A14 | wrapped text | profile-wrapped | 0.0157 | | | |
 | A15 | API setup | profile-api | 0.0172 | | | |
 
