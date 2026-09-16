@@ -15,7 +15,6 @@ final class UnreadNotificationsModel {
     static let updateInterval: Duration = .seconds(30)
 
     private(set) var count = 0
-    private(set) var lastError: String?
 
     @ObservationIgnored private let api: any BlueskyAPI
     @ObservationIgnored private let random: @Sendable () -> Double
@@ -71,11 +70,11 @@ final class UnreadNotificationsModel {
         do {
             let notifications = try await api.listNotifications(limit: 40)
             count = Self.countUnread(notifications)
-            lastError = nil
         } catch where RequestFailure.isCancellation(error) {
             return
         } catch {
-            lastError = String(describing: error)
+            // Logged, not kept as state: no view ever read it, and a failed check keeps the count
+            // already on screen (review finding A82).
             log.error("Unread check failed: \(String(describing: error), privacy: .public)")
         }
     }

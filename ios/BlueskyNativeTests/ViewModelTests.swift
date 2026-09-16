@@ -344,11 +344,21 @@ struct ProfileAndUnreadTests {
         #expect(BottomBar.unreadHint("") == "")
     }
 
-    @Test func unreadFailureIsRecorded() async {
+    /// Review finding A82: `lastError` was dead state that no view read. A failed check keeps the
+    /// count already on screen, which is the behaviour worth asserting.
+    @Test func unreadFailureKeepsTheCountOnScreen() async {
         let api = FakeBlueskyAPI()
-        await api.setFailNextCall(true)
-        let model = UnreadNotificationsModel(api: api)
+        let author = Make.author("carla")
+        await api.setNotifications([
+            NotificationView(uri: "at://1", reason: "follow", isRead: false, indexedAt: "", author: author),
+        ])
+        let model = UnreadNotificationsModel(api: api, random: { 0.9 })
         await model.check(isPoll: false)
-        #expect(model.lastError != nil)
+        #expect(model.count == 1)
+
+        await api.setFailNextCall(true)
+        await model.check(isPoll: false)
+        #expect(model.count == 1)
+        #expect(model.displayText == "1")
     }
 }

@@ -56,9 +56,11 @@ final class PreferencesModel {
         do {
             let loaded = try await running.value
             if task == running { task = nil }
+            // Cancellation is checked before the commit, not after: a cancelled caller used to
+            // publish the value and refresh `loadedAt`, then throw (review finding A86).
+            try Task.checkCancellation()
             preferences = loaded
             loadedAt = now()
-            try Task.checkCancellation()
             return loaded
         } catch {
             if task == running { task = nil }

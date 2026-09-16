@@ -160,8 +160,11 @@ struct RichTextView: View {
     private static let scheme = "showcase-facet"
 
     var body: some View {
+        // Segmented once per render. Both the attributed text and the share menu need the
+        // segments, and each used to compute them again for every row (review finding A87).
+        let segments = RichTextSegmenter.segments(text: text, facets: facets)
         let emojiOnly = (facets?.isEmpty ?? true) && RichTextRules.isOnlyEmoji(text)
-        Text(attributed)
+        Text(attributed(from: segments))
             .textStyle(size: emojiOnly ? size * 1.85 : size, leading: Leading.snug, adjustment: lineBoxAdjustment)
             .foregroundStyle(theme.text)
             .tint(theme.textLink)
@@ -175,7 +178,7 @@ struct RichTextView: View {
                 }
                 return .discarded
             })
-            .modifier(LinkShareMenu(links: shareableLinks, handler: facetHandler))
+            .modifier(LinkShareMenu(links: Self.shareableLinks(in: segments), handler: facetHandler))
             .accessibilityIdentifier(testID ?? "")
     }
 
@@ -183,15 +186,19 @@ struct RichTextView: View {
     /// `shareOnLongPress` (`RichText.tsx:160-180`). SwiftUI `Text` has no per-run long press, so the
     /// text gets one context menu with a "Share link" item per link (review finding F13).
     var shareableLinks: [PendingLink] {
-        RichTextSegmenter.segments(text: text, facets: facets).compactMap { segment in
+        Self.shareableLinks(in: RichTextSegmenter.segments(text: text, facets: facets))
+    }
+
+    static func shareableLinks(in segments: [RichTextSegment]) -> [PendingLink] {
+        segments.compactMap { segment in
             guard let uri = segment.linkURI, RichTextRules.isValidLinkURI(uri) else { return nil }
             return PendingLink(uri: uri, displayText: RichTextRules.toShortUrl(segment.text))
         }
     }
 
-    private var attributed: AttributedString {
+    private func attributed(from segments: [RichTextSegment]) -> AttributedString {
         var result = AttributedString()
-        for segment in RichTextSegmenter.segments(text: text, facets: facets) {
+        for segment in segments {
             var run: AttributedString
             if let did = segment.mentionDid, did.hasPrefix("did:") {
                 run = AttributedString(segment.text)
