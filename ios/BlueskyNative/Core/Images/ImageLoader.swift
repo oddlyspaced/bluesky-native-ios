@@ -8,41 +8,90 @@ protocol ImageLoading: Sendable {
     func image(at url: URL, maxPixelSize: Int) async throws -> UIImage
 }
 
-/// Memory-cached, downsampling image loader (review finding A15).
+/// Memory-cached, downsampling image loader (review findings A15 and A55).
 ///
 /// - Decoding and downsampling run on this actor, never on the main actor.
-/// - One request per URL and size runs at a time; other callers await it.
+/// - One request per URL **and** size runs at a time; other callers await it.
+/// - A transfer is cancelled once its last waiter goes away, so a row that scrolls off screen
+///   stops its download instead of running to completion (review finding A55).
 /// - Decoded images stay in an `NSCache`, which the system empties under memory pressure.
 actor CachingImageLoader: ImageLoading {
     static let shared = CachingImageLoader()
 
     private let cache = NSCache<NSString, UIImage>()
-    private var inFlight: [String: Task<UIImage, any Error>] = [:]
+    private var downloads: [String: Download] = [:]
     private let session: URLSession
+
+    /// One shared transfer and the number of callers still waiting for it.
+    private struct Download {
+        var task: Task<UIImage, any Error>
+        var waiters: Int
+    }
 
     init(session: URLSession = URLSession(configuration: .ephemeral)) {
         self.session = session
         cache.totalCostLimit = 64 * 1024 * 1024
     }
 
+    /// Transfers in flight. Tests read it.
+    var downloadsInFlight: Int { downloads.count }
+
     func image(at url: URL, maxPixelSize: Int) async throws -> UIImage {
-        let key = "\(url.absoluteString)#\(maxPixelSize)"
+        let key = Self.key(url: url, maxPixelSize: maxPixelSize)
         if let cached = cache.object(forKey: key as NSString) { return cached }
-        if let running = inFlight[key] { return try await running.value }
+        let task = joinOrStart(key: key, url: url, maxPixelSize: maxPixelSize)
+        do {
+            let image = try await withTaskCancellationHandler {
+                try await task.value
+            } onCancel: {
+                // This caller went away. The transfer stops when it was the last waiter.
+                Task { await self.leave(key: key) }
+            }
+            leave(key: key)
+            let cost = Int(image.size.width * image.size.height * image.scale * image.scale * 4)
+            cache.setObject(image, forKey: key as NSString, cost: cost)
+            return image
+        } catch {
+            // A cancelled caller has already left, in `onCancel`.
+            if !Task.isCancelled { leave(key: key) }
+            throw error
+        }
+    }
+
+    /// The cache and in-flight key. It carries the pixel size as well as the URL, so an image
+    /// decoded for one size never answers a request for another (review finding A55).
+    private static func key(url: URL, maxPixelSize: Int) -> String {
+        "\(url.absoluteString)#\(maxPixelSize)"
+    }
+
+    private func joinOrStart(key: String, url: URL, maxPixelSize: Int) -> Task<UIImage, any Error> {
+        if let running = downloads[key] {
+            downloads[key]?.waiters = running.waiters + 1
+            return running.task
+        }
         let session = self.session
         let task = Task<UIImage, any Error> {
             let (data, _) = try await session.data(from: url)
+            try Task.checkCancellation()
             guard let image = Self.downsample(data, maxPixelSize: maxPixelSize) else {
                 throw URLError(.cannotDecodeContentData)
             }
             return image
         }
-        inFlight[key] = task
-        defer { inFlight[key] = nil }
-        let image = try await task.value
-        let cost = Int(image.size.width * image.size.height * image.scale * image.scale * 4)
-        cache.setObject(image, forKey: key as NSString, cost: cost)
-        return image
+        downloads[key] = Download(task: task, waiters: 1)
+        return task
+    }
+
+    /// One caller stopped waiting. The transfer is cancelled when no caller is left.
+    private func leave(key: String) {
+        guard var download = downloads[key] else { return }
+        download.waiters -= 1
+        if download.waiters <= 0 {
+            downloads[key] = nil
+            download.task.cancel()
+        } else {
+            downloads[key] = download
+        }
     }
 
     private static func downsample(_ data: Data, maxPixelSize: Int) -> UIImage? {
@@ -63,6 +112,26 @@ extension EnvironmentValues {
     @Entry var imageLoader: any ImageLoading = CachingImageLoader.shared
 }
 
+/// The identity of one `RemoteImage` load: the URL **and** the decoded size.
+struct RemoteImageRequest: Hashable, Sendable {
+    var url: URL
+    var maxPixelSize: Int
+}
+
+/// What a `RemoteImage` currently holds, and the request it answers.
+struct LoadedRemoteImage {
+    var request: RemoteImageRequest
+    var image: UIImage
+
+    /// True when this image answers the request being rendered.
+    ///
+    /// A `RemoteImage` whose URL or size changed must show its placeholder again, not the image
+    /// of the previous URL (review finding A55).
+    func answers(_ request: RemoteImageRequest) -> Bool {
+        self.request == request
+    }
+}
+
 /// A remote image sized by its container, loaded through `ImageLoading`.
 struct RemoteImage<Placeholder: View>: View {
     var url: URL
@@ -72,18 +141,27 @@ struct RemoteImage<Placeholder: View>: View {
 
     @Environment(\.imageLoader) private var loader
     @Environment(\.displayScale) private var displayScale
-    @State private var image: UIImage?
+    @State private var loaded: LoadedRemoteImage?
+
+    private var request: RemoteImageRequest {
+        RemoteImageRequest(url: url, maxPixelSize: Int((pointSize * displayScale).rounded(.up)))
+    }
 
     var body: some View {
         ZStack {
-            if let image {
-                Image(uiImage: image).resizable().scaledToFill()
+            if let loaded, loaded.answers(request) {
+                Image(uiImage: loaded.image).resizable().scaledToFill()
             } else {
                 placeholder
             }
         }
-        .task(id: url) {
-            image = try? await loader.image(at: url, maxPixelSize: Int((pointSize * displayScale).rounded(.up)))
+        // Keyed on the size as well as the URL: a size change reloads instead of keeping the
+        // decode made for the old size (review finding A55).
+        .task(id: request) {
+            let request = self.request
+            guard let image = try? await loader.image(at: request.url, maxPixelSize: request.maxPixelSize),
+                  !Task.isCancelled else { return }
+            loaded = LoadedRemoteImage(request: request, image: image)
         }
     }
 }
