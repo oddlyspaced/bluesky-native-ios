@@ -11,15 +11,12 @@ set -uo pipefail
 STATE=${1:?state}
 HERE="$(cd "$(dirname "$0")" && pwd)"
 OUT=${2:-"$HERE/out/$STATE"}
-LOCK=/tmp/bsky-seed.lock
+# shellcheck source=seed-lock.sh
+. "$HERE/seed-lock.sh"
 
-until mkdir "$LOCK" 2>/dev/null; do
-  if [ -d "$LOCK" ] && [ $(( $(date +%s) - $(stat -f %m "$LOCK") )) -gt 1200 ]; then
-    rmdir "$LOCK" 2>/dev/null; continue
-  fi
-  echo "waiting for seed lock"; sleep 10
-done
-trap 'rmdir "$LOCK" 2>/dev/null' EXIT
+# The lock is broken only when its recorded holder is gone (review finding A77).
+seed_lock_acquire
+trap seed_lock_release EXIT
 
 echo "=== rn $STATE $(date +%T)"
 NOLOCK=1 "$HERE/run-capture.sh" rn "$STATE" "$OUT"

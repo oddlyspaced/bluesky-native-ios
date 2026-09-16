@@ -8,7 +8,9 @@
 #   RESEED=false  skip the flow's seed step (run-pair.sh sets it for the second app of a pair)
 #   NOLOCK=1      the caller already holds the seed lock (run-pair.sh)
 #
-# - Takes the shared seed lock (/tmp/bsky-seed.lock, stale after 20 min) for seed + Maestro.
+# - Takes the shared seed lock (/tmp/bsky-seed.lock) for the seed and the Maestro run. seed-lock.sh
+#   breaks a held lock only when the recorded holder process is gone, or when no holder is recorded
+#   and the lock is older than the staleness limit (review finding A77).
 # - Sets the simulator appearance or content size for the state and resets it afterwards.
 # - Screenshots land in <out-dir>/<label>/ios/ (default out-dir: ios/parity/out/<state>).
 # - For the native build it copies Documents/events.jsonl next to the screenshots and writes
@@ -23,16 +25,12 @@ mkdir -p "$OUT" && OUT="$(cd "$OUT" && pwd)"
 UDID=${UDID:-7F73AB4A-2709-4033-89D2-35CE10E650F4}
 PACK=${PACK:-../migration-pack}
 CAPTURE="$PACK/skills/check-parity/scripts/capture.mjs"
-LOCK=/tmp/bsky-seed.lock
 NATIVE_ID=io.nativestarter.showcase.bluesky
+# shellcheck source=seed-lock.sh
+. "$HERE/seed-lock.sh"
 
 if [ "${NOLOCK:-}" != "1" ]; then
-  until mkdir "$LOCK" 2>/dev/null; do
-    if [ -d "$LOCK" ] && [ $(( $(date +%s) - $(stat -f %m "$LOCK") )) -gt 1200 ]; then
-      rmdir "$LOCK" 2>/dev/null; continue
-    fi
-    echo "waiting for seed lock"; sleep 10
-  done
+  seed_lock_acquire
 fi
 
 reset_ui() {
@@ -41,7 +39,7 @@ reset_ui() {
 }
 cleanup() {
   reset_ui
-  if [ "${NOLOCK:-}" != "1" ]; then rmdir "$LOCK" 2>/dev/null; fi
+  if [ "${NOLOCK:-}" != "1" ]; then seed_lock_release; fi
 }
 trap cleanup EXIT
 
