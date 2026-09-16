@@ -493,6 +493,28 @@ struct SessionStoreTests {
         #expect(await credentials.saved?.refreshJwt == "t2")
     }
 
+    /// Review finding A78: an account switch revokes the previous account's session on the server,
+    /// as sign-out does. Without the revoke, the previous account's refresh token stays valid.
+    @Test func accountSwitchRevokesThePreviousSession() async {
+        let credentials = MemoryCredentialStore()
+        let apis = Box<[FakeBlueskyAPI]>([])
+        let store = makeStore(credentials, apis: apis)
+        await store.restore()
+        await store.signIn(service: service, identifier: "alice.test", password: "x")
+        await store.signIn(service: service, identifier: "bob.test", password: "x")
+        await store.waitForPendingWork()
+
+        #expect(store.state == .signedIn(did: "did:plc:bob.test", handle: "bob.test"))
+        let alice = apis.value.first
+        let bob = apis.value.last
+        #expect(apis.value.count == 2)
+        #expect(await alice?.invalidated == true)
+        #expect(await alice?.calls == ["deleteSession"])
+        // The account switched to keeps its session.
+        #expect(await bob?.invalidated == false)
+        #expect(await bob?.calls == [])
+    }
+
     @Test func staleRefreshFromAnotherAccountIsDropped() async {
         let credentials = MemoryCredentialStore()
         let callbacks = Box<[SessionCallbacks]>([])

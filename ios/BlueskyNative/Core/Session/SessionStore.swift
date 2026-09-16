@@ -123,6 +123,9 @@ final class SessionStore {
             }
         }.value
         await previous?.invalidate()
+        // An account switch revokes the previous account's session on the server, as sign-out does.
+        // Without this its refresh token stays valid (review finding A78).
+        if let previous { revokeSession(previous) }
         guard saved, writes.isCurrent(generation) else {
             if api == nil { state = .signedOut }
             return
@@ -145,12 +148,21 @@ final class SessionStore {
             }
         }
         guard let old else { return }
+        revokeSession(old)
+    }
+
+    /// Revokes a detached session on the server, chained after any revoke already running.
+    ///
+    /// Sign-out and an account switch both use this, so an account the app switched away from
+    /// stops working on the server too (review finding A78).
+    private func revokeSession(_ api: any SessionBoundAPI) {
+        let log = self.log
         let previousRevoke = revokeTask
         revokeTask = Task {
             await previousRevoke?.value
             // Waits for a refresh in flight, so the revoke uses the newest refresh token (A47).
-            await old.invalidate()
-            do { try await old.deleteSession() } catch {
+            await api.invalidate()
+            do { try await api.deleteSession() } catch {
                 log.error("deleteSession failed: \(String(describing: error), privacy: .public)")
             }
         }
