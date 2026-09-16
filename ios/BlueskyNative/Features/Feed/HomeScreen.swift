@@ -27,7 +27,7 @@ struct HomeScreen: View {
             Color.clear.frame(width: 0, height: 0).accessibilityElement(children: .ignore)
         }
         .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("homeScreen")
+        .accessibilityIdentifier(ScreenID.home)
     }
 
     private var feedPage: some View {
@@ -36,7 +36,7 @@ struct HomeScreen: View {
             Color.clear.frame(width: 0, height: 0).accessibilityElement(children: .ignore)
         }
         .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("followingFeedPage")
+        .accessibilityIdentifier(ScreenID.followingFeedPage)
     }
 
     private var feedList: some View {

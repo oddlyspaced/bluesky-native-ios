@@ -124,8 +124,10 @@ private struct TabStack: View {
         // RN `Layout.Screen testID="HomeScreen"` (`Home.tsx:95`) wraps the whole Home screen. The id
         // sits on the hosting stack, a separate container from the screen's own `homeScreen`, so
         // both ids stay exposed (measured with `maestro hierarchy`, review finding F2).
-        if router.tab == .home {
-            stack.accessibilityElement(children: .contain).accessibilityIdentifier("HomeScreen")
+        //
+        // The tab's feature registers the id; the shell no longer names a tab (review finding A71).
+        if let identifier = container.registry.rootIdentifier(for: router.tab) {
+            stack.accessibilityElement(children: .contain).accessibilityIdentifier(identifier)
         } else {
             stack
         }

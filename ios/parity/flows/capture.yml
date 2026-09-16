@@ -52,6 +52,14 @@ appId: io.nativestarter.showcase.bluesky
       - extendedWaitUntil:
           visible: "Find accounts to follow"
           timeout: 60000
+# The RN screen ids of the Home stack (review findings F2, A64). These assert only; they change
+# nothing that is captured and no screen order. Without them, deleting an id fails no check.
+- assertVisible:
+    id: "HomeScreen"
+- assertVisible:
+    id: "homeScreen"
+- assertVisible:
+    id: "followingFeedPage"
 - waitForAnimationToEnd
 - takeScreenshot: home${output.suffix}
 
@@ -86,5 +94,10 @@ appId: io.nativestarter.showcase.bluesky
     visible:
       id: "profileView"
     timeout: 20000
+# The RN screen ids of the Profile stack (review findings F2, A64). Assertions only.
+- assertVisible:
+    id: "profileScreen"
+- assertVisible:
+    id: "postsFeed"
 - waitForAnimationToEnd
 - takeScreenshot: profile${output.suffix}

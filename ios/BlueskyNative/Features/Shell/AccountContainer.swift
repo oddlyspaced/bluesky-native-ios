@@ -177,6 +177,28 @@ final class AppRouter {
     }
 }
 
+// MARK: - Screen identifiers
+
+/// The RN screen ids this port exposes (`Layout.Screen testID`), review findings F2, A64 and A71.
+///
+/// One place, so a screen, the shell and the capture flow cannot drift apart.
+/// `parity/flows/capture.yml` asserts every id in `assertedInCaptureFlow` with `assertVisible`.
+enum ScreenID {
+    /// The home tab's hosting stack (`Home.tsx:95`). The shell reads it from `ScreenRegistry`.
+    static let homeStack = "HomeScreen"
+    /// `Home.tsx:308`.
+    static let home = "homeScreen"
+    /// `Home.tsx:320`.
+    static let followingFeedPage = "followingFeedPage"
+    /// `Profile.tsx:63`.
+    static let profile = "profileScreen"
+    /// The profile Posts feed list (`Profile.tsx:436`).
+    static let postsFeed = "postsFeed"
+
+    /// Every id `parity/flows/capture.yml` asserts, in the order the flow asserts them.
+    static let assertedInCaptureFlow = [homeStack, home, followingFeedPage, profile, postsFeed]
+}
+
 // MARK: - Screen registry
 
 /// Maps tab roots and route types to screens (review finding A58). Features register their own
@@ -185,6 +207,9 @@ final class AppRouter {
 final class ScreenRegistry {
     private var factories: [ObjectIdentifier: @MainActor (Route, AccountContainer) -> AnyView] = [:]
     private var roots: [ShellTab: @MainActor (AccountContainer) -> AnyView] = [:]
+    /// The RN `Layout.Screen` testID of a tab's hosting stack, registered by the feature that owns
+    /// the tab. The shell reads it instead of naming a tab itself (review finding A71).
+    private var rootIdentifiers: [ShellTab: String] = [:]
 
     func register<R: ScreenRoute, Content: View>(
         _ type: R.Type, @ViewBuilder factory: @escaping @MainActor (R, Route, AccountContainer) -> Content
@@ -195,8 +220,15 @@ final class ScreenRegistry {
         }
     }
 
-    func registerRoot<Content: View>(_ tab: ShellTab, @ViewBuilder factory: @escaping @MainActor (AccountContainer) -> Content) {
+    func registerRoot<Content: View>(_ tab: ShellTab, identifier: String? = nil,
+                                     @ViewBuilder factory: @escaping @MainActor (AccountContainer) -> Content) {
         roots[tab] = { AnyView(factory($0)) }
+        rootIdentifiers[tab] = identifier
+    }
+
+    /// The id the shell puts on this tab's hosting stack, when the tab's feature registered one.
+    func rootIdentifier(for tab: ShellTab) -> String? {
+        rootIdentifiers[tab]
     }
 
     var rootTabs: [ShellTab] {
@@ -327,7 +359,7 @@ extension ScreenRegistry {
     /// The screens of this slice.
     static func slice() -> ScreenRegistry {
         let registry = ScreenRegistry()
-        registry.registerRoot(.home) { _ in HomeScreen() }
+        registry.registerRoot(.home, identifier: ScreenID.homeStack) { _ in HomeScreen() }
         registry.registerProfileScreens()
         registry.registerThreadScreens()
         return registry

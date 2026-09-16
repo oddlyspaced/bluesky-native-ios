@@ -25,7 +25,7 @@ struct ProfileScreen: View {
             Color.clear.frame(width: 0, height: 0).accessibilityElement(children: .ignore)
         }
         .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("profileScreen")
+        .accessibilityIdentifier(ScreenID.profile)
     }
 
     private var screen: some View {
@@ -113,7 +113,7 @@ struct ProfileScreen: View {
                         }
                     }
                 }
-                .accessibilityIdentifier("postsFeed")
+                .accessibilityIdentifier(ScreenID.postsFeed)
                 .ignoresSafeArea(edges: .top)
                 .refreshable { await model.refresh() }
                 .onChange(of: container.router.routers[.profile]?.softResetToken) {
