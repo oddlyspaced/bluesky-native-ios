@@ -378,3 +378,43 @@ Two port bugs were found by the new captures and fixed:
 | `maestro hierarchy` | Worked; it is the only way to see which SwiftUI containers stay separate elements |
 | Maestro text matching | RN does not expose the reply pill or the who-can-reply label as text to XCUITest, and a `notVisible` check on such text passes without proving anything. Flows use ids (`postThreadItem-by-<handle>`, `likeCount-expanded`) instead |
 | Maestro `runScript` | Used for the API setup. A setup that writes records must wait for the AppView to index them, or the flow launches before the data exists |
+
+## The `home-api` failure: measured cause (2026-09-16)
+
+`home-api` stays a **fail** at 0.0273 masked. The checkpoint stays open. Two attempts were
+made and both were reverted; neither is presented as a fix.
+
+**What matches.** The reason block ("Reposted by") starts at y 1013 in both apps, and the gap
+from its bottom to the first content row is 22 px in both. A slice with only a reason row
+(`interactions`) is 185 px in both apps. A slice with only a "Replied to" row (`mergefeed`) is
+273 px in both, with identical borders.
+
+**What differs.** Only a slice carrying both headers: 395 px in RN against 393 px in the port.
+The loss is two separate 1 px gaps: meta to "Replied to" (RN 66, native 65) and controls to row
+end (RN 79, native 78).
+
+**Attempt 1, constant composition (reverted).** RN composes the reason block as `pt_sm` on the
+wrapper (`PostFeedItem.tsx:376`) plus the label's line box plus `marginBottom: 2`
+(`PostFeedReason.tsx`). The port used a constant. Replacing it with the block's laid-out height
+produced a byte-identical capture: 393 px, 0.0273. The constant was not the cause.
+
+**Attempt 2, RN's paragraph model (not viable in SwiftUI).** RN sets
+`paragraphStyle.minimumLineHeight = maximumLineHeight = lineHeight`
+(`RCTAttributedTextUtils.mm:229-233`) and a baseline offset (`:300-339`). A probe showed SwiftUI
+`Text` ignores `NSParagraphStyle` carried in an `AttributedString`: at lineHeight 17 over three
+lines, UIKit `boundingRect` gives 51.0 px (3 x 17) while SwiftUI gives 54.67 px either way. Only
+`baselineOffset` survives, and it grew the single-line box by 1 pt, which would regress screens
+that match today. Reaching RN's model needs a UIKit-backed text primitive
+(`UIViewRepresentable`), as RN itself uses.
+
+**Cause.** Not the line-box model. Every box in the failing slice is single-line and
+pixel-snapped, and RN rounds `lineHeight` the same way (`typography.tsx:41-44`). The gaps are
+correct with one header and wrong only with two, which points to Yoga's absolute-position pixel
+rounding when two small-text headers stack.
+
+**Recommended fix, not attempted here.** Replace the text primitive with a `UIViewRepresentable`
+over `UITextView`/`UILabel`, so paragraph attributes and RN's rounding both apply. That is a
+foundation-level change and belongs in its own checkpoint, not in a parity fix pass.
+
+A failing screen is never signed off (`check-parity/references/thresholds.md`). This row is not
+offered for acceptance.
