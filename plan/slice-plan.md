@@ -56,6 +56,7 @@ These differences are not accepted yet. The gate "Parity report passes, or every
 | 2026-09-16 | iOS | `reviews/2026-09-16-ios-CP00-03-parity-review-3.md` | 2 blockers (F1 no human sign-off; F2 screen testIDs) |
 | 2026-09-16 | Android | `reviews/2026-09-16-android-CP00-03-architecture-review-1.md` | No blockers; 17 major, 20 minor |
 | 2026-09-16 | Android | `reviews/2026-09-16-android-CP00-03-parity-review-1.md` | 5 blockers (A1 resume event; A2 numbers unreproducible; A3 mask hides the element under test; A4 error-home claim is a harness artefact; A5 no human sign-off) |
+| 2026-09-16 | iOS | `reviews/2026-09-16-ios-CP00-03-architecture-review-3.md` | 2 blockers (A63 UIKit extension override and app-wide gesture delegate; A64 screen ids have no automated check) |
 
 ## Acceptance
 
