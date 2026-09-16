@@ -166,6 +166,20 @@ asks for more evidence before any parity claim is published.
 | E4 | Five states on iOS have no RN counterpart (first-load, load-more, thread and profile errors) because RN has no fault control and the shared server must not be stopped. They are proven by unit tests, not by a pixel diff. | | |
 | E5 | Loading skeletons, not-found, tombstones, load-more after 30 posts, pull to refresh and link long press are proven by unit tests only. A screenshot of each is either not deterministic or not reachable through Maestro. | | |
 | E6 | Every capture is one device per platform: an iPhone simulator at 3x, and a Pixel 10 Pro emulator at density 480. No second device, scale or orientation is measured. | | |
+| E7 | The iOS event claim, "ordered MATCH, 19 of 19", covers the **`base` state only**. One RN expected list is committed (`ios/parity/events/rn-expected-base.jsonl`). The other seven states have no event comparison. | | |
+| E8 | The iOS event result **cannot be reproduced from this repository**. The native log it was measured against lives in `ios/parity/out/`, which is not committed. Android records the same class of problem as blocker A2, where it was treated as blocking. The Android logs for `base` and `dark` are now committed under `android/parity/evidence/`; the iOS logs are not. | | |
+
+Both E7 and E8 were established on 2026-09-16, when the event comparator itself was found defective
+and rebuilt (see below). The iOS match was re-measured with the corrected comparator and still
+reports 19 of 19 for `base`, so the claim holds for the state it covers.
+
+**The comparator that produced every event result in this repository had a defect.** In `--ordered`
+mode it compared the two logs by index, so one absent event near the head shifted every later index
+and manufactured differences that did not exist. On the Android capture it reported 14 difference
+lines where 3 were real. It is fixed in the Pack (`events.mjs`, aligned with a longest common
+subsequence) and re-run against the same Android logs gives 3 lines, matching the hand analysis.
+Every event number in the reports predates that fix unless it says otherwise, and each is being
+re-measured.
 
 ## Signature
 
