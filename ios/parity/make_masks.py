@@ -27,7 +27,11 @@ Rules (review findings N18, N19, F5):
   are searched in every band and around every mask.
 - A screen whose masks cover more than 15% of its pixels is an error.
 
-Ink is a pixel whose luma differs from the row background (sampled at x 6) by more than 40.
+Ink is a pixel whose luma differs from the background of its row by more than 40. The row
+background is detected, not assumed: the row is sampled every 4 px, the samples are binned by
+luma, and the background is the median of the largest bin (review finding A75). A single sample
+at the left edge named the wrong colour for any row whose left edge is not the page background
+(a profile banner, full-width media, a wide button).
 
 Usage: make_masks.py <spec.json> <state> <rn-dir> <native-dir> <out-masks.json>
 Exit 0: masks written. Exit 1: masks written, but a check failed (listed on stderr).
@@ -44,13 +48,48 @@ TOL = 4
 AROUND = 12
 SAME_REGION = 60
 MAX_AREA = 0.15
+INK = 40        # luma difference from the row background that counts as ink
+BG_STEP = 4     # the row background is sampled every BG_STEP px
+BG_BIN = 8      # luma bin width for the sample count
+BG_EDGE = 4     # sampling starts here: x 0-2 holds the native E2E fault-control column
+
+
+class Shot:
+    """One capture, with the detected background of each row.
+
+    `bg(y)` samples the row every BG_STEP px, bins the samples by luma and returns the median of
+    the largest bin: the colour that covers most of the row. That is the page background for a
+    normal row, the banner for a banner row and the media for a full-width media row. Sampling
+    starts at BG_EDGE, because x 0-2 holds the native E2E fault-control column (rows 300-314).
+    """
+
+    def __init__(self, path):
+        image = Image.open(path).convert("RGB")
+        if image.size != (W, H):
+            raise SystemExit(f"{path}: size {image.size}, expected {(W, H)}")
+        self.path = path
+        self.px = image.convert("L").load()
+        self.rows = {}
+
+    def __getitem__(self, xy):
+        return self.px[xy]
+
+    def bg(self, y):
+        if y not in self.rows:
+            bins = {}
+            for x in range(BG_EDGE, W - BG_EDGE, BG_STEP):
+                luma = self.px[x, y]
+                bins.setdefault(luma // BG_BIN, []).append(luma)
+            # The largest bin wins; the lowest bin index breaks a tie, so the result never
+            # depends on iteration order.
+            best = min(bins, key=lambda index: (-len(bins[index]), index))
+            values = sorted(bins[best])
+            self.rows[y] = values[len(values) // 2]
+        return self.rows[y]
 
 
 def load(path):
-    img = Image.open(path).convert("RGB")
-    if img.size != (W, H):
-        raise SystemExit(f"{path}: size {img.size}, expected {(W, H)}")
-    return img.convert("L").load()
+    return Shot(path)
 
 
 def clamp_box(box):
@@ -58,23 +97,22 @@ def clamp_box(box):
     return max(0, x0), max(0, y0), min(W, x1), min(H, y1)
 
 
-def is_ink(px, x, y):
-    # x 0-2 holds the native E2E fault-control column (rows 300-314), so the background is sampled at x 6.
-    return abs(px[x, y] - px[6, y]) > 40
+def is_ink(shot, x, y):
+    return abs(shot.px[x, y] - shot.bg(y)) > INK
 
 
-def ink_pixels(px, box):
+def ink_pixels(shot, box):
     x0, y0, x1, y1 = clamp_box(box)
-    return [(x, y) for y in range(y0, y1) for x in range(x0, x1) if is_ink(px, x, y)]
+    return [(x, y) for y in range(y0, y1) for x in range(x0, x1) if is_ink(shot, x, y)]
 
 
-def ink_columns(px, box):
+def ink_columns(shot, box):
     x0, y0, x1, y1 = clamp_box(box)
     cols = {}
     for y in range(y0, y1):
-        bg = px[6, y]
+        bg = shot.bg(y)
         for x in range(x0, x1):
-            if abs(px[x, y] - bg) > 40:
+            if abs(shot.px[x, y] - bg) > INK:
                 lo, hi = cols.get(x, (y, y))
                 cols[x] = (min(lo, y), max(hi, y))
     return cols
