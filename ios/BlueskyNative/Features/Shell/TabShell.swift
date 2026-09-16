@@ -101,8 +101,13 @@ struct TabShell: View {
             // effects (`BaseNavigationContainer.tsx:322-399`), so the event waits one main-actor
             // turn, after screen handlers such as Home's `home:feedDisplayed` focus event.
             Task { @MainActor in router.reportNavigation() }
-            container.pruneRoutes()
             updateStatusBar()
+        }
+        // Pruning follows route identity, not the screen name. A PostThread pushed from a
+        // PostThread keeps the name "PostThread", so a name-keyed prune never ran and the popped
+        // screen's model and its whole thread response leaked (review finding A72).
+        .onChange(of: router.allRoutes) {
+            container.pruneRoutes()
         }
         .onChange(of: theme.name) { updateStatusBar() }
     }

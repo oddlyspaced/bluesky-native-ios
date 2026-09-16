@@ -79,3 +79,11 @@ final class ProfileModel {
     /// Tabs RN shows on your own profile, in order (`Profile.tsx`).
     static let ownProfileTabs = ["Posts", "Replies", "Media", "Videos", "Likes", "Feeds", "Starter Packs", "Lists"]
 }
+
+extension ProfileModel: RouteScopedModel {
+    /// Stops the Posts tab's work when a pushed profile's route leaves the stack
+    /// (review finding A83).
+    func cancel() {
+        posts.cancel()
+    }
+}

@@ -2,6 +2,13 @@ import Foundation
 import Testing
 @testable import NativeShowcase
 
+/// A route-scoped model that only records whether it was cancelled.
+@MainActor
+private final class StubRouteModel: RouteScopedModel {
+    private(set) var cancelled = false
+    func cancel() { cancelled = true }
+}
+
 /// Review findings A20, A58 and A66: AppRouter behaviour and route-scoped models.
 ///
 /// Every push here goes through `AccountContainer.openThread`, the path production code uses.
@@ -103,5 +110,50 @@ struct RouterTests {
         container.pruneRoutes()
         #expect(container.routeModels.count == 1)
         #expect(container.topThreadModel === first)
+    }
+
+    /// Review finding A72: a PostThread pushed from a PostThread keeps the screen name
+    /// "PostThread". A prune keyed on the screen name therefore never ran, and the popped screen's
+    /// model and its whole thread response leaked. Pruning follows route identity now.
+    @Test func pruningFollowsRouteIdentityNotTheScreenName() {
+        let container = makeContainer()
+        container.openThread(uri: "at://a")
+        let nameAfterFirstPush = container.router.currentScreenName
+        let routesAfterFirstPush = container.router.allRoutes
+
+        container.openThread(uri: "at://b")
+        // The screen name cannot see this push; route identity can.
+        #expect(container.router.currentScreenName == nameAfterFirstPush)
+        #expect(container.router.allRoutes != routesAfterFirstPush)
+        #expect(container.routeModels.count == 2)
+
+        container.router.routers[.home]!.path.removeLast()
+        container.pruneRoutes()
+        #expect(container.routeModels.count == 1)
+    }
+
+    /// Review finding A83: `ViewabilityTracker.cancel` had no caller. A pruned route's model now
+    /// stops the work it owns.
+    @Test func aPrunedModelIsCancelled() {
+        let store = RouteModelStore()
+        let route = Route(ThreadRoute(uri: "at://a", feedDescriptor: nil))
+        let model = store.model(for: route) { StubRouteModel() }
+        #expect(store.count == 1)
+        #expect(!model.cancelled)
+
+        let dropped = store.prune(keeping: [])
+        #expect(dropped == 1)
+        #expect(model.cancelled)
+        #expect(store.count == 0)
+    }
+
+    /// The models a route owns all stop their work when the route is pruned.
+    @Test func theRouteScopedModelsCanBeCancelled() {
+        let container = makeContainer()
+        container.openThread(uri: "at://a")
+        let routes = container.router.routers[.home]!.path
+        #expect(container.threadModel(for: routes[0]) is any RouteScopedModel)
+        #expect(container.profile is any RouteScopedModel)
+        #expect(container.homeFeed is any RouteScopedModel)
     }
 }

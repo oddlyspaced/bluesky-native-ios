@@ -332,6 +332,16 @@ final class FeedModel {
     }
 }
 
+extension FeedModel: RouteScopedModel {
+    /// Stops paging and the pending `post:view` reports when the feed's route leaves the stack
+    /// (review finding A83).
+    func cancel() {
+        loadMoreTask?.cancel()
+        loadMoreTask = nil
+        tracker?.cancel()
+    }
+}
+
 /// One rendered row of a slice, with the flags RN computes in `PostFeed.tsx:622-683, 872-893`.
 struct FeedRow: Identifiable, Hashable {
     enum Kind: Hashable {

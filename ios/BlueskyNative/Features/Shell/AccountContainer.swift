@@ -249,6 +249,15 @@ final class ScreenRegistry {
     }
 }
 
+/// A route-scoped model that must stop its work when its route leaves the stack.
+///
+/// `RouteModelStore.prune` calls this on every model it drops, so a popped screen stops its
+/// requests and its pending `post:view` reports (review finding A83).
+@MainActor
+protocol RouteScopedModel: AnyObject {
+    func cancel()
+}
+
 /// Models that live exactly as long as their route is on a stack (review findings A35, A58).
 /// A model is created on the first request for its route.
 @MainActor
@@ -268,10 +277,19 @@ final class RouteModelStore {
         models[route] as? Model
     }
 
-    /// Drops models for routes no longer on any stack.
-    func prune(keeping live: some Sequence<Route>) {
+    /// Drops models for routes no longer on any stack, and stops the work each dropped model owns
+    /// (review finding A83). Returns the number dropped.
+    @discardableResult
+    func prune(keeping live: some Sequence<Route>) -> Int {
         let keep = Set(live)
-        models = models.filter { keep.contains($0.key) }
+        var dropped = 0
+        models = models.filter { route, model in
+            guard !keep.contains(route) else { return true }
+            (model as? any RouteScopedModel)?.cancel()
+            dropped += 1
+            return false
+        }
+        return dropped
     }
 }
 

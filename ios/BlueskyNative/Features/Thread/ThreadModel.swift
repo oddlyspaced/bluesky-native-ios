@@ -540,3 +540,15 @@ final class ThreadModel {
         }
     }
 }
+
+extension ThreadModel: RouteScopedModel {
+    /// Stops the load, the stale-preferences refetch and the pending `post:view` reports when the
+    /// thread's route leaves the stack (review finding A83).
+    func cancel() {
+        loadTask?.cancel()
+        loadTask = nil
+        preferencesRefresh?.cancel()
+        preferencesRefresh = nil
+        tracker?.cancel()
+    }
+}
