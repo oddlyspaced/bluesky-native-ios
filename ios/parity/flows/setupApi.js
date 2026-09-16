@@ -24,29 +24,52 @@ function get(method, query) {
   return json(response.body)
 }
 
-function sleep(ms) {
-  var until = Date.now() + ms
+// Wall-clock bound for one AppView wait, and the gap between two polls (review finding A90).
+// APPVIEW_TIMEOUT (--env) shortens the bound for a test of this file.
+var APPVIEW_TIMEOUT_MS = typeof APPVIEW_TIMEOUT === 'undefined' ? 60000 : Number(APPVIEW_TIMEOUT)
+var APPVIEW_POLL_MS = 500
+
+function report(message) {
+  output.setupLog = (output.setupLog ? output.setupLog + '\n' : '') + message
+  if (typeof console !== 'undefined' && console.log) console.log(message)
+}
+
+function pace(until) {
+  // Maestro's script runtime has no timer, so this is the only way to leave a gap between two
+  // polls. It never decides how long the wait runs: waitForAppView stops at its own deadline.
   while (Date.now() < until) {
-    // Maestro's script runtime has no timer; this waits between AppView polls.
+    // wait
   }
 }
 
 // The records are written to the PDS, but both apps read the timeline through the AppView, which
 // indexes from the firehose. Without this wait a flow can launch before the new rows exist and then
-// fail to find them (review findings F7, F9).
-function waitForAppView(token, needle) {
+// fail to find them (review findings F7, F9). The wait is bounded by the wall clock and reports
+// what it waited for, how long it took and how many polls it made (review finding A90).
+function waitForAppView(token, what, needle) {
   var url = PDS + 'app.bsky.feed.getTimeline?limit=30'
-  for (var i = 0; i < 60; i++) {
+  var started = Date.now()
+  var polls = 0
+  var last = 'no response'
+  while (Date.now() - started < APPVIEW_TIMEOUT_MS) {
+    var next = Date.now() + APPVIEW_POLL_MS
+    polls++
     var response = http.get(url, {
       headers: {
         Authorization: 'Bearer ' + token,
         'atproto-proxy': 'did:plc:bw7ad3erl7btq6qwf66yqiov#bsky_appview',
       },
     })
-    if (response.ok && response.body.indexOf(needle) !== -1) return true
-    sleep(500)
+    last = 'status ' + response.status
+    if (response.ok && response.body.indexOf(needle) !== -1) {
+      report('setupApi: the AppView indexed ' + what + ' after ' + (Date.now() - started) +
+        ' ms in ' + polls + ' polls')
+      return true
+    }
+    pace(next)
   }
-  throw new Error('AppView did not index "' + needle + '" in time')
+  throw new Error('setupApi: waited ' + (Date.now() - started) + ' ms in ' + polls + ' polls for ' +
+    what + ' in the timeline (needle "' + needle + '", last ' + last + '). The AppView did not index it.')
 }
 
 function login(handle) {
@@ -93,7 +116,7 @@ if (SETUP === 'wrapped') {
       createdAt: now(),
     },
   })
-  waitForAppView(alice.token, 'Wrapped text check for the parity report')
+  waitForAppView(alice.token, 'the wrapped post', 'Wrapped text check for the parity report')
 } else if (SETUP === 'api') {
   var bob = login('bob.test')
 
@@ -127,8 +150,8 @@ if (SETUP === 'wrapped') {
   })
 
   // The timeline must show the facets post and bob's repost before the flow launches an app.
-  waitForAppView(alice.token, 'Facets: ')
-  waitForAppView(alice.token, 'app.bsky.feed.defs#reasonRepost')
+  waitForAppView(alice.token, 'the facets post', 'Facets: ')
+  waitForAppView(alice.token, "bob's repost reason row", 'app.bsky.feed.defs#reasonRepost')
 } else {
   throw new Error('unknown SETUP ' + SETUP)
 }
