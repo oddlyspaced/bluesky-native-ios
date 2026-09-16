@@ -30,24 +30,45 @@ Masked ratio = differing pixels after masks / 3,162,132, threshold 0.02, fuzz 5%
 | largest Dynamic Type | profile-xxxl | 0.0246 (77,907) | fail | 0.0179 (56,749) | 9.12% | drift |
 | empty seed | home-empty | 0.0252 (79,828) | fail | 0.0188 (59,596) | 9.60% | drift |
 | empty seed | profile-empty | 0.0194 (61,496) | drift | 0.0116 (36,668) | 9.00% | drift |
-| mergefeed seed | home-mergefeed | 0.0223 (70,528) | fail | 0.0097 (30,593) | 13.38% | pass |
-| after like and repost | home-liked-reposted | 0.0266 (83,978) | fail | 0.0139 (43,889) | 13.54% | drift |
-| after like and repost | thread-liked-reposted | 0.0206 (65,079) | fail | 0.0125 (39,608) | 11.08% | drift |
+| mergefeed seed | home-mergefeed | 0.0224 (70,763) | fail | 0.0097 (30,633) | 13.38% | pass |
+| after like and repost | home-liked-reposted | 0.0264 (83,537) | fail | 0.0139 (43,889) | 13.54% | drift |
+| after like and repost | thread-liked-reposted | 0.0206 (65,225) | fail | 0.0126 (39,769) | 11.08% | drift |
 | wrapped text (API setup) | home-wrapped | 0.0253 (80,036) | fail | 0.0128 (40,618) | 13.29% | drift |
 | wrapped text (API setup) | thread-wrapped | 0.0228 (72,197) | fail | 0.0141 (44,688) | 12.65% | drift |
 | wrapped text (API setup) | profile-wrapped | 0.0234 (74,037) | fail | 0.0157 (49,787) | 9.84% | drift |
-| API setup states | home-api | 0.0402 (127,032) | fail | **0.0273 (86,373)** | 13.29% | **fail** |
-| API setup states | thread-api | 0.0118 (37,212) | drift | 0.0051 (15,984) | 10.29% | pass |
-| API setup states | profile-api | 0.0247 (78,185) | fail | 0.0172 (54,256) | 9.84% | drift |
+| API setup states | home-api | 0.0405 (128,086) | fail | **0.0273 (86,373)** | 13.29% | **fail** |
+| API setup states | thread-api | 0.0121 (38,295) | drift | 0.0051 (16,003) | 10.29% | pass |
+| API setup states | profile-api | 0.0246 (77,759) | fail | 0.0172 (54,256) | 9.84% | drift |
 
 Every mask area is at or below the 15% limit.
 
-**`home-api` is the one failing screen, and the cause is measured** (difference 10 below): a feed slice
-that has both a "Reposted by" reason row and a "Replied to" row is 2 px shorter in the port, and every
-row below it inherits the shift. Row borders on that screen: RN 460, 645, 978, 1373, 1646, 1919, 2192;
-native 460, 645, 978, 1371, 1644, 1917, 2190. A reason row on its own (`interactions`) and a
-"Replied to" row on its own (`mergefeed`) both match RN at every border, so the 2 px belongs to the
-combination.
+**`home-api` is the one failing screen. What is measured, and what was tried.**
+
+A feed slice that carries both a "Reposted by" reason row and a "Replied to" row measures 393 px in the
+port against RN's 395 px. Row borders: RN 460, 645, 978, 1373, 1646, 1919, 2192; native 460, 645, 978,
+1371, 1644, 1917, 2190. Every row below the slice inherits the 2 px shift, which is most of the 86,373
+differing pixels.
+
+The 2 px is **not** in the reason block: the reason row starts at y 1013 in both apps, and the gap from
+its bottom to the first content row is 22 px in both. It is two separate 1 px losses further down the
+same slice: the meta line to the "Replied to" row (RN 66 px, native 65) and the controls to the row end
+(RN 79 px, native 78).
+
+A rule-based fix was written and then reverted. The reason block's height was taken from the laid-out
+view, composing it as RN does (`pt_sm` on the wrapper, `PostFeedItem.tsx:376`; `marginBottom: 2` in
+`PostFeedReason.tsx` `styles.includeReason`; the label's own line box) instead of the constant
+`17 + Space._2xs`. The capture was byte-identical, 393 px and 0.0273 masked, so the constant was not the
+cause, and the change was removed rather than committed as a fix.
+
+A constant cannot close the remaining 2 px without breaking the screens that match today. The same two
+gaps are exact whenever only one header is present: `mergefeed` (a "Replied to" row, no reason row) is
+273 px in both apps with identical row borders, and `interactions` (a reason row, no "Replied to" row)
+is 185 px in both. Adding a pixel to either gap would make those screens 1 px long, trading one failing
+screen for two regressions. The residue is sub-pixel accumulation in the stacked small-text line boxes
+(the open A57 and A19 item), not a wrong value.
+
+**This screen therefore stays a `fail` and the checkpoint stays open.** A fail is never signed off
+(`check-parity/references/thresholds.md`); only drift can be accepted in writing.
 
 **Mask checks pass.** `make_masks.py` exits 0 for all eight states: no native ink inside any mask lies
 outside the RN ink area of that mask, and no native ink cluster crosses a mask edge without a matching
@@ -305,7 +326,7 @@ None of these is accepted. Each needs a named owner.
 | 7 | `post:view` visibility | 40% visible for 500 ms | Row laid out for 500 ms | Event diff |
 | 8 | Tab roles | `accessibilityRole="tab"` | Buttons with the selected trait | Not measured |
 | 9 | E2E controls | 12 controls at top 100, right 0 | The same 12, plus 5 native-only fault controls at top 100, left 0 | 15 px at the left edge, not masked |
-| 10 | Feed slice with a reason row **and** a "Replied to" row | 395 px tall (`home-api`, borders 978 to 1373) | 393 px; every row below shifts up 2 px | `home-api` masked 0.0273, the one failing screen. A reason row alone (`interactions`) and a "Replied to" row alone (`mergefeed`) match RN at every border |
+| 10 | Feed slice with a reason row **and** a "Replied to" row | 395 px tall (`home-api`, borders 978 to 1373) | 393 px; every row below shifts up 2 px | `home-api` masked 0.0273, the one failing screen. The loss is 1 px in the meta to "Replied to" gap (RN 66, native 65) and 1 px in the controls to row-end gap (RN 79, native 78); the reason block matches. A reason row alone (`interactions`, 185 px in both) and a "Replied to" row alone (`mergefeed`, 273 px in both) match RN exactly, so no constant closes it without regressing them |
 | 11 | Wrapped anchor text block | ink rows 557, 624, 691 (`thread-wrapped`) | 555, 622, 689: same pitch, 2 px higher | Row borders match (329, 955); counted |
 | 12 | Line boxes | RN text layout | Rule for the line pitch; per-component constants fitted to one 3x device, not verified at 2x | F7 above; A57 open |
 | 13 | Release build | Production app | Smoke build: no sign-in form, local networking allowed, no event log | Release `build` |
