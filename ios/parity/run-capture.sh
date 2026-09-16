@@ -90,4 +90,11 @@ if [ "$LABEL" = "native" ]; then
     code=1
   fi
 fi
+
+# Masks are evidence, so they are rebuilt from the pair and checked here, not by hand (review
+# finding A73). The check runs as soon as both apps of a state are captured.
+if [ -d "$OUT/rn/ios" ] && [ -d "$OUT/native/ios" ]; then
+  echo "=== masks $STATE"
+  "$HERE/check-masks.sh" "$STATE" "$OUT/rn/ios" "$OUT/native/ios" || code=1
+fi
 exit $code
