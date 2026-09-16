@@ -65,7 +65,19 @@ struct ProfileScreen: View {
         }
     }
 
+    /// `profileView` (`Profile.tsx:393`) holds the `postsFeed` list. Both ids stay exposed because
+    /// `profileView` sits on its own container with a zero-size second child (review finding F2;
+    /// without it, `maestro hierarchy` showed `profileView` and no `postsFeed`).
     private var content: some View {
+        ZStack {
+            feedList
+            Color.clear.frame(width: 0, height: 0).accessibilityElement(children: .ignore)
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("profileView")
+    }
+
+    private var feedList: some View {
         GeometryReader { proxy in
             let topInset = proxy.safeAreaInsets.top
             ScrollViewReader { scroll in
@@ -110,8 +122,6 @@ struct ProfileScreen: View {
                 }
             }
         }
-        .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("profileView")
     }
 
     private func header(topInset: CGFloat) -> some View {
