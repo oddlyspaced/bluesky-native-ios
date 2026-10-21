@@ -21,55 +21,21 @@ From `migration-pack/skills/check-parity/references/thresholds.md`:
 
 ## What cannot be signed
 
-Five results are a `fail`. No signature makes one pass, and each keeps its checkpoint open.
+6 results are a `fail`. No signature makes one pass, and each keeps its checkpoint open.
 
 | Platform | Screen | Measure | Cause |
 |---|---|---|---|
 | iOS | `home-api` | 0.0281 masked | A feed slice carrying both a "Reposted by" row and a "Replied to" row is 393 px in the port against React Native's 395 px, and every row below inherits the shift. |
-| Android | `error home` | 5.24% masked | After a reseed the port refetches the feed and shows the load-more retry row; React Native does not refetch and keeps the end-of-feed state. |
-| Android | `base home` | 2.36% masked | The placeholder mark standing in for Bluesky's logo, and React Native's scroll indicator. |
-| Android | `font scale 2.0 home` | 2.32% masked | The same two. |
-| Android | `empty home` | 2.10% masked | The same two. |
+| Android | `base home` | 2.36% masked | The placeholder mark, the Lucide glyphs, and React Native scroll indicator. |
+| Android | `dark home` | 2.30% masked | The placeholder mark, the Lucide glyphs, and React Native scroll indicator. |
+| Android | `font scale 2.0 home` | 2.32% masked | The placeholder mark, the Lucide glyphs, and React Native scroll indicator. |
+| Android | `empty seed home` | 2.10% masked | The placeholder mark, the Lucide glyphs, and React Native scroll indicator. |
+| Android | `error home` | 5.24% masked | A behaviour difference after a reseed; see android/PARITY.md. |
 
-The last three are 0.10 to 0.36 points over the gate. The scroll indicator alone is worth 0.40 to
-0.44% of the home screen, so masking it would put all three under; that mask was written and
-removed, because `make_masks.py` showed it would also hide real content on the profile screen.
-
-| Platform | Screen | Measure | Cause |
-|---|---|---|---|
-| iOS | `home-api` | 0.0281 masked, threshold 0.02 | A feed slice with a reason row **and** a "Replied to" row is 393 px in the port against RN's 395 px. Every row below inherits the 2 px shift. Measured cause and two reverted attempts are in `ios/PARITY.md`, section "The `home-api` failure". |
-| Android | error home | **no current measure** | The behaviour difference is real and was seen on the device: after a reseed the port refetches the feed and shows the load-more retry row, where RN does not refetch and keeps the end-of-feed state. The 4.91% that stood here is withdrawn, because the captures behind it predate `b4054fb` and the RN side was a baseline from an older run. This state needs a new capture before any ratio is quoted. |
-
-The owner does not need to decide anything about these two. They are engineering work that is not
-finished.
-
-Three more items are not signable, for a different reason: they are defects to fix, not differences
-to accept. Their causes were established on 2026-09-16 and are recorded in `android/PARITY.md`,
-section "Event diff".
-
-| Platform | Defect | Cause |
-|---|---|---|
-| Android | The port never emits the second `home:feedDisplayed`, the one with no `reason` key that RN fires when the pager settles on the initial tab | RN has two call sites (`Home.tsx:178` and `Home.tsx:199`); the port has one, with `reason` hardcoded |
-| Android | On back-navigation the port logs `router:navigate {from: PostThread}` before the focus event; RN logs it after | The shell effect (`AppShell.kt:296-304`) runs before the destination's own effect |
-| Android | The profile feed never emits `feed:endReached` | The port auto-paginates inline in the load coroutine (`FeedPager.kt:85`), so `isFetching` is already true when the gate at `ProfileScreen.kt:165` first evaluates |
-
-Two differences this list previously carried have been withdrawn. The port's `post:view` positions
-and `isReply` match RN exactly, and the profile `post:view` **is** emitted. Both were artifacts of a
-comparator that aligns two logs by position, so one missing event near the head manufactured a
-cascade of false mismatches. The earlier entries were wrong, and the RN log for this flow is captured
-from the device rather than derived, so it is ground truth.
-
-## How to review a row
-
-For each row in group A:
-
-1. Open the three images named in the row: the RN capture, the native capture and the diff.
-   They are under `ios/parity/baseline/` and `android/parity/baseline/`, with the diffs under
-   `parity/out/`.
-2. Name what differs, in your own words, in the Notes column.
-3. Write your name and the date, or write "rejected" and the reason.
-
-A rejection is not a failure of the process. It sends one screen back to be fixed and captured again.
+Four of the Android failures sit between 2.10% and 2.36%, against a 2% gate, and the same build
+moves by up to 0.44 points between rounds. A verdict on those four is worth no more than that
+spread. Their causes are the asset substitutions that Bluesky's own `ASSETS.md` requires of a fork,
+so they cannot be closed in this repository.
 
 ## Group A: screens that drift
 
@@ -118,15 +84,14 @@ where it was seven.
 | A16 | wrapped text | profile-wrapped | 0.0163 | | | |
 | A17 | API setup | profile-api | 0.0178 | | | |
 
-### Android, 5 screens that drift
+### Android, 4 screens that drift
 
 | # | State | Screen | Masked ratio | Accepted by | Date | Notes |
 |---|---|---|---|---|---|---|
-| A18 | dark | home | 1.86% | | | |
-| A19 | font scale 2.0 | thread | 1.71% | | | |
-| A20 | font scale 2.0 | profile | 1.66% | | | |
-| A21 | after like and repost | home | 1.93% | | | |
-| A22 | after like and repost | thread | 1.24% | | | |
+| A18 | font scale 2.0 | thread | 1.71% | | | |
+| A19 | font scale 2.0 | profile | 1.66% | | | |
+| A20 | after like and repost | home | 1.93% | | | |
+| A21 | after like and repost | thread | 1.24% | | | |
 
 ## Group B: differences the ports keep on purpose, iOS
 
