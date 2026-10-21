@@ -23,7 +23,9 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 OUT=${3:-"$HERE/out/$STATE"}
 mkdir -p "$OUT" && OUT="$(cd "$OUT" && pwd)"
 UDID=${UDID:-7F73AB4A-2709-4033-89D2-35CE10E650F4}
-PACK=${PACK:-../migration-pack}
+# Relative to this script, so the repository works on any machine and the path of the person who
+# wrote it is not baked into it. Override with PACK= when the Pack lives elsewhere.
+PACK=${PACK:-"$HERE/../../../../migration-pack"}
 CAPTURE="$PACK/skills/check-parity/scripts/capture.mjs"
 NATIVE_ID=io.nativestarter.showcase.bluesky
 # shellcheck source=seed-lock.sh
