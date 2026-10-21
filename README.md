@@ -71,13 +71,14 @@ avatar. Bluesky's `ASSETS.md` licenses none of those three for reuse, and the ic
 Bluesky's to license at all.
 
 Two of those three are excluded by the masks. The avatar is not, and that is deliberate rather
-than an oversight. On `home-api`, the one failing screen, the avatars carry 0.84 of its 2.76
-points, so a masked screen would read 1.91% and pass. A `rect` band over each avatar was declared
-and `make_masks.py` refused it on three counts: the home masks would then cover 16.7 to 17.3%
-against its 15% limit, the profile avatar builds a 273 px mask against its 160 px limit, and at
-the largest Dynamic Type native ink falls outside the React Native ink box. That coverage limit is
-the thing standing between a mask and a manufactured pass, so it stands and the avatar stays
-counted against this port.
+than an oversight. On `home-api`, the one failing screen, the differing pixels inside the avatar
+rects are 14,607 of 88,958, about a sixth of the difference; masking them would leave roughly
+2.3%, which is still a fail. A `rect` band over each avatar was declared anyway and
+`make_masks.py` refused it on three counts: the home masks would then cover 16.7 to 17.3% against
+its 15% limit, the profile avatar builds a 273 px mask against its 160 px limit, and at the
+largest Dynamic Type native ink falls outside the React Native ink box. That coverage limit is
+what stands between a mask and a manufactured pass, so it stands and the avatar stays counted
+against this port.
 
 With the masks applied, what remains is position: vertical offsets of 1 to 6 px on most
 screens, 21 to 39 px at the largest Dynamic Type. Each is reported once, at the band it starts
