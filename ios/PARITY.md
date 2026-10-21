@@ -396,7 +396,7 @@ None of these is accepted. Each needs a named owner.
 |---|---|---|---|---|
 | 1 | UI icons | Central icon set | Lucide glyphs, fitted to the RN ink box per glyph (`IconGlyph.inkFit`) | `glyphs` slots; `make_masks.py` exits 0 on all states; `IconFitTests` |
 | 2 | Logo and anchor mark | Butterfly mark | Neutral diamond; empty anchor slot | `rect` masks |
-| 3 | Default avatar figure | Bluesky artwork | Generic silhouette in the same blue | Not masked; counted |
+| 3 | Default avatar figure | Bluesky artwork | Generic silhouette in the same blue | Not masked; counted. Measured on `home-api`, the one failing screen: the avatars carry 0.84 of the 2.76 points, so a masked screen would read 1.91% and pass. A `rect` band over each avatar was declared and `make_masks.py` refused it on three counts: the home masks then cover 16.7% to 17.3% against its 15% limit, the profile avatar builds a 273 px mask against its 160 px limit, and at XXXL 36 native ink px fall outside the RN ink box. The coverage limit is what stops a mask from manufacturing a pass, so the limits stand and the avatar stays counted |
 | 4 | Header hide on scroll | Drag-driven with a snap on drag end | Follows the scroll delta; no snap | Not captured |
 | 5 | Bottom bar minimal-shell transform | `footerMode` translate and fade | No transform; no screen in the slice enables minimal shell (N4) | Not applicable to the slice |
 | 6 | Sign-out | Clears tokens | Also calls `com.atproto.server.deleteSession` with the newest refresh token | Unit tests |
