@@ -1,6 +1,8 @@
 # Parity report (iOS): RN app vs native SwiftUI port
 
-- Date: 2026-09-16 (review round 3 fixes; every number below is from captures made on this date).
+- Captures: 2026-09-16 (review round 3 fixes; every number below is from captures made on this date).
+- Numbers: re-measured 2026-10-21 from those same captures, after the comparator was corrected
+  (see "Comparator correction" below). ImageMagick 7.1.2-32 Q16-HDRI.
 - Device: iPhone 17 Pro simulator, iOS 26.4 (`7F73AB4A-2709-4033-89D2-35CE10E650F4`), 1206x2622 px at 3x.
 - RN build: the upstream e2e app `xyz.blueskyweb.app` (`bluesky-social-app` at `2bfb94d`, Metro in e2e mode
   on port 8081).
@@ -11,7 +13,7 @@
 
 ## Verdict
 
-**With masks: 4 pass, 15 drift, 1 fail. Raw: 14 of 20 screens fail, 6 drift.**
+**With masks: 2 pass, 17 drift, 1 fail. Raw: 14 of 20 screens fail, 6 drift.**
 Each drift and the fail need a written sign-off by a person who did not write the port
 (`check-parity/references/thresholds.md`); none is signed.
 
@@ -19,46 +21,55 @@ Masked ratio = differing pixels after masks / 3,162,132, threshold 0.02, fuzz 5%
 
 | State | Screen | Raw ratio (px) | Raw status | Masked ratio (px) | Mask area | Masked status |
 |---|---|---|---|---|---|---|
-| base | home | 0.0266 (84,000) | fail | 0.0139 (43,799) | 13.54% | drift |
-| base | thread | 0.0166 (52,358) | drift | 0.0094 † | 10.83% † | pass |
-| base | profile | 0.0174 (54,999) | drift | 0.0109 (34,615) | 9.10% | drift |
-| dark | home-dark | 0.0267 (84,448) | fail | 0.0142 (44,917) | 13.54% | drift |
-| dark | thread-dark | 0.0170 (53,673) | drift | 0.0096 † | 10.83% † | pass |
-| dark | profile-dark | 0.0162 (51,254) | drift | 0.0108 (34,240) | 9.10% | drift |
-| largest Dynamic Type | home-xxxl | 0.0307 (97,174) | fail | 0.0170 (53,610) | 13.41% | drift |
-| largest Dynamic Type | thread-xxxl | 0.0231 (73,004) | fail | 0.0156 † | 11.18% † | drift |
-| largest Dynamic Type | profile-xxxl | 0.0246 (77,907) | fail | 0.0179 (56,749) | 9.12% | drift |
-| empty seed | home-empty | 0.0252 (79,828) | fail | 0.0188 (59,596) | 9.60% | drift |
-| empty seed | profile-empty | 0.0194 (61,496) | drift | 0.0116 (36,668) | 9.00% | drift |
-| mergefeed seed | home-mergefeed | 0.0224 (70,763) | fail | 0.0097 (30,633) | 13.38% | pass |
-| after like and repost | home-liked-reposted | 0.0264 (83,537) | fail | 0.0139 (43,889) | 13.54% | drift |
-| after like and repost | thread-liked-reposted | 0.0206 (65,225) | fail | 0.0132 † | 11.08% † | drift |
-| wrapped text (API setup) | home-wrapped | 0.0253 (80,036) | fail | 0.0128 (40,618) | 13.29% | drift |
-| wrapped text (API setup) | thread-wrapped | 0.0228 (72,197) | fail | 0.0166 † | 12.65% † | drift |
-| wrapped text (API setup) | profile-wrapped | 0.0234 (74,037) | fail | 0.0157 (49,787) | 9.84% | drift |
-| API setup states | home-api | 0.0405 (128,086) | fail | **0.0273 (86,373)** | 13.29% | **fail** |
-| API setup states | thread-api | 0.0121 (38,295) | drift | 0.0056 † | 10.29% † | pass |
-| API setup states | profile-api | 0.0246 (77,759) | fail | 0.0172 (54,256) | 9.84% | drift |
+| base | home | 0.0275 (86,808) | fail | 0.0144 (45,515) | 13.54% | drift |
+| base | thread | 0.0171 (54,190) | drift | 0.0099 (31,261) | 10.63% | pass |
+| base | profile | 0.0179 (56,658) | drift | 0.0113 (35,799) | 9.10% | drift |
+| dark | home-dark | 0.0277 (87,690) | fail | 0.0148 (46,916) | 13.54% | drift |
+| dark | thread-dark | 0.0176 (55,599) | drift | 0.0101 (31,930) | 10.63% | drift |
+| dark | profile-dark | 0.0168 (53,097) | drift | 0.0113 (35,716) | 9.10% | drift |
+| largest Dynamic Type | home-xxxl | 0.0319 (100,715) | fail | 0.0177 (56,118) | 13.41% | drift |
+| largest Dynamic Type | thread-xxxl | 0.0238 (75,341) | fail | 0.0162 (51,184) | 10.71% | drift |
+| largest Dynamic Type | profile-xxxl | 0.0254 (80,357) | fail | 0.0186 (58,700) | 9.12% | drift |
+| empty seed | home-empty | 0.0260 (82,098) | fail | 0.0194 (61,480) | 9.60% | drift |
+| empty seed | profile-empty | 0.0200 (63,096) | drift | 0.0120 (37,905) | 9.00% | drift |
+| mergefeed seed | home-mergefeed | 0.0232 (73,379) | fail | 0.0102 (32,208) | 13.38% | drift |
+| after like and repost | home-liked-reposted | 0.0273 (86,263) | fail | 0.0144 (45,610) | 13.54% | drift |
+| after like and repost | thread-liked-reposted | 0.0213 (67,264) | fail | 0.0137 (43,187) | 10.88% | drift |
+| wrapped text (API setup) | home-wrapped | 0.0262 (82,827) | fail | 0.0134 (42,375) | 13.29% | drift |
+| wrapped text (API setup) | thread-wrapped | 0.0236 (74,533) | fail | 0.0173 (54,636) | 10.12% | drift |
+| wrapped text (API setup) | profile-wrapped | 0.0241 (76,313) | fail | 0.0163 (51,451) | 9.84% | drift |
+| API setup states | home-api | 0.0416 (131,669) | fail | **0.0281 (88,948)** | 13.29% | **fail** |
+| API setup states | thread-api | 0.0125 (39,464) | drift | 0.0059 (18,654) | 10.09% | pass |
+| API setup states | profile-api | 0.0254 (80,376) | fail | 0.0178 (56,345) | 9.84% | drift |
 
 Every mask area is at or below the 15% limit.
 
-**† Mask correction, after this table was first written.** Two mask band families were over-wide and
-were hiding content that matched in both apps: the thread header band covered the centred "Post"
-title on six screens, and the wrapped band covered the anchor date line and the "Everybody can
-reply" label. That is exactly the silent pass recorded as review finding A74. The bands were
-narrowed, and six thread masked ratios moved: thread 0.0089 to 0.0094, thread-dark 0.0091 to 0.0096,
-thread-xxxl 0.0150 to 0.0156, thread-liked-reposted 0.0126 to 0.0132, thread-wrapped 0.0141 to
-0.0166, thread-api 0.0051 to 0.0056. **No verdict changed.** The corrected ratios above come from
-the parity-tooling pass that narrowed the bands, not from a measurement made in this pass: this pass
-ran no capture, because the test server was only partly up. The differing-pixel counts and the mask
-areas for those six rows were measured with the old, wider bands, so they are marked † and are not
-restated as fact; a capture run must re-derive them.
+**Comparator correction, 2026-10-21.** Every ratio in this table was re-measured, because the tool
+that produced the first set was reading a number that had stopped meaning what it said. `diff.mjs`
+took its differing-pixel count from `magick compare -metric AE`. On ImageMagick 7.1.2-32 that is no
+longer a pixel count but a sum of normalised per-channel magnitudes: a 40x40 red rectangle over
+white, which is 1600 differing pixels, reports `AE = 800`, and the same rectangle in
+`rgb(254,254,254)` reports `AE = 4.71`. The Pack now counts the pixels itself and records the
+ImageMagick build in `results.json`; see the Pack commit "Count differing pixels instead of reading
+magick's AE metric".
+
+The first set of numbers was measured on the older ImageMagick, which was close to correct, so the
+ratios moved only a little, by 2 to 20% of their own value. **Two verdicts changed, both to the
+worse side:** `thread-dark` 0.0096 pass to 0.0101 drift, and `home-mergefeed` 0.0097 pass to 0.0102
+drift. Both crossed the pass/drift line at 0.01, so the masked count goes from 4 pass, 15 drift to
+2 pass, 17 drift. `home-api` stays the one fail, 0.0273 to 0.0281: the blocker is real and is not an
+artefact of the tooling.
+
+This also retires the † footnote that stood here. It marked six thread rows whose ratios came from
+an earlier mask-narrowing pass rather than from a measurement, and whose pixel counts and mask areas
+had been measured with the older, wider bands. Every row above is now measured in one pass, from the
+committed masks in `ios/parity/masks/`, so no row is second-hand and none is marked.
 
 **`home-api` is the one failing screen. What is measured, and what was tried.**
 
 A feed slice that carries both a "Reposted by" reason row and a "Replied to" row measures 393 px in the
 port against RN's 395 px. Row borders: RN 460, 645, 978, 1373, 1646, 1919, 2192; native 460, 645, 978,
-1371, 1644, 1917, 2190. Every row below the slice inherits the 2 px shift, which is most of the 86,373
+1371, 1644, 1917, 2190. Every row below the slice inherits the 2 px shift, which is most of the 88,948
 differing pixels.
 
 The 2 px is **not** in the reason block: the reason row starts at y 1013 in both apps, and the gap from
@@ -69,7 +80,7 @@ same slice: the meta line to the "Replied to" row (RN 66 px, native 65) and the 
 A rule-based fix was written and then reverted. The reason block's height was taken from the laid-out
 view, composing it as RN does (`pt_sm` on the wrapper, `PostFeedItem.tsx:376`; `marginBottom: 2` in
 `PostFeedReason.tsx` `styles.includeReason`; the label's own line box) instead of the constant
-`17 + Space._2xs`. The capture was byte-identical, 393 px and 0.0273 masked, so the constant was not the
+`17 + Space._2xs`. The capture was byte-identical, 393 px and 0.0281 masked, so the constant was not the
 cause, and the change was removed rather than committed as a fix.
 
 A constant cannot close the remaining 2 px without breaking the screens that match today. The same two
@@ -392,7 +403,7 @@ None of these is accepted. Each needs a named owner.
 | 7 | `post:view` visibility | 40% visible for 500 ms | Row laid out for 500 ms | Event diff |
 | 8 | Tab roles | `accessibilityRole="tab"` | Buttons with the selected trait | Not measured |
 | 9 | E2E controls | 12 controls at top 100, right 0 | The same 12, plus 5 native-only fault controls at top 100, left 0 | 15 px at the left edge, not masked |
-| 10 | Feed slice with a reason row **and** a "Replied to" row | 395 px tall (`home-api`, borders 978 to 1373) | 393 px; every row below shifts up 2 px | `home-api` masked 0.0273, the one failing screen. The loss is 1 px in the meta to "Replied to" gap (RN 66, native 65) and 1 px in the controls to row-end gap (RN 79, native 78); the reason block matches. A reason row alone (`interactions`, 185 px in both) and a "Replied to" row alone (`mergefeed`, 273 px in both) match RN exactly, so no constant closes it without regressing them |
+| 10 | Feed slice with a reason row **and** a "Replied to" row | 395 px tall (`home-api`, borders 978 to 1373) | 393 px; every row below shifts up 2 px | `home-api` masked 0.0281, the one failing screen. The loss is 1 px in the meta to "Replied to" gap (RN 66, native 65) and 1 px in the controls to row-end gap (RN 79, native 78); the reason block matches. A reason row alone (`interactions`, 185 px in both) and a "Replied to" row alone (`mergefeed`, 273 px in both) match RN exactly, so no constant closes it without regressing them |
 | 11 | Wrapped anchor text block | ink rows 557, 624, 691 (`thread-wrapped`) | 555, 622, 689: same pitch, 2 px higher | Row borders match (329, 955); counted |
 | 12 | Line boxes | RN text layout | Rule for the line pitch; per-component constants fitted to one 3x device, not verified at 2x | F7 above; A57 open |
 | 13 | Release build | Production app | Smoke build: no sign-in form, local networking allowed, no event log | Release `build` |
@@ -447,7 +458,7 @@ Two port bugs were found by the new captures and fixed:
 
 ## The `home-api` failure: measured cause (2026-09-16)
 
-`home-api` stays a **fail** at 0.0273 masked. The checkpoint stays open. Two attempts were
+`home-api` stays a **fail** at 0.0281 masked. The checkpoint stays open. Two attempts were
 made and both were reverted; neither is presented as a fix.
 
 **What matches.** The reason block ("Reposted by") starts at y 1013 in both apps, and the gap
@@ -462,7 +473,7 @@ end (RN 79, native 78).
 **Attempt 1, constant composition (reverted).** RN composes the reason block as `pt_sm` on the
 wrapper (`PostFeedItem.tsx:376`) plus the label's line box plus `marginBottom: 2`
 (`PostFeedReason.tsx`). The port used a constant. Replacing it with the block's laid-out height
-produced a byte-identical capture: 393 px, 0.0273. The constant was not the cause.
+produced a byte-identical capture: 393 px, 0.0281. The constant was not the cause.
 
 **Attempt 2, RN's paragraph model (not viable in SwiftUI).** RN sets
 `paragraphStyle.minimumLineHeight = maximumLineHeight = lineHeight`
