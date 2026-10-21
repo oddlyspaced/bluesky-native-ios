@@ -21,12 +21,15 @@ From `migration-pack/skills/check-parity/references/thresholds.md`:
 
 ## What cannot be signed
 
-Two results are `fail`. No signature makes them pass. Both keep their checkpoint open.
+One result is a `fail`. No signature makes it pass, and it keeps its checkpoint open. A second row
+sits here without a number: the Android `error home` difference is real and was seen on the device,
+but its measurement was withdrawn on 2026-10-21 and it needs a new capture before it can be called
+a fail or anything else.
 
 | Platform | Screen | Measure | Cause |
 |---|---|---|---|
-| iOS | `home-api` | 0.0273 masked, threshold 0.02 | A feed slice with a reason row **and** a "Replied to" row is 393 px in the port against RN's 395 px. Every row below inherits the 2 px shift. Measured cause and two reverted attempts are in `ios/PARITY.md`, section "The `home-api` failure". |
-| Android | error home | 4.91% masked | A behaviour difference, not a capture artefact. After a reseed the port refetches the feed and shows the load-more retry row; RN does not refetch and keeps the end-of-feed state. |
+| iOS | `home-api` | 0.0281 masked, threshold 0.02 | A feed slice with a reason row **and** a "Replied to" row is 393 px in the port against RN's 395 px. Every row below inherits the 2 px shift. Measured cause and two reverted attempts are in `ios/PARITY.md`, section "The `home-api` failure". |
+| Android | error home | **no current measure** | The behaviour difference is real and was seen on the device: after a reseed the port refetches the feed and shows the load-more retry row, where RN does not refetch and keeps the end-of-feed state. The 4.91% that stood here is withdrawn, because the captures behind it predate `b4054fb` and the RN side was a baseline from an older run. This state needs a new capture before any ratio is quoted. |
 
 The owner does not need to decide anything about these two. They are engineering work that is not
 finished.
@@ -64,50 +67,56 @@ A rejection is not a failure of the process. It sends one screen back to be fixe
 Every screen below is above 1% and at or below 2% after masks. Numbers come from
 `ios/PARITY.md` and `android/PARITY.md`.
 
-**These numbers are provisional.** Both platforms are in a fix round as this file is written.
-Refresh this table from the two parity reports, and confirm the commit each number came from, before
-you ask for a signature.
+**These numbers were re-measured on 2026-10-21 and are current.** They come from `ios/PARITY.md`
+and `android/PARITY.md`, both of which were rewritten on that date. Confirm the commit each number
+came from before you ask for a signature.
 
-Three iOS rows rose on 2026-09-16 and the rise is an improvement, not a regression. Two mask bands
-were found to be too wide and were hiding matching content in **both** apps: a thread header band
-covered the centred "Post" title on six screens, and a wrapped-text band covered the anchor date and
-"Everybody can reply". Narrowing them exposed pixels that were always different and had never been
-judged. A6 went 0.0150 to 0.0156, A11 0.0126 to 0.0132, A13 0.0141 to 0.0166. No verdict changed.
-Each of the three was re-measured independently with `diff.mjs` against the corrected masks, and the
-screens that share those states were unchanged as a control (`home-xxxl` 0.0170, `profile-xxxl`
-0.0179, `home-wrapped` 0.0128, `profile-wrapped` 0.0157, `home-liked-reposted` 0.0139).
+Every ratio changed, because the comparator was corrected. `diff.mjs` had been reading its
+differing-pixel count from `magick compare -metric AE`, which on ImageMagick 7.1.2-32 is a sum of
+normalised per-channel magnitudes rather than a count of pixels. The Pack now counts the pixels
+itself. The iOS ratios rose by 2 to 20% of their own value, and two screens crossed from pass into
+drift and are now listed here for the first time: `thread-dark` (A4) at 0.0101 and `home-mergefeed`
+(A11) at 0.0102. Nothing moved the other way.
 
-### iOS, 15 screens (4 pass, 15 drift, 1 fail)
+This also replaces the earlier note about two over-wide mask bands. Those bands were narrowed, and
+every row above is now measured in one pass from the committed masks, so no row is carried over from
+an older measurement.
 
-| # | State | Screen | Masked ratio | Accepted by | Date | Notes |
-|---|---|---|---|---|---|---|
-| A1 | base | home | 0.0139 | | | |
-| A2 | base | profile | 0.0109 | | | |
-| A3 | dark | home-dark | 0.0142 | | | |
-| A4 | dark | profile-dark | 0.0108 | | | |
-| A5 | largest Dynamic Type | home-xxxl | 0.0170 | | | |
-| A6 | largest Dynamic Type | thread-xxxl | 0.0156 | | | |
-| A7 | largest Dynamic Type | profile-xxxl | 0.0179 | | | |
-| A8 | empty seed | home-empty | 0.0188 | | | |
-| A9 | empty seed | profile-empty | 0.0116 | | | |
-| A10 | after like and repost | home-liked-reposted | 0.0139 | | | |
-| A11 | after like and repost | thread-liked-reposted | 0.0132 | | | |
-| A12 | wrapped text | home-wrapped | 0.0128 | | | |
-| A13 | wrapped text | thread-wrapped | 0.0166 | | | |
-| A14 | wrapped text | profile-wrapped | 0.0157 | | | |
-| A15 | API setup | profile-api | 0.0172 | | | |
+**Three Android states left this table.** `font scale 2.0`, `empty seed` and `error` are withdrawn,
+not signed and not measured: the captures on disk for them predate the fixes they credited, so there
+is no honest number to sign. They need a new capture. That is why the Android list is four screens
+where it was seven.
 
-### Android, 7 screens
+### iOS, 17 screens that drift
 
 | # | State | Screen | Masked ratio | Accepted by | Date | Notes |
 |---|---|---|---|---|---|---|
-| A16 | base | home | 1.61% | | | |
-| A17 | dark | home | 1.75% | | | |
-| A18 | font scale 2.0 | home | 1.68% | | | |
-| A19 | font scale 2.0 | thread | 1.45% | | | |
-| A20 | font scale 2.0 | profile | 1.26% | | | |
-| A21 | empty seed | home | 1.38% | | | |
-| A22 | after like and repost | home | 1.62% | | | |
+| A1 | base | home | 0.0144 | | | |
+| A2 | base | profile | 0.0113 | | | |
+| A3 | dark | home-dark | 0.0148 | | | |
+| A4 | dark | thread-dark | 0.0101 | | | |
+| A5 | dark | profile-dark | 0.0113 | | | |
+| A6 | largest Dynamic Type | home-xxxl | 0.0177 | | | |
+| A7 | largest Dynamic Type | thread-xxxl | 0.0162 | | | |
+| A8 | largest Dynamic Type | profile-xxxl | 0.0186 | | | |
+| A9 | empty seed | home-empty | 0.0194 | | | |
+| A10 | empty seed | profile-empty | 0.0120 | | | |
+| A11 | mergefeed seed | home-mergefeed | 0.0102 | | | |
+| A12 | after like and repost | home-liked-reposted | 0.0144 | | | |
+| A13 | after like and repost | thread-liked-reposted | 0.0137 | | | |
+| A14 | wrapped text | home-wrapped | 0.0134 | | | |
+| A15 | wrapped text | thread-wrapped | 0.0173 | | | |
+| A16 | wrapped text | profile-wrapped | 0.0163 | | | |
+| A17 | API setup | profile-api | 0.0178 | | | |
+
+### Android, 4 screens that drift
+
+| # | State | Screen | Masked ratio | Accepted by | Date | Notes |
+|---|---|---|---|---|---|---|
+| A18 | base | home | 1.92% | | | |
+| A19 | dark | home | 1.86% | | | |
+| A20 | after like and repost | home | 1.93% | | | |
+| A21 | after like and repost | thread | 1.24% | | | |
 
 ## Group B: differences the ports keep on purpose, iOS
 
