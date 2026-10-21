@@ -21,10 +21,19 @@ From `migration-pack/skills/check-parity/references/thresholds.md`:
 
 ## What cannot be signed
 
-One result is a `fail`. No signature makes it pass, and it keeps its checkpoint open. A second row
-sits here without a number: the Android `error home` difference is real and was seen on the device,
-but its measurement was withdrawn on 2026-10-21 and it needs a new capture before it can be called
-a fail or anything else.
+Five results are a `fail`. No signature makes one pass, and each keeps its checkpoint open.
+
+| Platform | Screen | Measure | Cause |
+|---|---|---|---|
+| iOS | `home-api` | 0.0281 masked | A feed slice carrying both a "Reposted by" row and a "Replied to" row is 393 px in the port against React Native's 395 px, and every row below inherits the shift. |
+| Android | `error home` | 5.24% masked | After a reseed the port refetches the feed and shows the load-more retry row; React Native does not refetch and keeps the end-of-feed state. |
+| Android | `base home` | 2.36% masked | The placeholder mark standing in for Bluesky's logo, and React Native's scroll indicator. |
+| Android | `font scale 2.0 home` | 2.32% masked | The same two. |
+| Android | `empty home` | 2.10% masked | The same two. |
+
+The last three are 0.10 to 0.36 points over the gate. The scroll indicator alone is worth 0.40 to
+0.44% of the home screen, so masking it would put all three under; that mask was written and
+removed, because `make_masks.py` showed it would also hide real content on the profile screen.
 
 | Platform | Screen | Measure | Cause |
 |---|---|---|---|
@@ -109,14 +118,15 @@ where it was seven.
 | A16 | wrapped text | profile-wrapped | 0.0163 | | | |
 | A17 | API setup | profile-api | 0.0178 | | | |
 
-### Android, 4 screens that drift
+### Android, 5 screens that drift
 
 | # | State | Screen | Masked ratio | Accepted by | Date | Notes |
 |---|---|---|---|---|---|---|
-| A18 | base | home | 1.92% | | | |
-| A19 | dark | home | 1.86% | | | |
-| A20 | after like and repost | home | 1.93% | | | |
-| A21 | after like and repost | thread | 1.24% | | | |
+| A18 | dark | home | 1.86% | | | |
+| A19 | font scale 2.0 | thread | 1.71% | | | |
+| A20 | font scale 2.0 | profile | 1.66% | | | |
+| A21 | after like and repost | home | 1.93% | | | |
+| A22 | after like and repost | thread | 1.24% | | | |
 
 ## Group B: differences the ports keep on purpose, iOS
 

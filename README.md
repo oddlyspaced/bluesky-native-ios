@@ -57,6 +57,27 @@ Two fixes were tried and both reverted, because a reason row alone (185 px) and 
 alone (273 px) each match React Native exactly — so no constant closes the gap without regressing
 them. `ios/PARITY.md` has the full account.
 
+## Every screen has the same elements, in the same order
+
+Measured 2026-10-22 with [parity-compare](https://github.com/oddlyspaced/parity-compare), which
+reports structure, position and content separately instead of as one percentage:
+
+**All 20 screens: every content band matched. Nothing missing, nothing extra.**
+
+That is the claim a percentage could never make. The percentages above are dominated by three
+things that are different on purpose and cannot be otherwise: the placeholder mark standing in for
+Bluesky's logo, the Lucide glyphs standing in for the Central icon set, and the code-drawn fallback
+avatar. Bluesky's `ASSETS.md` licenses none of those three for reuse, and the icon set is not
+Bluesky's to license at all.
+
+With those excluded by the masks, what remains is position: vertical offsets of 1 to 6 px on most
+screens, 21 to 39 px at the largest Dynamic Type. Each is reported once, at the band it starts
+from, rather than multiplied into every row below it.
+
+This is also why `home-api` fails. Its content is sound and its structure matches; a slice two
+pixels short shifts everything under it, and a percentage counts that shift about forty thousand
+times.
+
 ## What this does not claim
 
 **No flow matches on events.** `ios/PARITY.md` records which, and why.
