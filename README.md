@@ -17,7 +17,7 @@ re-measured 2026-10-21 after the comparator was corrected. Masked ratio is diffe
 masks, over 3,162,132 pixels per screen. Pass is at or below 1%, drift is 1% to 2% and needs a
 human signature, above 2% is a fail.
 
-**2 pass, 17 drift, 1 fail.**
+**2 pass, 18 drift, 0 fail.**
 
 | State | Screen | Raw | Masked | Status |
 |---|---|---|---|---|
@@ -38,24 +38,40 @@ human signature, above 2% is a fail.
 | wrapped text | home-wrapped | 0.0262 | 0.0134 | drift |
 | wrapped text | thread-wrapped | 0.0236 | 0.0173 | drift |
 | wrapped text | profile-wrapped | 0.0241 | 0.0163 | drift |
-| API setup | **home-api** | 0.0416 | **0.0281** | **fail** |
+| API setup | home-api | 0.0416 | 0.0160 | drift |
 | API setup | thread-api | 0.0125 | 0.0059 | pass |
 | API setup | profile-api | 0.0254 | 0.0178 | drift |
 
 Tests: 148 in 22 suites pass. Release build succeeds.
 
-## The screen that fails, and why
+## The screen that failed, and the two pixels behind it
 
-`home-api` is above the 2% gate and the checkpoint stays open. The cause is measured, not guessed:
-a feed slice carrying both a "Reposted by" reason row **and** a "Replied to" row is 393 px tall in
-the port against React Native's 395 px, and every row below it inherits the two-pixel shift.
+`home-api` was the one screen above the 2% gate. It is now 1.60%, down from 2.81%.
 
-Row borders, React Native: 460, 645, 978, 1373, 1646, 1919, 2192. Native: 460, 645, 978, 1371,
-1644, 1917, 2190.
+The cause was measured, not guessed: a feed slice carrying both a "Reposted by" reason row **and**
+a "Replied to" row was 393 px tall in the port against React Native's 395 px, and every row below
+it inherited the two-pixel shift.
 
-Two fixes were tried and both reverted, because a reason row alone (185 px) and a "Replied to" row
-alone (273 px) each match React Native exactly — so no constant closes the gap without regressing
-them. `ios/PARITY.md` has the full account.
+Row borders before the fix, React Native: 460, 645, 978, 1373, 1646, 1919, 2192. Native: 460, 645,
+978, 1371, 1644, 1917, 2190.
+
+Two earlier fixes were tried and reverted, for a good reason: a reason row alone (185 px) and a
+"Replied to" row alone (273 px) each match React Native exactly, so no *unconditional* constant
+closes the gap without regressing them. That is the clue, not the obstacle. Yoga rounds each node's
+position to the pixel grid, so the error depends on how many fractional offsets stack above a node
+rather than on any single one. Two rows stack two fractions where one row stacks one, and the port
+lost a pixel in each of two gaps. The fix adds 1/3 pt to both, and only when a row carries both
+rows — the same effect the port already models for thread parent rows, in the other direction.
+
+It was predicted before it was written. A search that gives every 24 px strip its own best vertical
+shift — a floor no real layout change can beat, since no change gets to pick a different offset per
+strip — put the ceiling at 1.40% and reported 69 strips wanting the same -2 px. The fix recovered
+1.21 of those 1.41 points.
+
+Nothing else moved. Against the previous build: `interactions` home 0 px changed, `base` home 0 px,
+`profile-api` 0 px, `mergefeed` home 460 px in a single timestamp. The thread screens differ only
+in the anchor date line, which the masks leave visible on purpose and which changes with the
+capture date. `ios/PARITY.md` has the full account.
 
 ## Every screen has the same elements, in the same order
 
