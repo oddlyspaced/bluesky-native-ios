@@ -1,52 +1,82 @@
 # Bluesky, ported to SwiftUI
 
-Three screens of the [Bluesky](https://github.com/bluesky-social/social-app) React Native app —
-home feed, post thread and profile — rebuilt in SwiftUI, then measured against the running React
-Native app on the same simulator, the same build and the same seeded data.
+The [Bluesky](https://github.com/bluesky-social/social-app) social app, ported off React Native
+into a native iOS app in SwiftUI. It is a real app, not a set of screens in a harness: it builds,
+signs in, and talks to a live AT Protocol server, with no mock data and no hard-coded posts. Every
+screen is measured against the running React Native app on the same simulator, the same build and
+the same seeded data.
+
+This build ports the app's foundation — design tokens, XRPC client, session, tab shell — and three
+of its screens: home feed, post thread and profile. The upstream app has 78, and
+`plan/full-app-plan.md` is the plan for all of them.
 
 Built with the [Nativestarter](https://nativestarter.io) Migration Pack, one checkpoint at a time.
-The Android half of the same slice is in
+The Android build of the same app is in
 [bluesky-native-android](https://github.com/oddlyspaced/bluesky-native-android).
 
 Not affiliated with, endorsed by, or officially connected to Bluesky Social PBC. See `NOTICE.md`.
 
 ## What was measured
 
-20 screens across seven states, captured 2026-09-16 on an iPhone 17 Pro simulator (iOS 26.4),
-re-measured 2026-10-21 after the comparator was corrected. Masked ratio is differing pixels after
+20 screens across eight states, captured 2026-10-22 on an iPhone 17 Pro simulator (iOS 26.4). Each
+state is a matched pair: the React Native app and the port are captured in the same run, on the
+same seed, so the screens that carry a date are comparable. Masked ratio is differing pixels after
 masks, over 3,162,132 pixels per screen. Pass is at or below 1%, drift is 1% to 2% and needs a
 human signature, above 2% is a fail.
 
-**2 pass, 18 drift, 0 fail.**
+**3 pass, 17 drift, 0 fail.** The worst screen is `home-empty` at 0.0194. The owner accepted the
+drift band in writing on 2026-10-22, at 2%; see `plan/owner-signoff.md`, which also records what
+that acceptance does not cover.
 
 | State | Screen | Raw | Masked | Status |
 |---|---|---|---|---|
-| base | home | 0.0275 | 0.0144 | drift |
-| base | thread | 0.0171 | 0.0099 | pass |
-| base | profile | 0.0179 | 0.0113 | drift |
-| dark | home-dark | 0.0277 | 0.0148 | drift |
-| dark | thread-dark | 0.0176 | 0.0101 | drift |
-| dark | profile-dark | 0.0168 | 0.0113 | drift |
-| largest Dynamic Type | home-xxxl | 0.0319 | 0.0177 | drift |
-| largest Dynamic Type | thread-xxxl | 0.0238 | 0.0162 | drift |
-| largest Dynamic Type | profile-xxxl | 0.0254 | 0.0186 | drift |
+| base | home | 0.0277 | 0.0144 | drift |
+| base | thread | 0.0173 | 0.0097 | pass |
+| base | profile | 0.0177 | 0.0113 | drift |
+| dark | home-dark | 0.0278 | 0.0148 | drift |
+| dark | thread-dark | 0.0168 | 0.0096 | pass |
+| dark | profile-dark | 0.0166 | 0.0113 | drift |
+| largest Dynamic Type | home-xxxl | 0.0320 | 0.0177 | drift |
+| largest Dynamic Type | thread-xxxl | 0.0237 | 0.0161 | drift |
+| largest Dynamic Type | profile-xxxl | 0.0255 | 0.0186 | drift |
 | empty seed | home-empty | 0.0260 | 0.0194 | drift |
 | empty seed | profile-empty | 0.0200 | 0.0120 | drift |
-| merged feed | home-mergefeed | 0.0232 | 0.0102 | drift |
-| after like and repost | home-liked-reposted | 0.0273 | 0.0144 | drift |
-| after like and repost | thread-liked-reposted | 0.0213 | 0.0137 | drift |
-| wrapped text | home-wrapped | 0.0262 | 0.0134 | drift |
-| wrapped text | thread-wrapped | 0.0236 | 0.0173 | drift |
-| wrapped text | profile-wrapped | 0.0241 | 0.0163 | drift |
-| API setup | home-api | 0.0416 | 0.0160 | drift |
-| API setup | thread-api | 0.0125 | 0.0059 | pass |
-| API setup | profile-api | 0.0254 | 0.0178 | drift |
+| merged feed | home-mergefeed | 0.0239 | 0.0103 | drift |
+| after like and repost | home-liked-reposted | 0.0262 | 0.0144 | drift |
+| after like and repost | thread-liked-reposted | 0.0213 | 0.0136 | drift |
+| wrapped text | home-wrapped | 0.0258 | 0.0133 | drift |
+| wrapped text | thread-wrapped | 0.0233 | 0.0170 | drift |
+| wrapped text | profile-wrapped | 0.0240 | 0.0163 | drift |
+| API setup | home-api | 0.0287 | 0.0160 | drift |
+| API setup | thread-api | 0.0121 | 0.0059 | pass |
+| API setup | profile-api | 0.0256 | 0.0178 | drift |
 
 Tests: 148 in 22 suites pass. Release build succeeds.
 
+## Open defect: swipe back does not pop
+
+React Native pops the thread with the edge swipe. This port does not. It is a functional
+difference, it is open, and the 2% acceptance above does not cover it: that acceptance is about
+pixel drift, not about behaviour the port gets wrong.
+
+It was found by running a check this repository had already written down as outstanding. The
+report recorded that the unit tests do not cover "that a real swipe pops the screen", and that the
+capture flow had to run again before swipe back could be claimed. It ran on 2026-10-22.
+
+What the measurement shows: the stack's two pop gestures are installed and enabled, the stack is
+two deep, and `interactiveContentPopGestureRecognizer` is present — but
+`gestureRecognizerShouldBegin` is never called, so the recognizer never attempts the gesture. That
+rules out the delegate proxy, the gestures being left disabled, and the iOS 26 API being absent.
+The cause is upstream of all three and is not yet identified. A slower swipe and a swipe higher up
+the screen fail the same way.
+
+Full detail, including the two unverified candidates, is in `PARITY.md`.
+
 ## The screen that failed, and the two pixels behind it
 
-`home-api` was the one screen above the 2% gate. It is now 1.60%, down from 2.81%.
+`home-api` was the one screen above the 2% gate. It is now 0.0160, down from 0.0281, and the
+2026-10-22 round confirms that independently from a fresh matched pair rather than from the
+captures that found it.
 
 The cause was measured, not guessed: a feed slice carrying both a "Reposted by" reason row **and**
 a "Replied to" row was 393 px tall in the port against React Native's 395 px, and every row below
@@ -87,7 +117,7 @@ avatar. Bluesky's `ASSETS.md` licenses none of those three for reuse, and the ic
 Bluesky's to license at all.
 
 Two of those three are excluded by the masks. The avatar is not, and that is deliberate rather
-than an oversight. On `home-api`, the one failing screen, the differing pixels inside the avatar
+than an oversight. On `home-api`, which was then the one failing screen, the differing pixels inside the avatar
 rects are 14,607 of 88,958, about a sixth of the difference; masking them would leave roughly
 2.3%, which is still a fail. A `rect` band over each avatar was declared anyway and
 `make_masks.py` refused it on three counts: the home masks would then cover 16.7 to 17.3% against
@@ -100,9 +130,9 @@ With the masks applied, what remains is position: vertical offsets of 1 to 6 px 
 screens, 21 to 39 px at the largest Dynamic Type. Each is reported once, at the band it starts
 from, rather than multiplied into every row below it.
 
-This is also why `home-api` fails. Its content is sound and its structure matches; a slice two
-pixels short shifts everything under it, and a percentage counts that shift about forty thousand
-times.
+This is also why `home-api` used to fail. Its content was sound and its structure matched; a slice
+two pixels short shifted everything under it, and a percentage counts that shift about forty
+thousand times. The slice is fixed, and the screen now measures 0.0160.
 
 ## What this does not claim
 
