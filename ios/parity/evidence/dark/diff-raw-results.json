@@ -1,0 +1,65 @@
+{
+  "tool": {
+    "name": "check-parity/diff",
+    "version": "1.0.0"
+  },
+  "imagemagick": {
+    "version": "7.1.2-32",
+    "quantum": "Q16",
+    "hdri": true
+  },
+  "threshold": 0.02,
+  "fuzz": "5%",
+  "createdAt": "2026-10-22T07:49:51.539Z",
+  "rnDir": "ios/parity/out/dark/rn/ios",
+  "nativeDir": "ios/parity/out/dark/native/ios",
+  "screens": [
+    {
+      "name": "home-dark",
+      "rn": "ios/parity/out/dark/rn/ios/home-dark.png",
+      "native": "ios/parity/out/dark/native/ios/home-dark.png",
+      "diff": "diffs/home-dark.diff.png",
+      "width": 1206,
+      "height": 2622,
+      "diffPixels": 88030,
+      "totalPixels": 3162132,
+      "ratio": 0.027838812547989773,
+      "status": "fail",
+      "masks": [],
+      "warnings": []
+    },
+    {
+      "name": "profile-dark",
+      "rn": "ios/parity/out/dark/rn/ios/profile-dark.png",
+      "native": "ios/parity/out/dark/native/ios/profile-dark.png",
+      "diff": "diffs/profile-dark.diff.png",
+      "width": 1206,
+      "height": 2622,
+      "diffPixels": 52391,
+      "totalPixels": 3162132,
+      "ratio": 0.016568252052728983,
+      "status": "drift",
+      "masks": [],
+      "warnings": []
+    },
+    {
+      "name": "thread-dark",
+      "rn": "ios/parity/out/dark/rn/ios/thread-dark.png",
+      "native": "ios/parity/out/dark/native/ios/thread-dark.png",
+      "diff": "diffs/thread-dark.diff.png",
+      "width": 1206,
+      "height": 2622,
+      "diffPixels": 53044,
+      "totalPixels": 3162132,
+      "ratio": 0.016774758295985112,
+      "status": "drift",
+      "masks": [],
+      "warnings": []
+    }
+  ],
+  "summary": {
+    "pass": 0,
+    "drift": 2,
+    "fail": 1
+  }
+}

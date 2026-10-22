@@ -1,0 +1,51 @@
+{
+  "tool": {
+    "name": "check-parity/diff",
+    "version": "1.0.0"
+  },
+  "imagemagick": {
+    "version": "7.1.2-32",
+    "quantum": "Q16",
+    "hdri": true
+  },
+  "threshold": 0.02,
+  "fuzz": "5%",
+  "createdAt": "2026-10-22T07:55:01.789Z",
+  "rnDir": "ios/parity/out/interactions/rn/ios",
+  "nativeDir": "ios/parity/out/interactions/native/ios",
+  "screens": [
+    {
+      "name": "home-liked-reposted",
+      "rn": "ios/parity/out/interactions/rn/ios/home-liked-reposted.png",
+      "native": "ios/parity/out/interactions/native/ios/home-liked-reposted.png",
+      "diff": "diffs/home-liked-reposted.diff.png",
+      "width": 1206,
+      "height": 2622,
+      "diffPixels": 82929,
+      "totalPixels": 3162132,
+      "ratio": 0.026225660408863385,
+      "status": "fail",
+      "masks": [],
+      "warnings": []
+    },
+    {
+      "name": "thread-liked-reposted",
+      "rn": "ios/parity/out/interactions/rn/ios/thread-liked-reposted.png",
+      "native": "ios/parity/out/interactions/native/ios/thread-liked-reposted.png",
+      "diff": "diffs/thread-liked-reposted.diff.png",
+      "width": 1206,
+      "height": 2622,
+      "diffPixels": 67327,
+      "totalPixels": 3162132,
+      "ratio": 0.021291647534005538,
+      "status": "fail",
+      "masks": [],
+      "warnings": []
+    }
+  ],
+  "summary": {
+    "pass": 0,
+    "drift": 0,
+    "fail": 2
+  }
+}

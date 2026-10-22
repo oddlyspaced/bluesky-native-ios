@@ -1,0 +1,221 @@
+{
+  "tool": {
+    "name": "check-parity/diff",
+    "version": "1.0.0"
+  },
+  "imagemagick": {
+    "version": "7.1.2-32",
+    "quantum": "Q16",
+    "hdri": true
+  },
+  "threshold": 0.02,
+  "fuzz": "5%",
+  "createdAt": "2026-10-22T07:52:42.124Z",
+  "rnDir": "ios/parity/out/empty/rn/ios",
+  "nativeDir": "ios/parity/out/empty/native/ios",
+  "screens": [
+    {
+      "name": "home-empty",
+      "rn": "ios/parity/out/empty/rn/ios/home-empty.png",
+      "native": "ios/parity/out/empty/native/ios/home-empty.png",
+      "diff": "diffs/home-empty.diff.png",
+      "width": 1206,
+      "height": 2622,
+      "diffPixels": 61480,
+      "totalPixels": 3162132,
+      "ratio": 0.01944257861468149,
+      "status": "drift",
+      "masks": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 1,
+          "h": 0.06865,
+          "reason": "status bar: clock, battery, signal"
+        },
+        {
+          "x": 0.04312,
+          "y": 0.08238,
+          "w": 0.06053,
+          "h": 0.02784,
+          "reason": "header icons and logo mark (licence substitution)"
+        },
+        {
+          "x": 0.4602,
+          "y": 0.0778,
+          "w": 0.07877,
+          "h": 0.03623,
+          "reason": "header icons and logo mark (licence substitution)"
+        },
+        {
+          "x": 0.88889,
+          "y": 0.08238,
+          "w": 0.06053,
+          "h": 0.02784,
+          "reason": "header icons and logo mark (licence substitution)"
+        },
+        {
+          "x": 0.8126,
+          "y": 0.19527,
+          "w": 0.06053,
+          "h": 0.02784,
+          "reason": "composer camera and image glyphs (Lucide substitute)"
+        },
+        {
+          "x": 0.90216,
+          "y": 0.19527,
+          "w": 0.06053,
+          "h": 0.02784,
+          "reason": "composer camera and image glyphs (Lucide substitute)"
+        },
+        {
+          "x": 0.06468,
+          "y": 0.26354,
+          "w": 0.07877,
+          "h": 0.03623,
+          "reason": "info glyph (Lucide substitute)"
+        },
+        {
+          "x": 0.83333,
+          "y": 0.84439,
+          "w": 0.07463,
+          "h": 0.03432,
+          "reason": "compose FAB glyph (Lucide substitute)"
+        },
+        {
+          "x": 0.07463,
+          "y": 0.92067,
+          "w": 0.08292,
+          "h": 0.03509,
+          "reason": "bottom bar home glyph (Lucide substitute)"
+        },
+        {
+          "x": 0.26617,
+          "y": 0.92067,
+          "w": 0.08292,
+          "h": 0.03509,
+          "reason": "bottom bar search glyph (Lucide substitute)"
+        },
+        {
+          "x": 0.45854,
+          "y": 0.92067,
+          "w": 0.08292,
+          "h": 0.03509,
+          "reason": "bottom bar chat glyph (Lucide substitute)"
+        },
+        {
+          "x": 0.65091,
+          "y": 0.93898,
+          "w": 0.08292,
+          "h": 0.01678,
+          "reason": "bottom bar bell glyph below the unread badge (Lucide substitute)"
+        },
+        {
+          "x": 0.65091,
+          "y": 0.92067,
+          "w": 0.04395,
+          "h": 0.01831,
+          "reason": "bottom bar bell glyph left of the unread badge (Lucide substitute)"
+        },
+        {
+          "x": 0.70066,
+          "y": 0.44699,
+          "w": 0.03068,
+          "h": 0.02288,
+          "reason": "chevron glyph in the first end-of-feed button (Lucide substitute)"
+        },
+        {
+          "x": 0.74129,
+          "y": 0.58162,
+          "w": 0.03068,
+          "h": 0.02288,
+          "reason": "chevron glyph in the second end-of-feed button (Lucide substitute)"
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "name": "profile-empty",
+      "rn": "ios/parity/out/empty/rn/ios/profile-empty.png",
+      "native": "ios/parity/out/empty/native/ios/profile-empty.png",
+      "diff": "diffs/profile-empty.diff.png",
+      "width": 1206,
+      "height": 2622,
+      "diffPixels": 37905,
+      "totalPixels": 3162132,
+      "ratio": 0.011987165621169514,
+      "status": "drift",
+      "masks": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 1,
+          "h": 0.06865,
+          "reason": "status bar: clock, battery, signal"
+        },
+        {
+          "x": 0.80514,
+          "y": 0.19451,
+          "w": 0.04395,
+          "h": 0.02021,
+          "reason": "profile share and more glyphs (Lucide substitute)"
+        },
+        {
+          "x": 0.43698,
+          "y": 0.47674,
+          "w": 0.12355,
+          "h": 0.05683,
+          "reason": "empty-state edit glyph (Lucide substitute)"
+        },
+        {
+          "x": 0.83333,
+          "y": 0.84439,
+          "w": 0.07463,
+          "h": 0.03432,
+          "reason": "compose FAB glyph (Lucide substitute)"
+        },
+        {
+          "x": 0.07463,
+          "y": 0.92067,
+          "w": 0.08292,
+          "h": 0.03509,
+          "reason": "bottom bar home glyph (Lucide substitute)"
+        },
+        {
+          "x": 0.26617,
+          "y": 0.92067,
+          "w": 0.08292,
+          "h": 0.03509,
+          "reason": "bottom bar search glyph (Lucide substitute)"
+        },
+        {
+          "x": 0.45854,
+          "y": 0.92067,
+          "w": 0.08292,
+          "h": 0.03509,
+          "reason": "bottom bar chat glyph (Lucide substitute)"
+        },
+        {
+          "x": 0.65091,
+          "y": 0.93898,
+          "w": 0.08292,
+          "h": 0.01678,
+          "reason": "bottom bar bell glyph below the unread badge (Lucide substitute)"
+        },
+        {
+          "x": 0.65091,
+          "y": 0.92067,
+          "w": 0.04395,
+          "h": 0.01831,
+          "reason": "bottom bar bell glyph left of the unread badge (Lucide substitute)"
+        }
+      ],
+      "warnings": []
+    }
+  ],
+  "summary": {
+    "pass": 0,
+    "drift": 2,
+    "fail": 0
+  }
+}

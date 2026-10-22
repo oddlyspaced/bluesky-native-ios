@@ -1,0 +1,51 @@
+{
+  "tool": {
+    "name": "check-parity/diff",
+    "version": "1.0.0"
+  },
+  "imagemagick": {
+    "version": "7.1.2-32",
+    "quantum": "Q16",
+    "hdri": true
+  },
+  "threshold": 0.02,
+  "fuzz": "5%",
+  "createdAt": "2026-10-22T07:52:40.626Z",
+  "rnDir": "ios/parity/out/empty/rn/ios",
+  "nativeDir": "ios/parity/out/empty/native/ios",
+  "screens": [
+    {
+      "name": "home-empty",
+      "rn": "ios/parity/out/empty/rn/ios/home-empty.png",
+      "native": "ios/parity/out/empty/native/ios/home-empty.png",
+      "diff": "diffs/home-empty.diff.png",
+      "width": 1206,
+      "height": 2622,
+      "diffPixels": 82098,
+      "totalPixels": 3162132,
+      "ratio": 0.02596286303038583,
+      "status": "fail",
+      "masks": [],
+      "warnings": []
+    },
+    {
+      "name": "profile-empty",
+      "rn": "ios/parity/out/empty/rn/ios/profile-empty.png",
+      "native": "ios/parity/out/empty/native/ios/profile-empty.png",
+      "diff": "diffs/profile-empty.diff.png",
+      "width": 1206,
+      "height": 2622,
+      "diffPixels": 63096,
+      "totalPixels": 3162132,
+      "ratio": 0.01995362622433219,
+      "status": "drift",
+      "masks": [],
+      "warnings": []
+    }
+  ],
+  "summary": {
+    "pass": 0,
+    "drift": 1,
+    "fail": 1
+  }
+}

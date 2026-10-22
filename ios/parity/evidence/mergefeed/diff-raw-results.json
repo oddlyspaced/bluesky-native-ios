@@ -1,0 +1,37 @@
+{
+  "tool": {
+    "name": "check-parity/diff",
+    "version": "1.0.0"
+  },
+  "imagemagick": {
+    "version": "7.1.2-32",
+    "quantum": "Q16",
+    "hdri": true
+  },
+  "threshold": 0.02,
+  "fuzz": "5%",
+  "createdAt": "2026-10-22T07:53:42.219Z",
+  "rnDir": "ios/parity/out/mergefeed/rn/ios",
+  "nativeDir": "ios/parity/out/mergefeed/native/ios",
+  "screens": [
+    {
+      "name": "home-mergefeed",
+      "rn": "ios/parity/out/mergefeed/rn/ios/home-mergefeed.png",
+      "native": "ios/parity/out/mergefeed/native/ios/home-mergefeed.png",
+      "diff": "diffs/home-mergefeed.diff.png",
+      "width": 1206,
+      "height": 2622,
+      "diffPixels": 75422,
+      "totalPixels": 3162132,
+      "ratio": 0.023851629217249627,
+      "status": "fail",
+      "masks": [],
+      "warnings": []
+    }
+  ],
+  "summary": {
+    "pass": 0,
+    "drift": 0,
+    "fail": 1
+  }
+}

@@ -1,0 +1,635 @@
+{
+  "tool": {
+    "name": "check-parity/diff",
+    "version": "1.0.0"
+  },
+  "imagemagick": {
+    "version": "7.1.2-32",
+    "quantum": "Q16",
+    "hdri": true
+  },
+  "threshold": 0.02,
+  "fuzz": "5%",
+  "createdAt": "2026-10-22T07:57:16.728Z",
+  "rnDir": "ios/parity/out/api/rn/ios",
+  "nativeDir": "ios/parity/out/api/native/ios",
+  "screens": [
+    {
+      "name": "home-api",
+      "rn": "ios/parity/out/api/rn/ios/home-api.png",
+      "native": "ios/parity/out/api/native/ios/home-api.png",
+      "diff": "diffs/home-api.diff.png",
+      "width": 1206,
+      "height": 2622,
+      "diffPixels": 50623,
+      "totalPixels": 3162132,
+      "ratio": 0.016009135608507172,
+      "status": "drift",
+      "masks": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 1,
+          "h": 0.06865,
+          "reason": "status bar: clock, battery, signal"
+        },
+        {
+          "x": 0.04312,
+          "y": 0.08238,
+          "w": 0.06053,
+          "h": 0.02784,
+          "reason": "header icons and logo mark (licence substitution)"
+        },
+        {
+          "x": 0.4602,
+          "y": 0.0778,
+          "w": 0.07877,
+          "h": 0.03623,
+          "reason": "header icons and logo mark (licence substitution)"
+        },
+        {
+          "x": 0.88889,
+          "y": 0.08238,
+          "w": 0.06053,
+          "h": 0.02784,
+          "reason": "header icons and logo mark (licence substitution)"
+        },
+        {
+          "x": 0.8126,
+          "y": 0.19527,
+          "w": 0.06053,
+          "h": 0.02784,
+          "reason": "composer camera and image glyphs (Lucide substitute)"
+        },
+        {
+          "x": 0.90216,
+          "y": 0.19527,
+          "w": 0.06053,
+          "h": 0.02784,
+          "reason": "composer camera and image glyphs (Lucide substitute)"
+        },
+        {
+          "x": 0.78607,
+          "y": 0.13844,
+          "w": 0.12521,
+          "h": 0.02365,
+          "reason": "relative time (capture clock; slot for now..59m)"
+        },
+        {
+          "x": 0.48176,
+          "y": 0.25629,
+          "w": 0.12521,
+          "h": 0.0225,
+          "reason": "relative time (capture clock; slot for now..59m)"
+        },
+        {
+          "x": 0.17081,
+          "y": 0.33829,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.3524,
+          "y": 0.33715,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.534,
+          "y": 0.33753,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.74544,
+          "y": 0.33715,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.82421,
+          "y": 0.33677,
+          "w": 0.04726,
+          "h": 0.02174,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.49088,
+          "y": 0.4058,
+          "w": 0.12521,
+          "h": 0.02212,
+          "reason": "relative time (capture clock; slot for now..59m)"
+        },
+        {
+          "x": 0.17164,
+          "y": 0.48894,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.3524,
+          "y": 0.4878,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.534,
+          "y": 0.48818,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.74544,
+          "y": 0.4878,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.82421,
+          "y": 0.48741,
+          "w": 0.04726,
+          "h": 0.02174,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.49088,
+          "y": 0.53432,
+          "w": 0.12521,
+          "h": 0.02212,
+          "reason": "relative time (capture clock; slot for now..59m)"
+        },
+        {
+          "x": 0.17081,
+          "y": 0.59306,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.3524,
+          "y": 0.59191,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.534,
+          "y": 0.5923,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.74544,
+          "y": 0.59191,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.82421,
+          "y": 0.59153,
+          "w": 0.04726,
+          "h": 0.02174,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.44776,
+          "y": 0.63844,
+          "w": 0.12521,
+          "h": 0.02212,
+          "reason": "relative time (capture clock; slot for now..59m)"
+        },
+        {
+          "x": 0.17081,
+          "y": 0.69718,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.3524,
+          "y": 0.69603,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.534,
+          "y": 0.69641,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.74544,
+          "y": 0.69603,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.82421,
+          "y": 0.69565,
+          "w": 0.04726,
+          "h": 0.02174,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.48176,
+          "y": 0.74218,
+          "w": 0.12521,
+          "h": 0.0225,
+          "reason": "relative time (capture clock; slot for now..59m)"
+        },
+        {
+          "x": 0.17081,
+          "y": 0.8013,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.3524,
+          "y": 0.80015,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.534,
+          "y": 0.80053,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.74544,
+          "y": 0.80015,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.82421,
+          "y": 0.79977,
+          "w": 0.04726,
+          "h": 0.02174,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.83333,
+          "y": 0.84439,
+          "w": 0.07463,
+          "h": 0.03432,
+          "reason": "compose FAB glyph (Lucide substitute)"
+        },
+        {
+          "x": 0.07463,
+          "y": 0.92067,
+          "w": 0.08292,
+          "h": 0.03509,
+          "reason": "bottom bar home glyph (Lucide substitute)"
+        },
+        {
+          "x": 0.26617,
+          "y": 0.92067,
+          "w": 0.08292,
+          "h": 0.03509,
+          "reason": "bottom bar search glyph (Lucide substitute)"
+        },
+        {
+          "x": 0.45854,
+          "y": 0.92067,
+          "w": 0.08292,
+          "h": 0.03509,
+          "reason": "bottom bar chat glyph (Lucide substitute)"
+        },
+        {
+          "x": 0.65091,
+          "y": 0.93898,
+          "w": 0.08292,
+          "h": 0.01678,
+          "reason": "bottom bar bell glyph below the unread badge (Lucide substitute)"
+        },
+        {
+          "x": 0.65091,
+          "y": 0.92067,
+          "w": 0.04395,
+          "h": 0.01831,
+          "reason": "bottom bar bell glyph left of the unread badge (Lucide substitute)"
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "name": "profile-api",
+      "rn": "ios/parity/out/api/rn/ios/profile-api.png",
+      "native": "ios/parity/out/api/native/ios/profile-api.png",
+      "diff": "diffs/profile-api.diff.png",
+      "width": 1206,
+      "height": 2622,
+      "diffPixels": 56345,
+      "totalPixels": 3162132,
+      "ratio": 0.017818674236243143,
+      "status": "drift",
+      "masks": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 1,
+          "h": 0.06865,
+          "reason": "status bar: clock, battery, signal"
+        },
+        {
+          "x": 0.80514,
+          "y": 0.19451,
+          "w": 0.04395,
+          "h": 0.02021,
+          "reason": "profile share and more glyphs (Lucide substitute)"
+        },
+        {
+          "x": 0.48176,
+          "y": 0.43326,
+          "w": 0.12521,
+          "h": 0.0225,
+          "reason": "relative time (capture clock; slot for now..59m)"
+        },
+        {
+          "x": 0.17081,
+          "y": 0.51526,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.3524,
+          "y": 0.51411,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.534,
+          "y": 0.51449,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.74544,
+          "y": 0.51411,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.82421,
+          "y": 0.51373,
+          "w": 0.04726,
+          "h": 0.02174,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.48176,
+          "y": 0.56026,
+          "w": 0.12521,
+          "h": 0.0225,
+          "reason": "relative time (capture clock; slot for now..59m)"
+        },
+        {
+          "x": 0.17081,
+          "y": 0.61937,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.3524,
+          "y": 0.61823,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.534,
+          "y": 0.61861,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.74544,
+          "y": 0.61823,
+          "w": 0.04561,
+          "h": 0.02098,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.82421,
+          "y": 0.61785,
+          "w": 0.04726,
+          "h": 0.02174,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.83333,
+          "y": 0.84439,
+          "w": 0.07463,
+          "h": 0.03432,
+          "reason": "compose FAB glyph (Lucide substitute)"
+        },
+        {
+          "x": 0.07463,
+          "y": 0.92067,
+          "w": 0.08292,
+          "h": 0.03509,
+          "reason": "bottom bar home glyph (Lucide substitute)"
+        },
+        {
+          "x": 0.26617,
+          "y": 0.92067,
+          "w": 0.08292,
+          "h": 0.03509,
+          "reason": "bottom bar search glyph (Lucide substitute)"
+        },
+        {
+          "x": 0.45854,
+          "y": 0.92067,
+          "w": 0.08292,
+          "h": 0.03509,
+          "reason": "bottom bar chat glyph (Lucide substitute)"
+        },
+        {
+          "x": 0.65091,
+          "y": 0.93898,
+          "w": 0.08292,
+          "h": 0.01678,
+          "reason": "bottom bar bell glyph below the unread badge (Lucide substitute)"
+        },
+        {
+          "x": 0.65091,
+          "y": 0.92067,
+          "w": 0.04395,
+          "h": 0.01831,
+          "reason": "bottom bar bell glyph left of the unread badge (Lucide substitute)"
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "name": "thread-api",
+      "rn": "ios/parity/out/api/rn/ios/thread-api.png",
+      "native": "ios/parity/out/api/native/ios/thread-api.png",
+      "diff": "diffs/thread-api.diff.png",
+      "width": 1206,
+      "height": 2622,
+      "diffPixels": 18662,
+      "totalPixels": 3162132,
+      "ratio": 0.005901714412934058,
+      "status": "pass",
+      "masks": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 1,
+          "h": 0.06865,
+          "reason": "status bar: clock, battery, signal"
+        },
+        {
+          "x": 0.04312,
+          "y": 0.082,
+          "w": 0.06053,
+          "h": 0.02784,
+          "reason": "header back glyph (Lucide substitute)"
+        },
+        {
+          "x": 0.88889,
+          "y": 0.082,
+          "w": 0.06053,
+          "h": 0.02784,
+          "reason": "header options glyph (Lucide substitute)"
+        },
+        {
+          "x": 0.87894,
+          "y": 0.14722,
+          "w": 0.09287,
+          "h": 0.04272,
+          "reason": "anchor logo slot: RN shows its trademark mark only in screenshots"
+        },
+        {
+          "x": 0.16998,
+          "y": 0.24714,
+          "w": 0.12521,
+          "h": 0.02021,
+          "reason": "relative time (capture clock; slot for now..59m)"
+        },
+        {
+          "x": 0.03483,
+          "y": 0.32799,
+          "w": 0.05556,
+          "h": 0.02555,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.24378,
+          "y": 0.32685,
+          "w": 0.05556,
+          "h": 0.02555,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.45357,
+          "y": 0.32723,
+          "w": 0.05556,
+          "h": 0.02555,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.6932,
+          "y": 0.32685,
+          "w": 0.05556,
+          "h": 0.02555,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.79187,
+          "y": 0.32647,
+          "w": 0.05721,
+          "h": 0.02632,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.87396,
+          "y": 0.32685,
+          "w": 0.05556,
+          "h": 0.02555,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.89221,
+          "y": 0.32685,
+          "w": 0.05556,
+          "h": 0.02555,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.91045,
+          "y": 0.32685,
+          "w": 0.05556,
+          "h": 0.02555,
+          "reason": "icon glyph (Lucide substitute), icon slot"
+        },
+        {
+          "x": 0.07463,
+          "y": 0.92067,
+          "w": 0.08292,
+          "h": 0.03509,
+          "reason": "bottom bar home glyph (Lucide substitute)"
+        },
+        {
+          "x": 0.26617,
+          "y": 0.92067,
+          "w": 0.08292,
+          "h": 0.03509,
+          "reason": "bottom bar search glyph (Lucide substitute)"
+        },
+        {
+          "x": 0.45854,
+          "y": 0.92067,
+          "w": 0.08292,
+          "h": 0.03509,
+          "reason": "bottom bar chat glyph (Lucide substitute)"
+        },
+        {
+          "x": 0.65091,
+          "y": 0.93898,
+          "w": 0.08292,
+          "h": 0.01678,
+          "reason": "bottom bar bell glyph below the unread badge (Lucide substitute)"
+        },
+        {
+          "x": 0.65091,
+          "y": 0.92067,
+          "w": 0.04395,
+          "h": 0.01831,
+          "reason": "bottom bar bell glyph left of the unread badge (Lucide substitute)"
+        }
+      ],
+      "warnings": []
+    }
+  ],
+  "summary": {
+    "pass": 1,
+    "drift": 2,
+    "fail": 0
+  }
+}

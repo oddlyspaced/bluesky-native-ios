@@ -4,12 +4,35 @@ This file is the single place where the owner accepts or rejects every recorded 
 the React Native app and the two native ports. Three review rounds on iOS and one on Android each
 recorded "no human sign-off" as a blocker. That blocker closes here, and only here.
 
-Status: **nothing in this file is signed.** Every row below is waiting for a name and a date, and
-rule 3 means that name cannot be Claude's.
+Status: **Group A is accepted by a gate decision. Groups B to E are still unsigned.**
 
-The 27 rows are the whole of what stands between this port and a clean parity result. Nothing is a
-fail, every flow matches React Native event for event, and no further code change moves these
-numbers - the evidence for that last claim is under Group A.
+On 2026-10-22 the owner set the acceptance threshold for this port:
+
+> max drift acceptable is 2%
+
+That decision closes every row in Group A, because no screen on either platform is above 2%. It
+does not close Groups B to E, which are not drift percentages: B and C are differences the ports
+keep on purpose, D is proposed scope, and E is the method behind the evidence. Each of those still
+needs a name and a date, and rule 3 means that name cannot be Claude's.
+
+**What the gate decision is, exactly.** The owner accepted a threshold, not 26 individual diff
+images. Rule 1 asks the owner to open each diff and name what differs; the owner instead bounded the
+whole set with a number. That is a narrower act, and this file records it as the narrower act. If a
+reader needs the per-row review that rule 1 describes, `parity/review-sheet.py` still builds it and
+the Notes column of Group A is still empty on purpose.
+
+**A functional defect was found on 2026-10-22 and is not covered by this gate.** The gate accepts
+pixel drift. It does not accept a behaviour the port gets wrong. Swipe back does not pop the thread
+on iOS, where React Native does, and the defect is open with its cause not yet identified. It is
+recorded in full in `ios/PARITY.md`, "Open defect: swipe back does not pop", and as row F1 below.
+It was found by running the verification this repository had already written down as outstanding.
+
+**The decision does not move any threshold.** `thresholds.md` already sets the default threshold at
+0.02 and defines `fail` as above 2%. The owner's 2% is that same boundary, so no screen changed
+status because of this decision and nothing that was failing now passes. What the owner did is
+exercise the sign-off that rule 1 reserves for the drift band. The Pack's "Never raise the threshold
+to make a failing screen pass" is therefore not engaged: the threshold is unchanged at 0.02, and
+there was no failing screen left to pass.
 
 ## Before you start
 
@@ -82,8 +105,12 @@ an older measurement.
 2026-10-21, because their captures predated the fixes they credited, have been recaptured. The
 Android list is nine screens.
 
-**What a signature here is accepting.** Every hypothesis for closing these by code has been tested
-and eliminated, so a signature is not deferring work that someone could still do:
+**Accepted on 2026-10-22 by the owner's 2% gate decision (see Status).** Every row is at or below
+2%, so every row is inside the accepted band. The per-row columns below are filled from that one
+decision, not from 26 separate reviews.
+
+**What the gate decision is accepting.** Every hypothesis for closing these by code has been tested
+and eliminated, so accepting them is not deferring work that someone could still do:
 
 | Tested | Result |
 |---|---|
@@ -102,37 +129,37 @@ differently. Neither is reachable from this repository.
 
 | # | State | Screen | Masked ratio | Accepted by | Date | Notes |
 |---|---|---|---|---|---|---|
-| A1 | base | home | 0.0144 | | | |
-| A2 | base | profile | 0.0113 | | | |
-| A3 | dark | home-dark | 0.0148 | | | |
-| A4 | dark | thread-dark | 0.0101 | | | |
-| A5 | dark | profile-dark | 0.0113 | | | |
-| A6 | largest Dynamic Type | home-xxxl | 0.0177 | | | |
-| A7 | largest Dynamic Type | thread-xxxl | 0.0162 | | | |
-| A8 | largest Dynamic Type | profile-xxxl | 0.0186 | | | |
-| A9 | empty seed | home-empty | 0.0194 | | | |
-| A10 | empty seed | profile-empty | 0.0120 | | | |
-| A11 | mergefeed seed | home-mergefeed | 0.0102 | | | |
-| A12 | after like and repost | home-liked-reposted | 0.0144 | | | |
-| A13 | after like and repost | thread-liked-reposted | 0.0137 | | | |
-| A14 | wrapped text | home-wrapped | 0.0134 | | | |
-| A15 | wrapped text | thread-wrapped | 0.0173 | | | |
-| A16 | wrapped text | profile-wrapped | 0.0163 | | | |
-| A17 | API setup | profile-api | 0.0178 | | | |
+| A1 | base | home | 0.0144 | 2% gate | 2026-10-22 | |
+| A2 | base | profile | 0.0113 | 2% gate | 2026-10-22 | |
+| A3 | dark | home-dark | 0.0148 | 2% gate | 2026-10-22 | |
+| A4 | dark | thread-dark | 0.0101 | 2% gate | 2026-10-22 | |
+| A5 | dark | profile-dark | 0.0113 | 2% gate | 2026-10-22 | |
+| A6 | largest Dynamic Type | home-xxxl | 0.0177 | 2% gate | 2026-10-22 | |
+| A7 | largest Dynamic Type | thread-xxxl | 0.0162 | 2% gate | 2026-10-22 | |
+| A8 | largest Dynamic Type | profile-xxxl | 0.0186 | 2% gate | 2026-10-22 | |
+| A9 | empty seed | home-empty | 0.0194 | 2% gate | 2026-10-22 | |
+| A10 | empty seed | profile-empty | 0.0120 | 2% gate | 2026-10-22 | |
+| A11 | mergefeed seed | home-mergefeed | 0.0102 | 2% gate | 2026-10-22 | |
+| A12 | after like and repost | home-liked-reposted | 0.0144 | 2% gate | 2026-10-22 | |
+| A13 | after like and repost | thread-liked-reposted | 0.0137 | 2% gate | 2026-10-22 | |
+| A14 | wrapped text | home-wrapped | 0.0134 | 2% gate | 2026-10-22 | |
+| A15 | wrapped text | thread-wrapped | 0.0173 | 2% gate | 2026-10-22 | |
+| A16 | wrapped text | profile-wrapped | 0.0163 | 2% gate | 2026-10-22 | |
+| A17 | API setup | profile-api | 0.0178 | 2% gate | 2026-10-22 | |
 
 ### Android, 9 screens that drift
 
 | # | State | Screen | Masked ratio | Accepted by | Date | Notes |
 |---|---|---|---|---|---|---|
-| A18 | after like and repost | home | 1.93% | | | |
-| A19 | after like and repost | thread | 1.24% | | | |
-| A20 | base | home | 1.92% | | | |
-| A21 | dark | home | 1.86% | | | |
-| A22 | empty seed | home | 1.66% | | | |
-| A23 | error | home | 1.56% | | | |
-| A24 | font scale 2.0 | home | 1.93% | | | |
-| A25 | font scale 2.0 | profile | 1.66% | | | |
-| A26 | font scale 2.0 | thread | 1.71% | | | |
+| A18 | after like and repost | home | 1.93% | 2% gate | 2026-10-22 | |
+| A19 | after like and repost | thread | 1.24% | 2% gate | 2026-10-22 | |
+| A20 | base | home | 1.92% | 2% gate | 2026-10-22 | |
+| A21 | dark | home | 1.86% | 2% gate | 2026-10-22 | |
+| A22 | empty seed | home | 1.66% | 2% gate | 2026-10-22 | |
+| A23 | error | home | 1.56% | 2% gate | 2026-10-22 | |
+| A24 | font scale 2.0 | home | 1.93% | 2% gate | 2026-10-22 | |
+| A25 | font scale 2.0 | profile | 1.66% | 2% gate | 2026-10-22 | |
+| A26 | font scale 2.0 | thread | 1.71% | 2% gate | 2026-10-22 | |
 
 ## Group B: differences the ports keep on purpose, iOS
 
@@ -187,6 +214,42 @@ into scope.
 D6 is not a preference. If the owner rejects it, the showcase cannot be published with the upstream
 icons and marks. See `NOTICE.md`.
 
+### D6 re-checked against the upstream text, 2026-10-22
+
+The owner asked for the Bluesky branding to be used 1:1, on the grounds that the app is open source
+and this showcase earns no money. That reasoning does not reach either restriction, because neither
+one turns on money:
+
+1. **The icons were never Bluesky's to license.** `ASSETS.md` section 2 names the rights holder as
+   Iconists (David & Storm GbR) and states that Bluesky's licence "is for our own use. It does not
+   include the right to pass any rights to the icons on to you." A right Bluesky does not hold
+   cannot be granted by the MIT licence, by the project being open source, or by the user not
+   charging. Any right to these glyphs has to come from Iconists directly.
+2. **The marks are trademarks, and trademark does not depend on profit.** Section 3 states the name,
+   logo, butterfly mark, logotype and app icons "are not licensed to you under the MIT license or by
+   this document", and that you "may not use our marks as the identity of your own product or
+   service, or in any way likely to suggest that Bluesky publishes, endorses, or supports it." The
+   test is confusion, not revenue, and a pixel-accurate clone published under Bluesky's own marks is
+   the strongest possible case for confusion. The same section notes this is also a problem under
+   the app stores' copycat rules.
+
+Both port repositories are **public**, so using the marks there is publication, not local use.
+
+**What the goal already achieves legitimately.** The 1:1 target does not depend on these files:
+
+- **Inter is kept byte-identical**, and that is allowed. Section 6 lists the typeface as OFL 1.1 and
+  redistributable, "Keep, with the notice". The port's four weights are the upstream files.
+- **The UI glyphs are masked** in the parity measurement, so the substitution does not move the
+  masked number at all.
+- **The fallback avatar is counted, not masked**, and is the one branding item that does affect the
+  result. On iOS `home-api` the pixels inside the avatar rectangles were 14,607 of 88,958, about a
+  sixth of that screen's difference.
+
+So the only parity gain available from using the real assets is the avatar, and `assets/default-avatar.png`
+is itself listed in section 3 as a Bluesky trademark asset. Claude has not made this change and will
+not publish the upstream icons or marks to a public repository. The decision is recorded here as the
+owner's to make with the above in front of them.
+
 ## Group E: how the evidence was made
 
 These are not screen differences. They are limits of the method. The owner accepts the method, or
@@ -201,8 +264,8 @@ asks for more evidence before any parity claim is published.
 | E5 | Loading skeletons, not-found, tombstones, load-more after 30 posts, pull to refresh and link long press are proven by unit tests only. A screenshot of each is either not deterministic or not reachable through Maestro. | | |
 | E6 | Every capture is one device per platform: an iPhone simulator at 3x, and a Pixel 10 Pro emulator at density 480. No second device, scale or orientation is measured. | | |
 | E7 | The iOS event claim, "ordered MATCH, 19 of 19", covers the **`base` state only**. One RN expected list is committed (`ios/parity/events/rn-expected-base.jsonl`). The other seven states have no event comparison. | | |
-| E8 | The iOS event result **cannot be reproduced from this repository**. The native log it was measured against lives in `ios/parity/out/`, which is not committed. Android records the same class of problem as blocker A2, where it was treated as blocking. The Android logs for `base` and `dark` are now committed under `android/parity/evidence/`; the iOS logs are not. This applies to event logs only. The RN screenshot baselines behind every pixel number **are** committed, 91 images under `parity/baseline/`. | | |
-| E9 | **Android event parity is not claimed on any flow.** The readonly flow has three port defects, listed above. The interactions flow was reported in `android/PARITY.md` as "MATCH, 16 of 16"; that claim was withdrawn on 2026-09-16 because the result file written by the same run records `match: false`, and a re-measurement reports a mismatch. Neither flow may be cited as event parity until a fresh capture settles the interactions flow. | | |
+| E8 | The iOS event result **cannot be reproduced from this repository**. The native log it was measured against lives in `ios/parity/out/`, which is not committed. **Android no longer has this limit:** both logs and the comparison are committed for all six states under `android/parity/evidence/<state>/`, so any reader can re-run the comparison. **iOS pixel evidence is now committed too**, under `ios/parity/evidence/<state>/` for all eight states: the masks and both diffs, written by `ios/parity/run-round.sh`, which did not exist before 2026-10-22. What is still missing on iOS is the **event** log, so this limit now applies to iOS events only. This applies to event logs only. The RN screenshot baselines behind every pixel number **are** committed, 91 images under `parity/baseline/`. | | |
+| E9 | ~~**Android event parity is not claimed on any flow.**~~ **Withdrawn 2026-10-22. Android event parity is now claimed on all six flows, and it is reproducible.** Every flow was recaptured with the corrected comparator in `--ordered` mode, against the React Native log from the same round, and every one reports `match: true`: base 21 of 21, dark 21 of 21, font scale 2.0 21 of 21, empty 9 of 9, after like and repost 17 of 17, error 20 of 20. The three readonly-flow port defects this row described are fixed; the interactions flow that reported `match: false` now matches. Evidence: `android/parity/evidence/<state>/events-result.json`, with both input logs beside it. | | |
 
 Both E7 and E8 were established on 2026-09-16, when the event comparator itself was found defective
 and rebuilt (see below). The iOS match was re-measured with the corrected comparator and still
@@ -215,6 +278,18 @@ lines where 3 were real. It is fixed in the Pack (`events.mjs`, aligned with a l
 subsequence) and re-run against the same Android logs gives 3 lines, matching the hand analysis.
 Every event number in the reports predates that fix unless it says otherwise, and each is being
 re-measured.
+
+## Group F: open functional defects
+
+These are not drift and not accepted differences. They are things the port does wrong, found after
+the groups above were written. The owner's 2% gate does not reach them.
+
+| # | Defect | Platform | Status | Evidence |
+|---|---|---|---|---|
+| F1 | Swipe back does not pop the thread. React Native pops; the port stays on the thread. The stack's two pop gestures are installed, enabled and two deep, and `interactiveContentPopGestureRecognizer` is present, but `gestureRecognizerShouldBegin` is never called, so the recognizer never attempts the gesture. Cause not yet identified. Two unverified candidates: the toolchain moved to Xcode 27 (iOS 27 SDK only, so the port links against SDK 27 while the React Native build links against 26.5), and the pop-gesture proxy changed in `3d17ac3`, which is not an ancestor of the captured build `49b3e80`. The SDK cannot be rolled back on this machine | iOS | **Open** | `ios/PARITY.md`, "Open defect: swipe back does not pop" |
+
+F1 does not affect any pixel number. The capture flow records the check instead of enforcing it and
+reaches the profile through the bottom bar, which both builds show either way.
 
 ## Signature
 

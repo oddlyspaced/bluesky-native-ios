@@ -1,8 +1,18 @@
 # Launches the build under test with a clean state and waits for the signed-out screen.
 # LABEL=rn launches the RN e2e app; LABEL=native launches the SwiftUI port
 # (the pattern in check-parity/references/maestro-flows.md: one runFlow per appId).
+#
+# METRO_URL  where the RN app's JS bundle is served (default http://localhost:8082)
+#
+# The RN build is an Expo dev client: it has no bundled main.jsbundle and loads its JS from Metro.
+# `clearState: true` wipes the launcher's stored development-server URL, so the launcher comes up on
+# "Searching for development servers...", which scans port 8081 only. Metro for this app runs on
+# 8082, because port 8081 belongs to another project on this machine and must stay free. The deep
+# link below names the server explicitly, so the launcher does not have to find it. Without it the
+# flow times out waiting for "Sign in" and the capture produces no screenshots.
 appId: io.nativestarter.showcase.bluesky
 ---
+- evalScript: "${output.metro = (typeof METRO_URL === 'undefined' ? 'http://localhost:8082' : METRO_URL)}"
 - runFlow:
     when:
       true: ${LABEL == 'rn'}
@@ -10,6 +20,8 @@ appId: io.nativestarter.showcase.bluesky
       - launchApp:
           appId: "xyz.blueskyweb.app"
           clearState: true
+      - evalScript: "${output.devLink = 'exp+bluesky://expo-development-client/?url=' + encodeURIComponent(output.metro)}"
+      - openLink: ${output.devLink}
 - runFlow:
     when:
       true: ${LABEL != 'rn'}

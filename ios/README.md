@@ -1,10 +1,13 @@
-# Native showcase (iOS): SwiftUI port of a Bluesky slice
+# Bluesky in SwiftUI: a native iOS app ported from React Native
 
-A native SwiftUI port of a slice of the Bluesky social app, which is React Native and MIT
-licensed. The port was built with the Nativestarter Migration Pack. The source of the port is
-`bluesky-social-app` at commit `2bfb94d`.
+The Bluesky social app, which is React Native and MIT licensed, ported to a native iOS app in
+SwiftUI with the Nativestarter Migration Pack. It is a real app, not a set of screens in a harness:
+it builds, signs in, and talks to a real AT Protocol server. It uses no mock data and no hard-coded
+posts. The source of the port is `bluesky-social-app` at commit `2bfb94d`.
 
-The app talks to a real AT Protocol server. It uses no mock data and no hard-coded posts.
+This build ports the app's foundation - design tokens, XRPC client, session, tab shell - and three
+of its screens: home feed, post thread and profile. The upstream app has 78 screens, and
+`plan/full-app-plan.md` is the plan for all of them.
 
 | Item | Value |
 |---|---|
