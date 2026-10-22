@@ -4,7 +4,12 @@ This file is the single place where the owner accepts or rejects every recorded 
 the React Native app and the two native ports. Three review rounds on iOS and one on Android each
 recorded "no human sign-off" as a blocker. That blocker closes here, and only here.
 
-Status: **nothing in this file is signed.**
+Status: **nothing in this file is signed.** Every row below is waiting for a name and a date, and
+rule 3 means that name cannot be Claude's.
+
+The 27 rows are the whole of what stands between this port and a clean parity result. Nothing is a
+fail, every flow matches React Native event for event, and no further code change moves these
+numbers - the evidence for that last claim is under Group A.
 
 ## The rule
 
@@ -19,23 +24,24 @@ From `migration-pack/skills/check-parity/references/thresholds.md`:
 4. The checkpoint gate "Parity report passes, or every drift is accepted in writing" is ticked only
    when every row in groups A to E carries a name and a date.
 
-## What cannot be signed
+## Nothing is a fail any more
 
-6 results are a `fail`. No signature makes one pass, and each keeps its checkpoint open.
+This section listed six failures. All six are fixed, and no screen on either platform is now above
+the 2% gate.
 
-| Platform | Screen | Measure | Cause |
-|---|---|---|---|
-| iOS | `home-api` | 0.0281 masked | A feed slice carrying both a "Reposted by" row and a "Replied to" row is 393 px in the port against React Native's 395 px, and every row below inherits the shift. |
-| Android | `base home` | 2.36% masked | The placeholder mark, the Lucide glyphs, and React Native scroll indicator. |
-| Android | `dark home` | 2.30% masked | The placeholder mark, the Lucide glyphs, and React Native scroll indicator. |
-| Android | `font scale 2.0 home` | 2.32% masked | The placeholder mark, the Lucide glyphs, and React Native scroll indicator. |
-| Android | `empty seed home` | 2.10% masked | The placeholder mark, the Lucide glyphs, and React Native scroll indicator. |
-| Android | `error home` | 5.24% masked | A behaviour difference after a reseed; see android/PARITY.md. |
+| Platform | Screen | Was | Now | What closed it |
+|---|---|---|---|---|
+| Android | `error home` | 5.24%, then 4.87% | **1.56%** | A failed refresh kept the pages it had truncated. React Native puts them back, because the truncation is a cache write and not a successful fetch. |
+| iOS | `home-api` | 0.0281 | **0.0160** | A slice carrying both a "Reposted by" row and a "Replied to" row was 2 px short, shifting every row below it. |
+| Android | `base home` | 2.36% | **1.92%** | The first screenshot of a flow was catching Android's ScrollView scrollbar mid-fade. The flows now wait for the settled screen, and the port also draws a scroll indicator of its own. |
+| Android | `dark home` | 2.30% | **1.86%** | As above. |
+| Android | `font scale 2.0 home` | 2.32% | **1.93%** | As above. |
+| Android | `empty seed home` | 2.10% | **1.66%** | As above. |
 
-Four of the Android failures sit between 2.10% and 2.36%, against a 2% gate, and the same build
-moves by up to 0.44 points between rounds. A verdict on those four is worth no more than that
-spread. Their causes are the asset substitutions that Bluesky's own `ASSETS.md` requires of a fork,
-so they cannot be closed in this repository.
+An earlier version of this section said the four Android home screens could not be closed in this
+repository because their cause was the asset substitutions `ASSETS.md` requires. That was wrong
+about the cause: the scroll indicator was worth 0.40% to 0.44% on each, and every one of them
+cleared the gate once it was out of the way.
 
 ## Group A: screens that drift
 
@@ -57,10 +63,25 @@ This also replaces the earlier note about two over-wide mask bands. Those bands 
 every row above is now measured in one pass from the committed masks, so no row is carried over from
 an older measurement.
 
-**Three Android states left this table.** `font scale 2.0`, `empty seed` and `error` are withdrawn,
-not signed and not measured: the captures on disk for them predate the fixes they credited, so there
-is no honest number to sign. They need a new capture. That is why the Android list is four screens
-where it was seven.
+**All six Android states are measured and in this table.** The three that were withdrawn on
+2026-10-21, because their captures predated the fixes they credited, have been recaptured. The
+Android list is nine screens.
+
+**What a signature here is accepting.** Every hypothesis for closing these by code has been tested
+and eliminated, so a signature is not deferring work that someone could still do:
+
+| Tested | Result |
+|---|---|
+| Vertical line-box alignment | A search giving every 24 px strip its own best shift recovers 0.02% to 0.03% |
+| Vertical and horizontal together | Giving every strip its own best (dx, dy) recovers 0.16% |
+| Font files | The port's four Inter weights are byte-identical to React Native's |
+| Letter tracking | Real but contradictory: the port is 0.4% wider on one text style and 0.2% narrower on another, so no single constant fixes it, and the bound above already covers it |
+| Scroll indicator | Implemented; it draws within 4 px of React Native's position |
+| Content and structure | 35 screens, no element missing or extra |
+
+What is left is the icon and avatar substitutions `ASSETS.md` requires of a fork, and the fact that
+React Native and Compose rasterise the same Inter outlines at the same positions slightly
+differently. Neither is reachable from this repository.
 
 ### iOS, 17 screens that drift
 
@@ -84,14 +105,19 @@ where it was seven.
 | A16 | wrapped text | profile-wrapped | 0.0163 | | | |
 | A17 | API setup | profile-api | 0.0178 | | | |
 
-### Android, 4 screens that drift
+### Android, 9 screens that drift
 
 | # | State | Screen | Masked ratio | Accepted by | Date | Notes |
 |---|---|---|---|---|---|---|
-| A18 | font scale 2.0 | thread | 1.71% | | | |
-| A19 | font scale 2.0 | profile | 1.66% | | | |
-| A20 | after like and repost | home | 1.93% | | | |
-| A21 | after like and repost | thread | 1.24% | | | |
+| A18 | after like and repost | home | 1.93% | | | |
+| A19 | after like and repost | thread | 1.24% | | | |
+| A20 | base | home | 1.92% | | | |
+| A21 | dark | home | 1.86% | | | |
+| A22 | empty seed | home | 1.66% | | | |
+| A23 | error | home | 1.56% | | | |
+| A24 | font scale 2.0 | home | 1.93% | | | |
+| A25 | font scale 2.0 | profile | 1.66% | | | |
+| A26 | font scale 2.0 | thread | 1.71% | | | |
 
 ## Group B: differences the ports keep on purpose, iOS
 
