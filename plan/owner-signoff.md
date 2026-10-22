@@ -11,6 +11,21 @@ The 27 rows are the whole of what stands between this port and a clean parity re
 fail, every flow matches React Native event for event, and no further code change moves these
 numbers - the evidence for that last claim is under Group A.
 
+## Before you start
+
+`parity/review-sheet.py` builds the evidence this file needs. Run it from the repository root after
+a capture round:
+
+```
+python3 parity/review-sheet.py
+open review-sheet/index.html
+```
+
+It writes one image per drift row - React Native, the port, and a graded map of where they differ -
+and an index listing all of them, so rule 1 below can be worked through in one sitting instead of
+hunting for screenshots across two trees. The output is not committed, because the raw captures are
+not either.
+
 ## The rule
 
 From `migration-pack/skills/check-parity/references/thresholds.md`:
