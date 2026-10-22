@@ -13,7 +13,12 @@
 
 ## Verdict
 
-**With masks: 2 pass, 17 drift, 1 fail. Raw: 14 of 20 screens fail, 6 drift.**
+**With masks: 2 pass, 18 drift, 0 fail. Raw: 14 of 20 screens fail, 6 drift.**
+
+`home-api` was the one fail at 0.0281 and is now 0.0160, measured against the same committed React
+Native capture with only the build changed (difference 10). The evidence files below still carry
+its pre-fix number: refreshing them needs a matched-pair round, and the React Native app on this
+simulator needs a Metro dev server that was not available in that session.
 Each drift and the fail need a written sign-off by a person who did not write the port
 (`check-parity/references/thresholds.md`); none is signed.
 
@@ -38,7 +43,7 @@ Masked ratio = differing pixels after masks / 3,162,132, threshold 0.02, fuzz 5%
 | wrapped text (API setup) | home-wrapped | 0.0262 (82,827) | fail | 0.0134 (42,375) | 13.29% | drift |
 | wrapped text (API setup) | thread-wrapped | 0.0236 (74,533) | fail | 0.0173 (54,636) | 10.12% | drift |
 | wrapped text (API setup) | profile-wrapped | 0.0241 (76,313) | fail | 0.0163 (51,451) | 9.84% | drift |
-| API setup states | home-api | 0.0416 (131,669) | fail | **0.0281 (88,948)** | 13.29% | **fail** |
+| API setup states | home-api | 0.0416 (131,669) | fail | **0.0160 (50,633)** | 13.29% | drift |
 | API setup states | thread-api | 0.0125 (39,464) | drift | 0.0059 (18,654) | 10.09% | pass |
 | API setup states | profile-api | 0.0254 (80,376) | fail | 0.0178 (56,345) | 9.84% | drift |
 
@@ -57,7 +62,7 @@ The first set of numbers was measured on the older ImageMagick, which was close 
 ratios moved only a little, by 2 to 20% of their own value. **Two verdicts changed, both to the
 worse side:** `thread-dark` 0.0096 pass to 0.0101 drift, and `home-mergefeed` 0.0097 pass to 0.0102
 drift. Both crossed the pass/drift line at 0.01, so the masked count goes from 4 pass, 15 drift to
-2 pass, 17 drift. `home-api` stays the one fail, 0.0273 to 0.0281: the blocker is real and is not an
+2 pass, 18 drift, 0 fail. `home-api` ran 0.0273 then 0.0281 and is now 0.0160: the blocker was real and was not an
 artefact of the tooling.
 
 This also retires the † footnote that stood here. It marked six thread rows whose ratios came from
@@ -403,7 +408,7 @@ None of these is accepted. Each needs a named owner.
 | 7 | `post:view` visibility | 40% visible for 500 ms | Row laid out for 500 ms | Event diff |
 | 8 | Tab roles | `accessibilityRole="tab"` | Buttons with the selected trait | Not measured |
 | 9 | E2E controls | 12 controls at top 100, right 0 | The same 12, plus 5 native-only fault controls at top 100, left 0 | 15 px at the left edge, not masked |
-| 10 | Feed slice with a reason row **and** a "Replied to" row | 395 px tall (`home-api`, borders 978 to 1373) | 393 px; every row below shifts up 2 px | `home-api` masked 0.0281, the one failing screen. The loss is 1 px in the meta to "Replied to" gap (RN 66, native 65) and 1 px in the controls to row-end gap (RN 79, native 78); the reason block matches. A reason row alone (`interactions`, 185 px in both) and a "Replied to" row alone (`mergefeed`, 273 px in both) match RN exactly, so no constant closes it without regressing them |
+| 10 | ~~Feed slice with a reason row **and** a "Replied to" row~~ **Fixed.** | 395 px tall (`home-api`, borders 978 to 1373) | was 393 px, shifting every row below up 2 px | **`home-api` 2.81% to 1.60%, no longer the failing screen.** Each row alone already landed on React Native exactly - a reason row alone is 185 px in both (`interactions`), a "Replied to" row alone 273 px in both (`mergefeed`) - so an unconditional constant would have regressed them. Yoga rounds each node's position to the pixel grid, so the error depends on how many fractional offsets stack above a node: two rows stack two where one stacks one, and the port lost a pixel in the meta to "Replied to" gap (RN 66, port 65) and another in the controls to row-end gap (RN 79, 78). `PostFeedItemView.stackedRowsGain` adds 1/3 pt to each, only when a row carries both. Same effect as `threadParentBottom`, other direction. Predicted first and then confirmed: a per-strip alignment search put the floor at 1.40% and said 69 strips wanted -2 px. Regression check, same build against the previous one: `interactions` home 0 px changed, `base` home 0 px, `profile-api` 0 px, `mergefeed` home 460 px in one timestamp. The thread screens move only in the y657-685 anchor date line, which the `datetime` mask leaves visible and which differs between capture days |
 | 11 | Wrapped anchor text block | ink rows 557, 624, 691 (`thread-wrapped`) | 555, 622, 689: same pitch, 2 px higher | Row borders match (329, 955); counted |
 | 12 | Line boxes | RN text layout | Rule for the line pitch; per-component constants fitted to one 3x device, not verified at 2x | F7 above; A57 open |
 | 13 | Release build | Production app | Smoke build: no sign-in form, local networking allowed, no event log | Release `build` |
@@ -458,7 +463,7 @@ Two port bugs were found by the new captures and fixed:
 
 ## The `home-api` failure: measured cause (2026-09-16)
 
-`home-api` stays a **fail** at 0.0281 masked. The checkpoint stays open. Two attempts were
+`home-api` is **drift** at 0.0160 masked, down from 0.0281 (difference 10). Before the fix landed, two attempts were
 made and both were reverted; neither is presented as a fix.
 
 **What matches.** The reason block ("Reposted by") starts at y 1013 in both apps, and the gap

@@ -22,9 +22,41 @@ struct PostFeedItemView: View {
     private static let threadParentBottom: CGFloat = -1.0 / 3
 
     private var bottomPadding: CGFloat {
-        if row.isThreadLastChild || (!row.isThreadChild && !row.isThreadParent) { return Space.sm }
-        return row.isThreadParent ? RNLineBox.snap(Self.threadParentBottom, pixelLength: pixelLength) : 0
+        let base: CGFloat
+        if row.isThreadLastChild || (!row.isThreadChild && !row.isThreadParent) {
+            base = Space.sm
+        } else if row.isThreadParent {
+            base = RNLineBox.snap(Self.threadParentBottom, pixelLength: pixelLength)
+        } else {
+            base = 0
+        }
+        return base + stackedRowsGain
     }
+
+    /// True when this row carries both a reason row and a "Replied to" row.
+    ///
+    /// Each alone lands on RN exactly: a reason row alone measures 185 px in both apps
+    /// (`interactions`), a "Replied to" row alone 273 px in both (`mergefeed`). Together the port
+    /// measured 393 px against RN's 395, and every row below shifted up 2 px, which is the whole of
+    /// `home-api`'s failure. A per-strip alignment search confirms the direction and the size: 69 of
+    /// its strips want the native image moved by -2 px, and perfect alignment would take the screen
+    /// from 2.81% to 1.40%.
+    ///
+    /// Yoga rounds each node's position to the pixel grid, so the error depends on how many
+    /// fractional offsets accumulate above a node, not on any one of them. Two rows stack two
+    /// fractions where one row stacks one, and the port's own rounding then lands a pixel lower in
+    /// two gaps: meta to "Replied to" (RN 66 px, port 65) and controls to the row end (RN 79, 78).
+    /// This is the same effect `threadParentBottom` above already models, in the other direction.
+    private var hasStackedRows: Bool {
+        guard reason != nil else { return false }
+        guard row.showReplyTo else { return false }
+        return item.parentAuthor != nil || item.isParentBlocked || item.isParentNotFound
+    }
+
+    /// One pixel at 3x, added to each of the two gaps that lose one.
+    private static let stackedRowGain: CGFloat = 1.0 / 3
+
+    private var stackedRowsGain: CGFloat { hasStackedRows ? Self.stackedRowGain : 0 }
 
     var body: some View {
         let post = container.shadows.apply(to: item.post)
@@ -42,6 +74,7 @@ struct PostFeedItemView: View {
                     PostMeta(post: post)
                     if row.showReplyTo, item.parentAuthor != nil || item.isParentBlocked || item.isParentNotFound {
                         repliedTo
+                            .padding(.top, stackedRowsGain)
                     }
                     if !post.record.text.isEmpty {
                         PostText(post: post)
